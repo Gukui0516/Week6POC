@@ -13,8 +13,8 @@ public class InventoryController : MonoBehaviour
     private GameManager gameManager;
     private InventoryButton[] blockButtons;
 
-    // 선택된 블록 상태
-    private CardType? selectedBlockType = null;
+    // 선택된 카드 상태
+    private CardType? selectedCardType = null;
     private InventoryButton selectedButton = null;
 
     #region Drag
@@ -67,10 +67,10 @@ public class InventoryController : MonoBehaviour
 
         foreach (var btn in blockButtons)
         {
-            int count = activeCards.ContainsKey(btn.blockType) ? activeCards[btn.blockType] : 0;
+            int count = activeCards.ContainsKey(btn.CardType) ? activeCards[btn.CardType] : 0;
 
             // 선택 가능 여부 확인
-            bool canSelect = cardManager.CanSelectCard(btn.blockType);
+            bool canSelect = cardManager.CanSelectCard(btn.CardType);
 
             // UI 업데이트 (개수, 선택 가능 여부)
             btn.UpdateDisplay(count, canSelect);
@@ -80,15 +80,15 @@ public class InventoryController : MonoBehaviour
     /// <summary>
     /// 블록 선택
     /// </summary>
-    public void SelectBlock(CardType blockType, InventoryButton button)
+    public void SelectBlock(CardType CardType, InventoryButton button)
     {
         var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
         if (cardManager == null) return;
 
         // 선택 가능한지 확인
-        if (!cardManager.CanSelectCard(blockType))
+        if (!cardManager.CanSelectCard(CardType))
         {
-            Debug.Log($"[InventoryController] {blockType}은(는) 이전 턴에 사용하여 선택할 수 없습니다");
+            Debug.Log($"[InventoryController] {CardType}은(는) 이전 턴에 사용하여 선택할 수 없습니다");
             return;
         }
 
@@ -98,11 +98,11 @@ public class InventoryController : MonoBehaviour
             selectedButton.SetSelected(false);
         }
 
-        selectedBlockType = blockType;
+        selectedCardType = CardType;
         selectedButton = button;
         selectedButton.SetSelected(true);
 
-        Debug.Log($"블록 {blockType} 선택됨. 배치할 빈 타일을 클릭하세요.");
+        Debug.Log($"블록 {CardType} 선택됨. 배치할 빈 타일을 클릭하세요.");
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public class InventoryController : MonoBehaviour
         {
             selectedButton.SetSelected(false);
         }
-        selectedBlockType = null;
+        selectedCardType = null;
         selectedButton = null;
     }
 
@@ -135,8 +135,8 @@ public class InventoryController : MonoBehaviour
             var button = btn.GetComponent<Button>();
             if (button != null)
             {
-                int count = turn.availableBlocks.Count(b => b.type == btn.blockType);
-                bool canSelect = cardManager.CanSelectCard(btn.blockType);
+                int count = turn.availableBlocks.Count(b => b.type == btn.CardType);
+                bool canSelect = cardManager.CanSelectCard(btn.CardType);
 
                 // 개수가 있고 선택 가능할 때만 활성화
                 button.interactable = count > 0 && canSelect;
@@ -217,8 +217,18 @@ public class InventoryController : MonoBehaviour
 
         image.raycastTarget = false;
 
+        // 크기 설정 (원본 버튼의 이미지 크기 반영)
         var rectTransform = dragPreview.GetComponent<RectTransform>();
-        rectTransform.sizeDelta = button.GetComponent<RectTransform>().sizeDelta;
+        var originalImageRect = originalImage.GetComponent<RectTransform>();
+        if (originalImageRect != null)
+        {
+            // 원본 이미지의 sizeDelta를 복사
+            rectTransform.sizeDelta = originalImageRect.sizeDelta;
+        }
+        else
+        {
+            rectTransform.sizeDelta = button.GetComponent<RectTransform>().sizeDelta;
+        }
 
         var originalText = button.GetComponentInChildren<TextMeshProUGUI>();
         if (originalText != null)
@@ -239,9 +249,9 @@ public class InventoryController : MonoBehaviour
             textRect.sizeDelta = Vector2.zero;
         }
 
-        Debug.Log($"[InventoryController] 드래그 프리뷰 생성: {selectedBlockType}");
+        Debug.Log($"[InventoryController] 드래그 프리뷰 생성: {selectedCardType}");
     }
     #endregion
 
-    public CardType? GetSelectedBlockType() => selectedBlockType;
+    public CardType? GetSelectedCardType() => selectedCardType;
 }

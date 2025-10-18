@@ -308,7 +308,7 @@ public class BlockPuzzleUIController : MonoBehaviour
             return false;
         }
 
-        var selectedBlockType = inventoryController.GetSelectedBlockType();
+        var selectedBlockType = inventoryController.GetSelectedCardType();
 
         if (selectedBlockType == null)
         {
@@ -325,5 +325,5 @@ public class BlockPuzzleUIController : MonoBehaviour
     }
 
     // Getter
-    public CardType? GetSelectedBlockType() => inventoryController?.GetSelectedBlockType();
+    public CardType? GetSelectedCardType() => inventoryController?.GetSelectedCardType();
 }

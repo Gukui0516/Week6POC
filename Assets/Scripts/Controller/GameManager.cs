@@ -432,6 +432,13 @@ public class GameManager : MonoBehaviour
         return scoreCalculator.CalculateFullBoardPreview(x, y, blockType);
     }
 
+    // 카드 타입의 기본 점수 가져오기 (인벤토리 아이콘 스케일용)
+    public int GetCardBaseScore(CardType cardType)
+    {
+        var card = new Card(cardType);
+        return card.baseScore;
+    }
+
     private bool IsValidPosition(int x, int y)
     {
         return x >= 0 && x < GameConfig.BOARD_SIZE && y >= 0 && y < GameConfig.BOARD_SIZE;
