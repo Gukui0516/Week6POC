@@ -11,7 +11,9 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
     private BlockPuzzleUIController uiController;
     private Button button;
     private Image image;
-    private TextMeshProUGUI text;
+    private GameObject blockIcon; // 실제 블록 아이콘 (Image의 자식일 수 있음)
+    private TextMeshProUGUI powerText; // 점수 표시 전용 (기존 text에서 이름 변경)
+    private TextMeshProUGUI tileInfoText; // 땅 정보 표시 전용 (새로 추가)
     private BlockTypeTooltip tooltip; // 툴팁 컴포넌트 참조
 
     // 미리보기 관련 추가
@@ -29,7 +31,58 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
     {
         button = GetComponent<Button>();
         image = GetComponent<Image>();
-        text = GetComponentInChildren<TextMeshProUGUI>();
+
+        // 여러 가능성의 아이콘 찾기
+        // 1. "BlockIcon" 또는 "Icon" 이름의 자식
+        Transform iconTransform = transform.Find("BlockIcon");
+        if (iconTransform == null)
+            iconTransform = transform.Find("Icon");
+        if (iconTransform == null)
+            iconTransform = transform.Find("Sprite");
+
+        // 2. Image 컴포넌트를 가진 첫 번째 자식 (자기 자신 제외)
+        if (iconTransform == null)
+        {
+            Image[] childImages = GetComponentsInChildren<Image>();
+            foreach (var img in childImages)
+            {
+                // 자기 자신이 아니고, 텍스트가 아닌 Image를 찾음
+                if (img != image && img.GetComponent<TextMeshProUGUI>() == null)
+                {
+                    iconTransform = img.transform;
+                    Debug.Log($"[BlockPuzzleTile] 아이콘 찾음: {img.gameObject.name}");
+                    break;
+                }
+            }
+        }
+
+        if (iconTransform != null)
+        {
+            blockIcon = iconTransform.gameObject;
+            Debug.Log($"[BlockPuzzleTile] BlockIcon 설정됨: {blockIcon.name}");
+        }
+        else
+        {
+            Debug.LogWarning($"[BlockPuzzleTile] BlockIcon을 찾지 못함. Image를 직접 스케일합니다.");
+        }
+
+        // PowerText와 TileInfoText를 자식에서 찾기
+        var textComponents = GetComponentsInChildren<TextMeshProUGUI>();
+        if (textComponents.Length >= 1)
+        {
+            powerText = textComponents[0]; // 첫 번째는 PowerText
+        }
+        if (textComponents.Length >= 2)
+        {
+            tileInfoText = textComponents[1]; // 두 번째는 TileInfoText (있다면)
+        }
+
+        // 없으면 기존 방식대로 폴백
+        if (powerText == null)
+        {
+            powerText = GetComponentInChildren<TextMeshProUGUI>();
+        }
+
         tooltip = GetComponent<BlockTypeTooltip>(); // 툴팁 컴포넌트 가져오기
         originalColor = image.color;
 
@@ -76,10 +129,10 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        var selectedBlockType = uiController?.GetSelectedBlockType();
-        if (selectedBlockType != null && CanPlaceBlock())
+        var selectedCardType = uiController?.GetSelectedCardType();
+        if (selectedCardType != null && CanPlaceBlock())
         {
-            ShowBoardPreview(selectedBlockType.Value);
+            ShowBoardPreview(selectedCardType.Value);
         }
 
 
@@ -234,6 +287,18 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         uiController = controller;
     }
 
+    // 점수를 기반으로 스케일 계산 (1점=0.5, 15점=1.0)
+    private float CalculateScaleFromScore(int score)
+    {
+        // 점수를 1~5 범위로 클램프
+        int clampedScore = Mathf.Clamp(score, 1, 5);
+
+        // 선형 보간: 1점=0.5, 5점=1.0
+        float scale = 0.5f + (clampedScore - 1) * (0.5f / 4f);
+
+        return scale;
+    }
+
     private void OnClick()
     {
         // 미리보기 제거 후 클릭 처리
@@ -283,15 +348,57 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
                 tooltip.enabled = true;
             }
 
-            // 블록이 있을 때
-            if (isNumberMode && tile.tileNumber > 0)
+            // PowerText: 점수만 표시
+            if (powerText != null)
             {
-                string turnText = tile.tileNumber == 1 ? "1턴 동안 유지" : $"{tile.tileNumber}턴 동안 유지";
-                text.text = $"{tile.block.type} [{turnText}]\n{tile.calculatedScore:+#;-#;0}";
+                powerText.text = $"{tile.calculatedScore:+#;-#;0}";
+            }
+
+            // TileInfoText: 땅 정보 표시
+            if (tileInfoText != null)
+            {
+                if (isNumberMode && tile.tileNumber > 0)
+                {
+                    string turnText = tile.tileNumber == 1 ? "1턴" : $"{tile.tileNumber}턴";
+                    tileInfoText.text = $"{tile.block.type}\n{turnText}";
+                }
+                else
+                {
+                    tileInfoText.text = $"{tile.block.type}";
+                }
+            }
+            else if (powerText != null)
+            {
+                // 하위 호환성: tileInfoText가 없으면 powerText에 모두 표시
+                if (isNumberMode && tile.tileNumber > 0)
+                {
+                    string turnText = tile.tileNumber == 1 ? "1턴 동안 유지" : $"{tile.tileNumber}턴 동안 유지";
+                    powerText.text = $"{tile.block.type} [{turnText}]\n{tile.calculatedScore:+#;-#;0}";
+                }
+                else
+                {
+                    powerText.text = $"{tile.block.type}\n{tile.calculatedScore:+#;-#;0}";
+                }
+            }
+
+            // 아이콘 크기 조정 (점수 기반)
+            float targetScale = CalculateScaleFromScore(Mathf.Abs(tile.calculatedScore));
+
+            // BlockIcon 자식이 있으면 그것을 스케일, 없으면 Image 스케일
+            Transform targetTransform = blockIcon != null ? blockIcon.transform : image.transform;
+
+            if (targetTransform != null)
+            {
+                Vector3 oldScale = targetTransform.localScale;
+                targetTransform.localScale = Vector3.one * targetScale;
+
+                Debug.Log($"[BlockPuzzleTile] 타일({x},{y}) 블록:{tile.block.type} 점수:{tile.calculatedScore} " +
+                         $"스케일: {oldScale} → {targetScale:F2} " +
+                         $"대상: {targetTransform.gameObject.name}");
             }
             else
             {
-                text.text = $"{tile.block.type}\n{tile.calculatedScore:+#;-#;0}";
+                Debug.LogError($"[BlockPuzzleTile] 타일({x},{y}) 스케일 조절 실패: targetTransform이 null");
             }
 
             // 점수에 따른 색상 차등 표시
@@ -311,17 +418,33 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
                 tooltip.Hide();
             }
 
-            // 빈 타일일 때
-            if (isNumberMode && tile.tileNumber > 0)
+            // PowerText: 빈 타일 정보
+            if (powerText != null)
             {
-                string turnText = tile.tileNumber == 1 ? "1턴 동안 유지" : $"{tile.tileNumber}턴 동안 유지";
-                text.text = $"[{turnText}]";
+                if (isNumberMode && tile.tileNumber > 0)
+                {
+                    string turnText = tile.tileNumber == 1 ? "1턴" : $"{tile.tileNumber}턴";
+                    powerText.text = $"[{turnText}]";
+                }
+                else
+                {
+                    powerText.text = "";
+                }
             }
-            else
+
+            // TileInfoText: 비우기
+            if (tileInfoText != null)
             {
-                // 숫자 모드가 아니거나 타일 숫자가 0이면 아무것도 표시하지 않음
-                text.text = "";
+                tileInfoText.text = "";
             }
+
+            // 빈 타일은 기본 크기로
+            Transform targetTransform = blockIcon != null ? blockIcon.transform : image.transform;
+            if (targetTransform != null)
+            {
+                targetTransform.localScale = Vector3.one;
+            }
+
             image.color = Color.white;
         }
     }
