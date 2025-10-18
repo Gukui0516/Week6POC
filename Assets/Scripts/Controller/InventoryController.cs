@@ -82,12 +82,13 @@ public class InventoryController : MonoBehaviour
     // 선택 해제
     public void DeselectBlock()
     {
-        if (selectedButton != null)
+        Debug.Log("DeselectBlock");
+        /*if (selectedButton != null)
         {
             selectedButton.SetSelected(false);
         }
         selectedBlockType = null;
-        selectedButton = null;
+        selectedButton = null;*/
     }
 
     // 모든 버튼 활성화
