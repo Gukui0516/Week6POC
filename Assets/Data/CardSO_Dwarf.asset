@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
+  m_Name: CardSO_Dwarf
+  m_EditorClassIdentifier: 
+  id: 0
+  cardType: 4
+  cardName: "\uB4DC\uC6CC\uD504"
+  description: 
+  tooltipDescription: "\uBCF4\uB4DC\uAC00 \uCC44\uC6CC\uC9C8\uC218\uB85D \uBD88\uB9AC\uD568"
+  effectDescription: "\uAE30\uBCF8 \uC810\uC218: +4\\n\uC810\uC218 = 4 - (\uB2E4\uB978
+    E \uAC1C\uC218 + \uBE48\uCE78 \uAC1C\uC218)"
+  baseScore: 4
+  formula: 
+  iconSprite: {fileID: 0}

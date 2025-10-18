@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using GameCore.Data;
 using System.Collections;
 
 // 블록 타입 툴팁을 표시하는 컴포넌트 (인벤토리 모드 + 타일 모드)
@@ -16,7 +15,7 @@ public class BlockTypeTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public TooltipMode tooltipMode = TooltipMode.Inventory;
 
     [Header("Block Type (For Inventory Mode)")]
-    public BlockType blockType;
+    public CardType cardType;
 
     [Header("Tile Position (For Tile Mode)")]
     public int tileX = -1;
@@ -121,7 +120,7 @@ public class BlockTypeTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         switch (tooltipMode)
         {
             case TooltipMode.Inventory:
-                tooltipText = BlockTypeInfo.GetTooltipText(blockType);
+                tooltipText = CardDataLoader.GetTooltipText(cardType);
                 break;
 
             case TooltipMode.Tile:

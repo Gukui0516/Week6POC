@@ -4,39 +4,21 @@ using UnityEngine;
 namespace GameCore.Data
 {
     [System.Serializable]
-    public enum BlockType { A, B, C, D, E, F, G }
-
-    [System.Serializable]
     public enum TileMode { NoNumbers, WithNumbers }
 
     [System.Serializable]
     public enum GameState { Playing, GameOver, Victory }
 
     [System.Serializable]
-    public class Block
+    public class Card
     {
-        public BlockType type;
+        public CardType type;
         public int baseScore;
 
-        public Block(BlockType type)
+        public Card(CardType type)
         {
             this.type = type;
-            this.baseScore = GetBaseScore(type);
-        }
-
-        private int GetBaseScore(BlockType type)
-        {
-            switch (type)
-            {
-                case BlockType.A: return 2;
-                case BlockType.B: return 1;
-                case BlockType.C: return 0;
-                case BlockType.D: return 1;
-                case BlockType.E: return 4;
-                case BlockType.F: return 0;
-                case BlockType.G: return 5;
-                default: return 0;
-            }
+            baseScore = CardDataLoader.GetData(type).baseScore;
         }
     }
 
@@ -44,7 +26,7 @@ namespace GameCore.Data
     public class Tile
     {
         public int x, y;
-        public Block block;
+        public Card block;
         public int tileNumber;
         public int calculatedScore;
         public int placedTurn;
@@ -69,14 +51,14 @@ namespace GameCore.Data
     {
         public int turnNumber;
         public int targetScore;
-        public List<Block> availableBlocks;
+        public List<Card> availableBlocks;
         public int currentTurnScore;
 
         public TurnData(int turnNumber, int targetScore)
         {
             this.turnNumber = turnNumber;
             this.targetScore = targetScore;
-            this.availableBlocks = new List<Block>();
+            this.availableBlocks = new List<Card>();
             this.currentTurnScore = 0;
         }
     }
@@ -85,13 +67,13 @@ namespace GameCore.Data
     public class GlobalScoreData
     {
         public int emptyTileCount;
-        public Dictionary<BlockType, int> blockCounts;
+        public Dictionary<CardType, int> blockCounts;
         public int uniqueTypesCount;
         public int uniqueTypesExcludingF;
 
         public GlobalScoreData()
         {
-            blockCounts = new Dictionary<BlockType, int>();
+            blockCounts = new Dictionary<CardType, int>();
         }
     }
 }

@@ -87,7 +87,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         if (eventData.pointerDrag != null &&
      eventData.pointerDrag.GetComponent<InventoryButton>() != null)
         {
-            Debug.Log("OnPointerEnter - Dragging Block"); 
+            Debug.Log("OnPointerEnter - Dragging Block");
 
             var tile = GameManager.Instance?.GetTile(x, y);
             if (tile != null && tile.IsEmpty)
@@ -113,7 +113,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         }
     }
 
- 
+
 
 
     private bool CanPlaceBlock()
@@ -122,7 +122,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         return tile != null && tile.IsEmpty;
     }
 
-    private void ShowBoardPreview(BlockType blockType)
+    private void ShowBoardPreview(CardType blockType)
     {
         if (GameManager.Instance == null) return;
 
@@ -279,7 +279,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
             {
                 tooltip.SetTooltipMode(BlockTypeTooltip.TooltipMode.Tile);
                 tooltip.SetTilePosition(x, y);
-                tooltip.blockType = tile.block.type; // 백업용
+                tooltip.cardType = tile.block.type; // 백업용
                 tooltip.enabled = true;
             }
 
@@ -351,7 +351,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         UpdateVisual();
     }
 
-  
+
     private void ShowDropHint()
     {
         // 드롭 가능한 타일 강조

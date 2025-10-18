@@ -29,7 +29,7 @@ public class StageSO : ScriptableObject
     /// <summary>
     /// 특정 턴에 해금되는 카드 타입 반환
     /// </summary>
-    public BlockType? GetUnlockCardForTurn(int turnNumber)
+    public CardType? GetUnlockCardForTurn(int turnNumber)
     {
         int index = turnNumber - 1;
 
@@ -40,7 +40,7 @@ public class StageSO : ScriptableObject
             // cardId를 BlockType으로 변환 (1=A, 2=B, ..., 7=G)
             if (cardId >= 1 && cardId <= 7)
             {
-                return (BlockType)(cardId - 1);
+                return (CardType)(cardId - 1);
             }
         }
 
