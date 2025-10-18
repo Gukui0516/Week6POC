@@ -34,7 +34,6 @@ public class BlockPuzzleUIController : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("[UIController] Start 메소드 시작");
 
         // 싱글톤을 통해 GameManager 참조
         gameManager = GameManager.Instance;
@@ -45,15 +44,12 @@ public class BlockPuzzleUIController : MonoBehaviour
             return;
         }
 
-        Debug.Log("[UIController] GameManager 싱글톤 참조 확인됨");
-
         // GameManager의 Start가 실행될 때까지 대기
         StartCoroutine(InitializeAfterGameManager());
     }
 
     private System.Collections.IEnumerator InitializeAfterGameManager()
     {
-        Debug.Log("[UIController] GameManager 초기화 대기 시작");
 
         int waitCount = 0;
         // GameManager의 보드가 초기화될 때까지 대기
@@ -68,14 +64,14 @@ public class BlockPuzzleUIController : MonoBehaviour
             yield return null;
         }
 
-        Debug.Log($"[UIController] GameManager 초기화 완료 (대기 횟수: {waitCount})");
+
 
         CacheUIReferences();
         InitializeInventoryController();
         SubscribeToEvents();
         UpdateUI();
 
-        Debug.Log("[UIController] UI 초기화 완료");
+
     }
 
     private void CacheUIReferences()

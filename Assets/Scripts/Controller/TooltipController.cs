@@ -7,10 +7,18 @@ public class TooltipController : MonoBehaviour
 {
     #region Singleton
     private static TooltipController instance;
+    private static bool isQuitting = false;
+
     public static TooltipController Instance
     {
         get
         {
+            // 애플리케이션 종료 중이면 새로운 인스턴스를 생성하지 않음
+            if (isQuitting)
+            {
+                return null;
+            }
+
             if (instance == null)
             {
                 instance = FindFirstObjectByType<TooltipController>();
@@ -57,6 +65,22 @@ public class TooltipController : MonoBehaviour
         }
 
         InitializeTooltip();
+    }
+
+    private void OnDestroy()
+    {
+        //TODO:나중에 해금시스템 만들때 DontDestroyOnLoad로 수정할것
+        // 이 인스턴스가 현재 싱글톤 인스턴스인 경우에만 null로 설정
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        // 애플리케이션이 종료되거나 씬이 언로드될 때 플래그 설정
+        isQuitting = true;
     }
 
     private void InitializeTooltip()
@@ -126,7 +150,7 @@ public class TooltipController : MonoBehaviour
         tooltipText.fontSize = 14;
         tooltipText.color = Color.white;
         tooltipText.alignment = TextAlignmentOptions.TopLeft;
-        tooltipText.enableWordWrapping = true;
+        tooltipText.textWrappingMode = TextWrappingModes.Normal;
         tooltipText.raycastTarget = false;
         tooltipText.richText = true;
 
