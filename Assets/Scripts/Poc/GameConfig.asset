@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ede2b2e5236f6640939b35ea5028097, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: 
+  maxTurns: 20
+  milestones:
+  - checkTurn: 5
+    targetScore: 50
+  - checkTurn: 10
+    targetScore: 100
+  - checkTurn: 15
+    targetScore: 150
+  - checkTurn: 20
+    targetScore: 200
+  useNumbersMode: 1
+  maxTileNumber0: 6
+  maxTileNumber1: 3
+  maxTileNumber2: 1
+  maxTileNumber3: 0
+  weightTileNumber0: 1
+  weightTileNumber1: 1
+  weightTileNumber2: 2
+  weightTileNumber3: 1
+  minBlockTypes: 4
+  maxBlockTypes: 4
+  excludePreviousTurnTypes: 1
+  excludeTurnCount: 1
