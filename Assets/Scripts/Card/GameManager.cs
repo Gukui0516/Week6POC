@@ -1,11 +1,11 @@
-﻿/*using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 // 치트, UI, 랭킹, 게임오버
-public class GameManager : MonoBehaviour
+public class GameManager2 : MonoBehaviour
 {
-    public static GameManager Inst { get; private set; }
+    public static GameManager2 Inst { get; private set; }
     void Awake() => Inst = this;
 
     [Multiline(10)]
@@ -81,4 +81,3 @@ public class GameManager : MonoBehaviour
         cameraEffect.SetGrayScale(true);
     }
 }
-*/

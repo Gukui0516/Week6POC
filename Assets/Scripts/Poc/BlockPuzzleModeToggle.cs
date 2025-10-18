@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 // 타일 모드 토글 컴포넌트 (숫자 없음 / 숫자 있음)

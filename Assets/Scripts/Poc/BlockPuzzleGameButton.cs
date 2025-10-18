@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 // 게임 컨트롤 버튼 컴포넌트 (New Game, End Turn)

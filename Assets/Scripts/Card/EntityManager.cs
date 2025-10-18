@@ -250,11 +250,11 @@ public class EntityManager : MonoBehaviour
 	{
 		yield return delay2;
 
-		/*if (myBossEntity.isDie)
-			StartCoroutine(GameManager.Inst.GameOver(false));
+		if (myBossEntity.isDie)
+			StartCoroutine(GameManager2.Inst.GameOver(false));
 
 		if (otherBossEntity.isDie)
-			StartCoroutine(GameManager.Inst.GameOver(true));*/
+			StartCoroutine(GameManager2.Inst.GameOver(true));
 	}
 
 	public void DamageBoss(bool isMine, int damage)
