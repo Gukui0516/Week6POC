@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
 
     private BoardManager boardManager;
     private ScoreCalculator scoreCalculator;
+    private BlockUnlockManager blockUnlockManager;
     #endregion
 
     #region Game State
@@ -65,25 +66,19 @@ public class GameManager : MonoBehaviour
     #region Unity Lifecycle
     private void Start()
     {
-        Debug.Log("[GameManager] Start 메소드 시작");
-
         if (gameConfig == null)
         {
             Debug.LogError("[GameManager] GameConfig가 할당되지 않았습니다! Inspector에서 GameConfig를 할당하세요.");
             return;
         }
 
-        Debug.Log("[GameManager] GameConfig 할당 확인됨");
-
         InitializeManagers();
         StartNewGame();
 
-        Debug.Log("[GameManager] 초기화 완료");
     }
 
     private void InitializeManagers()
     {
-        Debug.Log("[GameManager] 매니저 초기화 시작");
 
         // 설정 검증
         if (!gameConfig.IsValid())
@@ -94,14 +89,9 @@ public class GameManager : MonoBehaviour
 
         // 매니저 초기화
         boardManager = new BoardManager(gameConfig);
-        Debug.Log("[GameManager] BoardManager 생성 완료");
-
         scoreCalculator = new ScoreCalculator(boardManager);
-        Debug.Log("[GameManager] ScoreCalculator 생성 완료");
-
         // 이벤트 연결
         ConnectEvents();
-        Debug.Log("[GameManager] 이벤트 연결 완료");
     }
 
     private void ConnectEvents()
@@ -119,6 +109,8 @@ public class GameManager : MonoBehaviour
         {
             scoreCalculator.OnScoreUpdated += (score) => OnScoreUpdated?.Invoke(score);
         }
+
+        // BlockUnlockManager는 독립적으로 작동 (이벤트 연결 불필요)
     }
     #endregion
 
