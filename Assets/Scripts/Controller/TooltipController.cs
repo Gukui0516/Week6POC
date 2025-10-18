@@ -128,6 +128,7 @@ public class TooltipController : MonoBehaviour
         tooltipText.alignment = TextAlignmentOptions.TopLeft;
         tooltipText.enableWordWrapping = true;
         tooltipText.raycastTarget = false;
+        tooltipText.richText = true;
 
         Debug.Log("[TooltipController] 툴팁 UI 자동 생성 완료");
     }
@@ -269,8 +270,8 @@ public class TooltipController : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         Vector2 textSize = tooltipText.GetPreferredValues();
         tooltipRect.sizeDelta = new Vector2(
-            Mathf.Min(textSize.x + 20f, 400f),
-            Mathf.Min(textSize.y + 20f, 300f)
+            Mathf.Min(textSize.x + 20f, 600f),
+            Mathf.Min(textSize.y + 20f, 500f)
         );
     }
 
