@@ -310,6 +310,37 @@ public class GameManager : MonoBehaviour
 
     private List<Block> GenerateBlocks()
     {
+
+        var stage = StageManager.Instance?.GetCurrentStage();
+
+        int drawCount = 9; // 기본값
+
+        if (stage != null && currentTurn != null)
+
+        {
+
+            if (currentTurn.turnNumber == 1)
+
+                drawCount = stage.firstDraw;
+
+            else if (currentTurn.turnNumber == 2)
+
+                drawCount = stage.secondDraw;
+
+            else if (currentTurn.turnNumber >= stage.endTurn)
+
+                drawCount = stage.lastDraw;
+
+            else
+
+                drawCount = stage.blocksPerTurn;
+
+        }
+
+        // ... 기존 블록 생성 로직 (drawCount만큼 생성)
+
+
+
         var allTypes = System.Enum.GetValues(typeof(BlockType)).Cast<BlockType>().ToList();
 
         // 이전 N턴 타입 제외 모드가 활성화되어 있으면 제외
@@ -364,6 +395,31 @@ public class GameManager : MonoBehaviour
         boardManager.SetTileMode(useNumbers);
     }
     #endregion
+
+
+    #region 
+    public void ApplyStageConfig(StageSO stage)
+    {
+        if (stage == null) return;
+
+        // 스테이지 설정을 GameConfig에 적용
+        gameConfig.maxTurns = stage.maxTurns;
+        gameConfig.excludePreviousTurnTypes = stage.excludePreviousTurnTypes;
+
+        // 마일스톤 설정 (endTurn에 target 도달)
+        gameConfig.milestones.Clear();
+        gameConfig.milestones.Add(new Milestone(stage.endTurn, stage.target));
+
+        // 새 게임 시작
+        StartNewGame();
+    }
+
+    // 드로우 개수를 턴에 따라 결정하는 메서드 수정
+
+    #endregion
+
+
+
 
     #region Getters
     public Tile[,] GetBoard() => boardManager?.GetBoard();
