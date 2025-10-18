@@ -5,7 +5,10 @@ using TMPro;
 using System.Linq;
 using GameCore.Data;
 
-// 인벤토리 블록 버튼 컴포넌트 (툴팁 기능 추가)
+/// <summary>
+/// 인벤토리 블록 버튼 컴포넌트
+/// 활성화 여부와 선택 가능 여부를 구분하여 표시
+/// </summary>
 public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public BlockType blockType;
@@ -15,10 +18,12 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private TextMeshProUGUI text;
     private Color originalColor;
 
-    //--- drag
+    // Drag
     private bool isDragging = false;
     private Vector3 originalScale;
 
+    // 상태 표시용 오버레이
+    private GameObject disabledOverlay;
 
     private void Awake()
     {
@@ -29,6 +34,46 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         originalScale = transform.localScale;
 
         button.onClick.AddListener(OnClick);
+
+        CreateDisabledOverlay();
+    }
+
+    /// <summary>
+    /// 비활성화 오버레이 생성 (선택 불가능 표시용)
+    /// </summary>
+    private void CreateDisabledOverlay()
+    {
+        disabledOverlay = new GameObject("DisabledOverlay");
+        disabledOverlay.transform.SetParent(transform, false);
+
+        var rect = disabledOverlay.AddComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.sizeDelta = Vector2.zero;
+        rect.anchoredPosition = Vector2.zero;
+
+        var image = disabledOverlay.AddComponent<Image>();
+        image.color = new Color(0.5f, 0.5f, 0.5f, 0.7f); // 회색 반투명
+        image.raycastTarget = false;
+
+        // 금지 아이콘 텍스트 추가
+        var iconObj = new GameObject("DisabledIcon");
+        iconObj.transform.SetParent(disabledOverlay.transform, false);
+
+        var iconText = iconObj.AddComponent<TextMeshProUGUI>();
+        iconText.text = "✖"; // 또는 "🚫"
+        iconText.fontSize = 40;
+        iconText.color = new Color(1f, 0.3f, 0.3f); // 빨간색
+        iconText.alignment = TextAlignmentOptions.Center;
+        iconText.fontStyle = FontStyles.Bold;
+        iconText.raycastTarget = false;
+
+        var iconRect = iconObj.GetComponent<RectTransform>();
+        iconRect.anchorMin = Vector2.zero;
+        iconRect.anchorMax = Vector2.one;
+        iconRect.sizeDelta = Vector2.zero;
+
+        disabledOverlay.SetActive(false);
     }
 
     public void SetInventoryController(InventoryController controller)
@@ -38,26 +83,30 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     private void OnClick()
     {
-        if (isDragging) return; // 드래그 중이면 클릭 무시
+        if (isDragging) return;
 
-        // 싱글톤으로 GameManager 접근
         if (GameManager.Instance == null || inventoryController == null) return;
 
-
-        // 현재 턴에 해당 블록 타입이 있는지 확인
         var turn = GameManager.Instance.GetCurrentTurn();
         if (turn == null || turn.availableBlocks == null) return;
 
         var availableBlock = turn.availableBlocks.FirstOrDefault(b => b.type == blockType);
         if (availableBlock == null)
         {
-            Debug.Log($"블록 타입 {blockType}이(가) 인벤토리에 없습니다.");
+            Debug.Log($"블록 타입 {blockType}이(가) 활성 카드에 없습니다.");
+            return;
+        }
+
+        // 선택 가능한지 확인
+        var cardManager = GameManager.Instance.GetTurnManager()?.GetCardManager();
+        if (cardManager != null && !cardManager.CanSelectCard(blockType))
+        {
+            Debug.Log($"{blockType}은(는) 이전 턴에 사용하여 선택할 수 없습니다.");
             return;
         }
 
         inventoryController.SelectBlock(blockType, this);
     }
-    // 드래그 시작
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -69,85 +118,100 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         var availableBlock = turn.availableBlocks.FirstOrDefault(b => b.type == blockType);
         if (availableBlock == null) return;
 
+        // 선택 가능한지 확인
+        var cardManager = GameManager.Instance.GetTurnManager()?.GetCardManager();
+        if (cardManager != null && !cardManager.CanSelectCard(blockType))
+        {
+            Debug.Log($"{blockType}은(는) 선택할 수 없습니다.");
+            return;
+        }
+
         isDragging = true;
-
         inventoryController.OnBeginDrag(blockType, this);
-
-
-        //inventoryController.SelectBlock(blockType, this);
-
-        // 선택 사항: 드래그 중 시각적 피드백
         transform.localScale = Vector3.one * 1.2f;
     }
-
-
-
-
 
     public void SetSelected(bool selected)
     {
         if (selected)
         {
-            // 선택됨 - 테두리 효과
             buttonImage.color = Color.yellow;
             transform.localScale = Vector3.one * 1.1f;
         }
         else
         {
-            // 선택 해제 - 원래대로
             buttonImage.color = originalColor;
             transform.localScale = Vector3.one;
         }
     }
 
-    public void UpdateCount(int count)
+    /// <summary>
+    /// 카드 개수와 선택 가능 여부를 함께 업데이트
+    /// </summary>
+    public void UpdateDisplay(int count, bool canSelect)
     {
         if (text != null)
         {
-            text.text = $"{blockType}\n×{count}";
+            // 선택 불가능한 경우 표시 추가
+            string selectableText = canSelect ? "" : " [사용불가]";
+            text.text = $"{blockType}\n×{count}{selectableText}";
 
-            // 블록이 없으면 버튼 비활성화 표시
             if (button != null)
             {
-                button.interactable = count > 0;
+                // 개수가 있고 선택 가능할 때만 활성화
+                button.interactable = count > 0 && canSelect;
             }
 
-            // 개수에 따른 텍스트 투명도 조절
+            // 텍스트 색상 조절
             if (count == 0)
+            {
                 text.color = new Color(1f, 1f, 1f, 0.3f);
+            }
+            else if (!canSelect)
+            {
+                text.color = new Color(1f, 0.5f, 0.5f); // 빨간 톤
+            }
             else
+            {
                 text.color = Color.black;
+            }
         }
+
+        // 오버레이 표시 (개수는 있지만 선택 불가능)
+        if (disabledOverlay != null)
+        {
+            disabledOverlay.SetActive(count > 0 && !canSelect);
+        }
+    }
+
+    /// <summary>
+    /// 레거시 메서드 (하위 호환성)
+    /// </summary>
+    public void UpdateCount(int count)
+    {
+        UpdateDisplay(count, true);
     }
 
     private void OnDestroy()
     {
-        // 오브젝트가 파괴될 때 툴팁이 표시 중이면 숨김
         if (TooltipController.Instance != null)
         {
             TooltipController.Instance.HideTooltip();
         }
     }
 
-
     public void OnDrag(PointerEventData eventData)
     {
         if (!isDragging) return;
-
         inventoryController.OnDragging(eventData.position);
     }
 
-    // 드래그 종료
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!isDragging) return;
 
         isDragging = false;
         transform.localScale = originalScale;
-
-        // InventoryController에 드래그 종료 알림
         inventoryController.OnEndDrag();
     }
-
-
 }

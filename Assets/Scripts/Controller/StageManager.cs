@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.SceneManagement;
+using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
@@ -25,10 +26,9 @@ public class StageManager : MonoBehaviour
     [SerializeField] private StageCollectionSO stageCollection;
 
     private StageSO currentStage;
-    private int currentStageId = 1;
 
     public System.Action<StageSO> OnStageStarted;
-    public System.Action<StageSO, bool> OnStageEnded; // stage, isCleared
+    public System.Action<StageSO, bool> OnStageEnded;
 
     private void Awake()
     {
@@ -40,6 +40,10 @@ public class StageManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        // 스테이지 초기화
+        StartStage(1);
+
     }
 
     public void StartStage(int stageId)
@@ -52,21 +56,11 @@ public class StageManager : MonoBehaviour
         }
 
         currentStage = stage;
-        currentStageId = stageId;
 
-        ApplyStageToGameManager(stage);
-
+      
         OnStageStarted?.Invoke(stage);
 
         Debug.Log($"스테이지 {stageId} 시작!");
-    }
-
-    private void ApplyStageToGameManager(StageSO stage)
-    {
-        if (GameManager.Instance == null) return;
-
-        // GameManager에 스테이지 설정 적용
-        GameManager.Instance.ApplyStageConfig(stage);
     }
 
     public void EndStage(bool isCleared)
@@ -77,15 +71,14 @@ public class StageManager : MonoBehaviour
 
         if (isCleared)
         {
-            Debug.Log($"스테이지 {currentStageId} 클리어!");
+            Debug.Log($"스테이지 {currentStage.stageId} 클리어!");
         }
         else
         {
-            Debug.Log($"스테이지 {currentStageId} 실패!");
+            Debug.Log($"스테이지 {currentStage.stageId} 실패!");
         }
     }
 
     public StageSO GetCurrentStage() => currentStage;
-    public int GetCurrentStageId() => currentStageId;
     public StageCollectionSO GetStageCollection() => stageCollection;
 }

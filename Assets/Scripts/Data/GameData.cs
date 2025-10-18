@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameCore.Data
@@ -81,21 +81,6 @@ namespace GameCore.Data
         }
     }
 
-    [System.Serializable]
-    public class Milestone
-    {
-        [Tooltip("이 마일스톤을 체크할 턴 번호")]
-        public int checkTurn;
-
-        [Tooltip("이 턴까지 달성해야 하는 누적 목표 점수")]
-        public int targetScore;
-
-        public Milestone(int turn, int score)
-        {
-            checkTurn = turn;
-            targetScore = score;
-        }
-    }
 
     public class GlobalScoreData
     {

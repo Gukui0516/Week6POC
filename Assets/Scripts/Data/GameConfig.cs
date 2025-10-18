@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using GameCore.Data;
 
@@ -6,17 +6,10 @@ using GameCore.Data;
 public class GameConfig : ScriptableObject
 {
     [Header("Turn Settings")]
-    [Tooltip("게임의 최대 턴 수 (전체 턴)")]
-    public int maxTurns = 20;
+    [Tooltip("게임의 최대  stage  수 (전체 턴)")]
+    public int EndStage = 20;
 
-    [Tooltip("체크포인트: 특정 턴에 도달 시 누적 점수 체크")]
-    public List<Milestone> milestones = new List<Milestone>
-    {
-        new Milestone(5, 50),    // 5턴까지 50점
-        new Milestone(10, 100),  // 10턴까지 100점
-        new Milestone(15, 150),  // 15턴까지 150점
-        new Milestone(20, 200)   // 20턴까지 200점
-    };
+ 
 
     [Header("Mode Settings")]
     public bool useNumbersMode = false; // true면 숫자 모드, false면 숫자 없음 모드
@@ -45,17 +38,10 @@ public class GameConfig : ScriptableObject
     // 설정 검증 메소드
     public bool IsValid()
     {
-        if (maxTurns <= 0) return false;
+        if (EndStage <= 0) return false;
         if (minBlockTypes > maxBlockTypes) return false;
-        if (milestones == null || milestones.Count == 0) return false;
 
-        // 마일스톤 순서 확인
-        for (int i = 0; i < milestones.Count - 1; i++)
-        {
-            if (milestones[i].checkTurn >= milestones[i + 1].checkTurn)
-                return false;
-        }
-
+       
         return true;
     }
 }

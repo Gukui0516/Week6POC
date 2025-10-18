@@ -232,12 +232,15 @@ public class BlockPuzzleUIController : MonoBehaviour
             int currentTurnScore = gameManager.GetTotalScore(); // 현재 보드 점수
             int cumulativeScore = gameManager.GetCumulativeScore(); // 게임 전체 누적 점수
 
+            // 인벤토리 업데이트 (위임)
+            inventoryController?.UpdateInventory();
+            /*
             // 다음 마일스톤 찾기 - GameManager 헬퍼 메소드 사용
             Milestone nextMilestone = gameManager.GetNextMilestone(turn.turnNumber);
 
             if (turnText)
             {
-                int maxTurns = gameManager.GetMaxTurns();
+                int maxTurns = gameManager.GetCurrentStageMaxTurns();
                 turnText.text = $"턴: {turn.turnNumber}/{maxTurns}";
             }
 
@@ -278,10 +281,8 @@ public class BlockPuzzleUIController : MonoBehaviour
                     else
                         fillImage.color = progressLowColor;
                 }
-            }
+            }*/
 
-            // 인벤토리 업데이트 (위임)
-            inventoryController?.UpdateInventory();
         }
 
         UpdateBoard();

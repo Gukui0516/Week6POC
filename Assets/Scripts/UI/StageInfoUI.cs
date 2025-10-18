@@ -8,6 +8,7 @@ public class StageInfoUI : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI stageText;
     [SerializeField] private TMPro.TextMeshProUGUI turnText;
     [SerializeField] private TMPro.TextMeshProUGUI targetText;
+    [SerializeField] private TMPro.TextMeshProUGUI cardsText;
 
     private void Start()
     {
@@ -41,6 +42,11 @@ public class StageInfoUI : MonoBehaviour
             {
                 int current = GameManager.Instance.GetCumulativeScore();
                 targetText.text = $"Score: {current}/{stage.target}";
+            }
+
+            if (cardsText != null)
+            {
+                cardsText.text = $"Cards: {turn.availableBlocks.Count}";
             }
         }
     }

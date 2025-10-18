@@ -4,7 +4,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// 인벤토리 전용 컨트롤러 - 블록 선택 및 인벤토리 UI 관리
+/// <summary>
+/// 인벤토리 전용 컨트롤러 - 블록 선택 및 인벤토리 UI 관리
+/// CardManager 기반으로 동작
+/// </summary>
 public class InventoryController : MonoBehaviour
 {
     private GameManager gameManager;
@@ -14,17 +17,13 @@ public class InventoryController : MonoBehaviour
     private BlockType? selectedBlockType = null;
     private InventoryButton selectedButton = null;
 
-
     #region Drag
-
     private GameObject dragPreview;
     private Canvas mainCanvas;
-
     #endregion
 
     public void Initialize(GameManager gm = null)
     {
-        // 싱글톤 우선, 파라미터로 전달된 경우 그것 사용
         gameManager = gm ?? GameManager.Instance;
 
         if (gameManager == null)
@@ -45,27 +44,54 @@ public class InventoryController : MonoBehaviour
         }
 
         mainCanvas = FindFirstObjectByType<Canvas>();
-
     }
 
-    // 인벤토리 UI 업데이트
+    /// <summary>
+    /// 인벤토리 UI 업데이트 (활성 카드 기반)
+    /// </summary>
     public void UpdateInventory()
     {
         if (blockButtons == null || gameManager?.GetCurrentTurn() == null) return;
 
         var turn = gameManager.GetCurrentTurn();
-        var groups = turn.availableBlocks.GroupBy(b => b.type).ToDictionary(g => g.Key, g => g.Count());
+        var cardManager = gameManager.GetTurnManager()?.GetCardManager();
+
+        if (cardManager == null)
+        {
+            Debug.LogWarning("[InventoryController] CardManager를 찾을 수 없습니다");
+            return;
+        }
+
+        // 활성 카드 개수 계산
+        var activeCards = turn.availableBlocks.GroupBy(b => b.type).ToDictionary(g => g.Key, g => g.Count());
 
         foreach (var btn in blockButtons)
         {
-            int count = groups.ContainsKey(btn.blockType) ? groups[btn.blockType] : 0;
-            btn.UpdateCount(count);
+            int count = activeCards.ContainsKey(btn.blockType) ? activeCards[btn.blockType] : 0;
+
+            // 선택 가능 여부 확인
+            bool canSelect = cardManager.CanSelectCard(btn.blockType);
+
+            // UI 업데이트 (개수, 선택 가능 여부)
+            btn.UpdateDisplay(count, canSelect);
         }
     }
 
-    // 블록 선택
+    /// <summary>
+    /// 블록 선택
+    /// </summary>
     public void SelectBlock(BlockType blockType, InventoryButton button)
     {
+        var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
+        if (cardManager == null) return;
+
+        // 선택 가능한지 확인
+        if (!cardManager.CanSelectCard(blockType))
+        {
+            Debug.Log($"[InventoryController] {blockType}은(는) 이전 턴에 사용하여 선택할 수 없습니다");
+            return;
+        }
+
         // 이전 선택 해제
         if (selectedButton != null)
         {
@@ -79,39 +105,48 @@ public class InventoryController : MonoBehaviour
         Debug.Log($"블록 {blockType} 선택됨. 배치할 빈 타일을 클릭하세요.");
     }
 
-    // 선택 해제
+    /// <summary>
+    /// 선택 해제
+    /// </summary>
     public void DeselectBlock()
     {
-        Debug.Log("DeselectBlock");
-        /*if (selectedButton != null)
+        if (selectedButton != null)
         {
             selectedButton.SetSelected(false);
         }
         selectedBlockType = null;
-        selectedButton = null;*/
+        selectedButton = null;
     }
 
-    // 모든 버튼 활성화
+    /// <summary>
+    /// 모든 버튼 활성화
+    /// </summary>
     public void EnableAllButtons()
     {
         if (blockButtons == null || gameManager == null) return;
+
+        var turn = gameManager.GetCurrentTurn();
+        var cardManager = gameManager.GetTurnManager()?.GetCardManager();
+
+        if (turn == null || cardManager == null) return;
 
         foreach (var btn in blockButtons)
         {
             var button = btn.GetComponent<Button>();
             if (button != null)
             {
-                var turn = gameManager.GetCurrentTurn();
-                if (turn != null)
-                {
-                    int count = turn.availableBlocks.Count(b => b.type == btn.blockType);
-                    button.interactable = count > 0;
-                }
+                int count = turn.availableBlocks.Count(b => b.type == btn.blockType);
+                bool canSelect = cardManager.CanSelectCard(btn.blockType);
+
+                // 개수가 있고 선택 가능할 때만 활성화
+                button.interactable = count > 0 && canSelect;
             }
         }
     }
 
-    // 모든 버튼 비활성화
+    /// <summary>
+    /// 모든 버튼 비활성화
+    /// </summary>
     public void DisableAllButtons()
     {
         if (blockButtons == null) return;
@@ -125,9 +160,16 @@ public class InventoryController : MonoBehaviour
     }
 
     #region Drag
-
     public void OnBeginDrag(BlockType blockType, InventoryButton button)
     {
+        // 선택 가능한지 먼저 확인
+        var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
+        if (cardManager != null && !cardManager.CanSelectCard(blockType))
+        {
+            Debug.Log($"[InventoryController] {blockType}은(는) 선택할 수 없습니다");
+            return;
+        }
+
         // 블록 선택
         SelectBlock(blockType, button);
 
@@ -135,10 +177,8 @@ public class InventoryController : MonoBehaviour
         CreateDragPreview(button);
     }
 
-
     public void OnDragging(Vector2 screenPosition)
     {
-        // 드래그 프리뷰 위치 업데이트
         if (dragPreview != null)
         {
             dragPreview.transform.position = screenPosition;
@@ -147,7 +187,6 @@ public class InventoryController : MonoBehaviour
 
     public void OnEndDrag()
     {
-        // 드래그 프리뷰 제거
         if (dragPreview != null)
         {
             Destroy(dragPreview);
@@ -155,41 +194,32 @@ public class InventoryController : MonoBehaviour
         }
     }
 
-
     private void CreateDragPreview(InventoryButton button)
     {
         if (mainCanvas == null) return;
 
-        // 기존 프리뷰 제거
         if (dragPreview != null)
         {
             Destroy(dragPreview);
         }
 
-        // 새 프리뷰 생성
         dragPreview = new GameObject("DragPreview");
         dragPreview.transform.SetParent(mainCanvas.transform, false);
-
-        // 최상단에 표시되도록
         dragPreview.transform.SetAsLastSibling();
 
-        // 이미지 복사
         var image = dragPreview.AddComponent<Image>();
         var originalImage = button.GetComponent<Image>();
         if (originalImage != null)
         {
             image.sprite = originalImage.sprite;
-            image.color = new Color(1, 1, 1, 0.7f); // 반투명
+            image.color = new Color(1, 1, 1, 0.7f);
         }
 
-        // 레이캐스트 차단 방지
         image.raycastTarget = false;
 
-        // 크기 설정
         var rectTransform = dragPreview.GetComponent<RectTransform>();
         rectTransform.sizeDelta = button.GetComponent<RectTransform>().sizeDelta;
 
-        // 텍스트도 복사 (선택 사항)
         var originalText = button.GetComponentInChildren<TextMeshProUGUI>();
         if (originalText != null)
         {
@@ -211,15 +241,7 @@ public class InventoryController : MonoBehaviour
 
         Debug.Log($"[InventoryController] 드래그 프리뷰 생성: {selectedBlockType}");
     }
-
     #endregion
 
-
-
-
-
-
-
-    // Getter
     public BlockType? GetSelectedBlockType() => selectedBlockType;
 }

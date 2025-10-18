@@ -1,0 +1,317 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using GameCore.Data;
+
+/// <summary>
+/// 플레이어의 카드 덱을 관리하는 매니저
+/// </summary>
+public class CardManager
+{
+    // 플레이어가 소유한 모든 카드 (영구적)
+    private List<BlockType> ownedCards = new List<BlockType>();
+
+    // 현재 턴에 활성화된 카드 (매 턴 변경)
+    private List<BlockType> activeCards = new List<BlockType>();
+
+    // 이전 턴에 사용한 카드들 (제한용)
+    private Queue<HashSet<BlockType>> usedCardsHistory = new Queue<HashSet<BlockType>>();
+
+    // 현재 턴에 사용 가능한 카드 여부
+    private Dictionary<BlockType, bool> canSelectThisTurn = new Dictionary<BlockType, bool>();
+
+    private GameConfig gameConfig;
+    private StageSO currentStage;
+
+    public System.Action OnDeckChanged; // 덱 변경 이벤트
+    public System.Action OnActiveCardsChanged; // 활성 카드 변경 이벤트
+
+    public CardManager(GameConfig config)
+    {
+        gameConfig = config;
+        InitializeStartingDeck();
+    }
+
+    /// <summary>
+    /// 시작 덱 초기화 (A, B, C, D만 소유)
+    /// </summary>
+    private void InitializeStartingDeck()
+    {
+        ownedCards.Clear();
+
+        // 기본 카드 추가 (각 3장씩)
+        for (int i = 0; i < 3; i++)
+        {
+            ownedCards.Add(BlockType.A);
+            ownedCards.Add(BlockType.B);
+            ownedCards.Add(BlockType.C);
+            ownedCards.Add(BlockType.D);
+        }
+
+        Debug.Log($"[CardManager] 시작 덱 초기화: {ownedCards.Count}장");
+        OnDeckChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 스테이지 설정
+    /// </summary>
+    public void SetStage(StageSO stage)
+    {
+        currentStage = stage;
+        usedCardsHistory.Clear();
+        canSelectThisTurn.Clear();
+
+        Debug.Log($"[CardManager] 스테이지 {stage.stageId} 설정");
+    }
+
+    /// <summary>
+    /// 새 게임 시작 (덱 초기화)
+    /// </summary>
+    public void ResetDeck()
+    {
+        InitializeStartingDeck();
+        usedCardsHistory.Clear();
+        canSelectThisTurn.Clear();
+    }
+
+    /// <summary>
+    /// 덱에 카드 추가 (해금)
+    /// </summary>
+    public void AddCardToDeck(BlockType cardType, int count = 1)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            ownedCards.Add(cardType);
+        }
+
+        Debug.Log($"[CardManager] {cardType} 카드 {count}장 추가됨");
+        OnDeckChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 턴 시작 - 활성 카드 선택
+    /// </summary>
+    public List<Block> ActivateCardsForTurn(int turnNumber)
+    {
+        activeCards.Clear();
+
+        // 1. 드로우 개수 결정
+        int drawCount = GetDrawCount(turnNumber);
+
+        // 2. 선택 가능한 카드 풀 생성
+        var availablePool = GetAvailableCardsPool();
+
+        // 3. 랜덤하게 활성 카드 선택
+        activeCards = SelectRandomCards(availablePool, drawCount);
+
+        // 4. 각 카드의 선택 가능 여부 업데이트
+        UpdateCanSelectStatus();
+
+        // 5. Block 리스트로 변환
+        var blocks = activeCards.Select(type => new Block(type)).ToList();
+
+        Debug.Log($"[CardManager] 턴 {turnNumber}: {activeCards.Count}장 활성화 (선택가능: {canSelectThisTurn.Count(x => x.Value)}장)");
+        OnActiveCardsChanged?.Invoke();
+
+        return blocks;
+    }
+
+    /// <summary>
+    /// 드로우 개수 결정
+    /// </summary>
+    private int GetDrawCount(int turnNumber)
+    {
+        if (currentStage == null) return 9;
+
+        if (turnNumber == 1)
+            return currentStage.firstDraw;
+        else if (turnNumber == 2)
+            return currentStage.secondDraw;
+        else if (turnNumber >= currentStage.endTurn)
+            return currentStage.lastDraw;
+        else
+            return Mathf.Max(currentStage.firstDraw, currentStage.secondDraw, currentStage.lastDraw);
+    }
+
+    /// <summary>
+    /// 선택 가능한 카드 풀 생성
+    /// </summary>
+    private List<BlockType> GetAvailableCardsPool()
+    {
+        // 소유한 모든 카드를 풀에 추가
+        var pool = new List<BlockType>(ownedCards);
+
+        // 이전 턴에 사용한 카드 제외 (옵션)
+        if (currentStage != null && currentStage.excludePreviousTurnTypes)
+        {
+            var excludedTypes = GetExcludedTypes();
+            pool = pool.Where(card => !excludedTypes.Contains(card)).ToList();
+
+            // 모든 카드가 제외되면 다시 전체 사용
+            if (pool.Count == 0)
+            {
+                Debug.LogWarning("[CardManager] 모든 카드가 제외됨 - 전체 덱 사용");
+                pool = new List<BlockType>(ownedCards);
+            }
+        }
+
+        return pool;
+    }
+
+    /// <summary>
+    /// 랜덤하게 카드 선택
+    /// </summary>
+    private List<BlockType> SelectRandomCards(List<BlockType> pool, int count)
+    {
+        var selected = new List<BlockType>();
+        var shuffled = pool.OrderBy(x => Random.value).ToList();
+
+        for (int i = 0; i < Mathf.Min(count, shuffled.Count); i++)
+        {
+            selected.Add(shuffled[i]);
+        }
+
+        return selected;
+    }
+
+    /// <summary>
+    /// 각 카드의 선택 가능 여부 업데이트
+    /// </summary>
+    private void UpdateCanSelectStatus()
+    {
+        canSelectThisTurn.Clear();
+        var excludedTypes = GetExcludedTypes();
+
+        foreach (var card in activeCards)
+        {
+            // 이전 턴에 사용하지 않았으면 선택 가능
+            canSelectThisTurn[card] = !excludedTypes.Contains(card);
+        }
+    }
+
+    /// <summary>
+    /// 제외해야 할 카드 타입 반환
+    /// </summary>
+    private HashSet<BlockType> GetExcludedTypes()
+    {
+        var excluded = new HashSet<BlockType>();
+
+        if (currentStage != null && currentStage.excludePreviousTurnTypes)
+        {
+            foreach (var turnTypes in usedCardsHistory)
+            {
+                foreach (var type in turnTypes)
+                {
+                    excluded.Add(type);
+                }
+            }
+        }
+
+        return excluded;
+    }
+
+    /// <summary>
+    /// 카드 사용 (활성 카드에서 제거)
+    /// </summary>
+    public bool TryUseCard(BlockType cardType)
+    {
+        // 1. 활성 카드에 있는지 확인
+        if (!activeCards.Contains(cardType))
+        {
+            Debug.Log($"[CardManager] {cardType}은(는) 활성 카드가 아닙니다");
+            return false;
+        }
+
+        // 2. 선택 가능한지 확인
+        if (!CanSelectCard(cardType))
+        {
+            Debug.Log($"[CardManager] {cardType}은(는) 이전 턴에 사용하여 선택할 수 없습니다");
+            return false;
+        }
+
+        // 3. 활성 카드에서 제거
+        activeCards.Remove(cardType);
+        OnActiveCardsChanged?.Invoke();
+
+        return true;
+    }
+
+    /// <summary>
+    /// 카드 반환 (활성 카드에 추가)
+    /// </summary>
+    public void ReturnCard(BlockType cardType)
+    {
+        activeCards.Add(cardType);
+        UpdateCanSelectStatus();
+        OnActiveCardsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 턴 종료 - 사용한 카드 기록
+    /// </summary>
+    public void OnTurnEnd(List<BlockType> usedTypes)
+    {
+        if (currentStage != null && currentStage.excludePreviousTurnTypes && usedTypes.Count > 0)
+        {
+            var usedSet = new HashSet<BlockType>(usedTypes);
+            usedCardsHistory.Enqueue(usedSet);
+
+            // 설정된 턴 수를 초과하면 오래된 기록 제거
+            while (usedCardsHistory.Count > gameConfig.excludeTurnCount)
+            {
+                usedCardsHistory.Dequeue();
+            }
+
+            Debug.Log($"[CardManager] 사용 기록: {string.Join(", ", usedTypes)}");
+        }
+    }
+
+    /// <summary>
+    /// 특정 턴에 카드 해금 (StageSO.ActiveCard 기반)
+    /// </summary>
+    public void UnlockCardsForTurn(int turnNumber)
+    {
+        if (currentStage == null || currentStage.ActiveCard == null) return;
+
+        // 턴 번호에 해당하는 인덱스 계산 (1턴 = 인덱스 0)
+        int index = turnNumber - 1;
+
+        if (index >= 0 && index < currentStage.ActiveCard.Count)
+        {
+            int cardId = currentStage.ActiveCard[index];
+
+            // cardId를 BlockType으로 변환 (1=A, 2=B, ..., 7=G)
+            if (cardId >= 1 && cardId <= 7)
+            {
+                BlockType newCard = (BlockType)(cardId - 1);
+                AddCardToDeck(newCard, 3); // 3장씩 추가
+
+                Debug.Log($"[CardManager] 턴 {turnNumber}: {newCard} 카드 해금!");
+            }
+        }
+    }
+
+    #region Getters
+    public List<BlockType> GetOwnedCards() => new List<BlockType>(ownedCards);
+    public List<BlockType> GetActiveCards() => new List<BlockType>(activeCards);
+    public bool CanSelectCard(BlockType cardType) => canSelectThisTurn.GetValueOrDefault(cardType, true);
+
+    /// <summary>
+    /// 특정 카드의 선택 가능 여부와 활성화 여부 반환
+    /// </summary>
+    public (bool isActive, bool canSelect) GetCardStatus(BlockType cardType)
+    {
+        bool isActive = activeCards.Contains(cardType);
+        bool canSelect = canSelectThisTurn.GetValueOrDefault(cardType, false);
+        return (isActive, canSelect);
+    }
+
+    /// <summary>
+    /// 활성 카드 중 특정 타입의 개수
+    /// </summary>
+    public int GetActiveCardCount(BlockType cardType)
+    {
+        return activeCards.Count(c => c == cardType);
+    }
+    #endregion
+}
