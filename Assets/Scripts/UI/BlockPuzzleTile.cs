@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // 보드 타일 컴포넌트
-public class BlockPuzzleTile : MonoBehaviour
+public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public int x, y;
     private BlockPuzzleUIController uiController;
@@ -14,6 +14,11 @@ public class BlockPuzzleTile : MonoBehaviour
     private TextMeshProUGUI text;
     private BlockTypeTooltip tooltip; // 툴팁 컴포넌트 참조
 
+    #region Drage
+    private bool isHoveringDuringDrag = false;
+    private Color originalColor;
+    #endregion
+
 
     private void Awake()
     {
@@ -21,6 +26,7 @@ public class BlockPuzzleTile : MonoBehaviour
         image = GetComponent<Image>();
         text = GetComponentInChildren<TextMeshProUGUI>(); 
         tooltip = GetComponent<BlockTypeTooltip>(); // 툴팁 컴포넌트 가져오기
+        originalColor = image.color;
 
 
         button.onClick.AddListener(OnClick);
@@ -119,6 +125,83 @@ public class BlockPuzzleTile : MonoBehaviour
             image.color = Color.white;
         }
     }
+
+
+    #region Drag
+
+    // 드롭 처리
+    public void OnDrop(PointerEventData eventData)
+    {
+        if (uiController == null) return;
+
+        // 드래그된 오브젝트가 InventoryButton인지 확인
+        var draggedButton = eventData.pointerDrag?.GetComponent<InventoryButton>();
+        if (draggedButton == null) return;
+
+        // 블록 배치 시도
+        bool success = uiController.TryPlaceSelectedBlock(x, y);
+
+        if (success)
+        {
+            Debug.Log($"블록 배치 성공: ({x}, {y})");
+        }
+
+        // 호버 피드백 제거
+        isHoveringDuringDrag = false;
+        UpdateVisual();
+    }
+
+    // 드래그 중 타일 위로 진입
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (eventData.pointerDrag != null &&
+        eventData.pointerDrag.GetComponent<InventoryButton>() != null)
+        {
+            Debug.Log("OnPointerEnter - Dragging Block"); // ✅ 필요할 때만 출력
+
+            var tile = GameManager.Instance?.GetTile(x, y);
+            if (tile != null && tile.IsEmpty)
+            {
+                isHoveringDuringDrag = true;
+                ShowDropHint();
+            }
+        }
+    }
+
+    // 드래그 중 타일에서 벗어남
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (isHoveringDuringDrag)
+        {
+            isHoveringDuringDrag = false;
+            UpdateVisual();
+        }
+    }
+
+    private void ShowDropHint()
+    {
+        // 드롭 가능한 타일 강조
+        image.color = new Color(0.7f, 1f, 0.7f); // 연한 녹색
+    }
+
+    private void UpdateHoverVisual()
+    {
+        if (GameManager.Instance == null) return;
+        var tile = GameManager.Instance.GetTile(x, y);
+        if (tile == null) return;
+
+        if (isHoveringDuringDrag && tile.IsEmpty)
+        {
+            // 드롭 가능한 타일 강조
+            image.color = new Color(0.8f, 1f, 0.8f, 0.5f);
+        }
+        else
+        {
+            // 일반 상태로 복귀
+            UpdateVisual();
+        }
+    }
+    #endregion
 
 
 

@@ -294,11 +294,10 @@ public class BlockPuzzleUIController : MonoBehaviour
     private void UpdateBoard()
     {
         if (tiles == null || gameManager == null) return;
-        if (gameManager.GetBoard() == null) return; // 보드가 초기화되지 않았으면 리턴
+        if (gameManager.GetBoard() == null) return;
 
         foreach (var tile in tiles)
         {
-            Debug.Log("Update");
             tile.UpdateVisual();
         }
     }

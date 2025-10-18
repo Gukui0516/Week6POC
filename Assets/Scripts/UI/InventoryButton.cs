@@ -6,7 +6,7 @@ using System.Linq;
 using GameCore.Data;
 
 // 인벤토리 블록 버튼 컴포넌트 (툴팁 기능 추가)
-public class InventoryButton : MonoBehaviour
+public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public BlockType blockType;
     private InventoryController inventoryController;
@@ -15,12 +15,18 @@ public class InventoryButton : MonoBehaviour
     private TextMeshProUGUI text;
     private Color originalColor;
 
+    //--- drag
+    private bool isDragging = false;
+    private Vector3 originalScale;
+
+
     private void Awake()
     {
         button = GetComponent<Button>();
         buttonImage = GetComponent<Image>();
         text = GetComponentInChildren<TextMeshProUGUI>();
         originalColor = buttonImage.color;
+        originalScale = transform.localScale;
 
         button.onClick.AddListener(OnClick);
     }
@@ -32,8 +38,11 @@ public class InventoryButton : MonoBehaviour
 
     private void OnClick()
     {
+        if (isDragging) return; // 드래그 중이면 클릭 무시
+
         // 싱글톤으로 GameManager 접근
         if (GameManager.Instance == null || inventoryController == null) return;
+
 
         // 현재 턴에 해당 블록 타입이 있는지 확인
         var turn = GameManager.Instance.GetCurrentTurn();
@@ -46,11 +55,34 @@ public class InventoryButton : MonoBehaviour
             return;
         }
 
-        // 블록 선택 - InventoryController에 위임
         inventoryController.SelectBlock(blockType, this);
     }
+    // 드래그 시작
 
-    
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (GameManager.Instance == null || inventoryController == null) return;
+
+        var turn = GameManager.Instance.GetCurrentTurn();
+        if (turn == null) return;
+
+        var availableBlock = turn.availableBlocks.FirstOrDefault(b => b.type == blockType);
+        if (availableBlock == null) return;
+
+        isDragging = true;
+
+        inventoryController.OnBeginDrag(blockType, this);
+
+
+        //inventoryController.SelectBlock(blockType, this);
+
+        // 선택 사항: 드래그 중 시각적 피드백
+        transform.localScale = Vector3.one * 1.2f;
+    }
+
+
+
+
 
     public void SetSelected(bool selected)
     {
@@ -98,7 +130,24 @@ public class InventoryButton : MonoBehaviour
     }
 
 
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!isDragging) return;
 
+        inventoryController.OnDragging(eventData.position);
+    }
+
+    // 드래그 종료
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (!isDragging) return;
+
+        isDragging = false;
+        transform.localScale = originalScale;
+
+        // InventoryController에 드래그 종료 알림
+        inventoryController.OnEndDrag();
+    }
 
 
 }

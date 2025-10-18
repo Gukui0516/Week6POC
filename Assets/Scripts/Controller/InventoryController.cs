@@ -1,7 +1,8 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using GameCore.Data;
 using System.Linq;
-using GameCore.Data;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 // 인벤토리 전용 컨트롤러 - 블록 선택 및 인벤토리 UI 관리
 public class InventoryController : MonoBehaviour
@@ -12,6 +13,14 @@ public class InventoryController : MonoBehaviour
     // 선택된 블록 상태
     private BlockType? selectedBlockType = null;
     private InventoryButton selectedButton = null;
+
+
+    #region Drag
+
+    private GameObject dragPreview;
+    private Canvas mainCanvas;
+
+    #endregion
 
     public void Initialize(GameManager gm = null)
     {
@@ -34,6 +43,9 @@ public class InventoryController : MonoBehaviour
         {
             btn.SetInventoryController(this);
         }
+
+        mainCanvas = FindFirstObjectByType<Canvas>();
+
     }
 
     // 인벤토리 UI 업데이트
@@ -110,6 +122,102 @@ public class InventoryController : MonoBehaviour
                 button.interactable = false;
         }
     }
+
+    #region Drag
+
+    public void OnBeginDrag(BlockType blockType, InventoryButton button)
+    {
+        // 블록 선택
+        SelectBlock(blockType, button);
+
+        // 드래그 프리뷰 생성
+        CreateDragPreview(button);
+    }
+
+
+    public void OnDragging(Vector2 screenPosition)
+    {
+        // 드래그 프리뷰 위치 업데이트
+        if (dragPreview != null)
+        {
+            dragPreview.transform.position = screenPosition;
+        }
+    }
+
+    public void OnEndDrag()
+    {
+        // 드래그 프리뷰 제거
+        if (dragPreview != null)
+        {
+            Destroy(dragPreview);
+            dragPreview = null;
+        }
+    }
+
+
+    private void CreateDragPreview(InventoryButton button)
+    {
+        if (mainCanvas == null) return;
+
+        // 기존 프리뷰 제거
+        if (dragPreview != null)
+        {
+            Destroy(dragPreview);
+        }
+
+        // 새 프리뷰 생성
+        dragPreview = new GameObject("DragPreview");
+        dragPreview.transform.SetParent(mainCanvas.transform, false);
+
+        // 최상단에 표시되도록
+        dragPreview.transform.SetAsLastSibling();
+
+        // 이미지 복사
+        var image = dragPreview.AddComponent<Image>();
+        var originalImage = button.GetComponent<Image>();
+        if (originalImage != null)
+        {
+            image.sprite = originalImage.sprite;
+            image.color = new Color(1, 1, 1, 0.7f); // 반투명
+        }
+
+        // 레이캐스트 차단 방지
+        image.raycastTarget = false;
+
+        // 크기 설정
+        var rectTransform = dragPreview.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = button.GetComponent<RectTransform>().sizeDelta;
+
+        // 텍스트도 복사 (선택 사항)
+        var originalText = button.GetComponentInChildren<TextMeshProUGUI>();
+        if (originalText != null)
+        {
+            var textObj = new GameObject("Text");
+            textObj.transform.SetParent(dragPreview.transform, false);
+
+            var text = textObj.AddComponent<TextMeshProUGUI>();
+            text.text = originalText.text;
+            text.fontSize = originalText.fontSize;
+            text.color = new Color(originalText.color.r, originalText.color.g, originalText.color.b, 0.7f);
+            text.alignment = originalText.alignment;
+            text.raycastTarget = false;
+
+            var textRect = textObj.GetComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+        }
+
+        Debug.Log($"[InventoryController] 드래그 프리뷰 생성: {selectedBlockType}");
+    }
+
+    #endregion
+
+
+
+
+
+
 
     // Getter
     public BlockType? GetSelectedBlockType() => selectedBlockType;
