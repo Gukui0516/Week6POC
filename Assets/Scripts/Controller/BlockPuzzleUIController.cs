@@ -298,7 +298,6 @@ public class BlockPuzzleUIController : MonoBehaviour
 
         foreach (var tile in tiles)
         {
-            Debug.Log("Update");
             tile.UpdateVisual();
         }
     }

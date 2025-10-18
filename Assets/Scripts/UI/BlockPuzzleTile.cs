@@ -14,14 +14,12 @@ public class BlockPuzzleTile : MonoBehaviour
     private TextMeshProUGUI text;
     private BlockTypeTooltip tooltip; // 툴팁 컴포넌트 참조
 
-
     private void Awake()
     {
         button = GetComponent<Button>();
         image = GetComponent<Image>();
-        text = GetComponentInChildren<TextMeshProUGUI>(); 
+        text = GetComponentInChildren<TextMeshProUGUI>();
         tooltip = GetComponent<BlockTypeTooltip>(); // 툴팁 컴포넌트 가져오기
-
 
         button.onClick.AddListener(OnClick);
     }
@@ -70,11 +68,13 @@ public class BlockPuzzleTile : MonoBehaviour
 
         if (tile.HasBlock)
         {
-            // 블록이 있을 때 - 툴팁 타입 업데이트
+            // 블록이 있을 때 - 툴팁을 타일 모드로 설정
             if (tooltip != null)
             {
-                tooltip.blockType = tile.block.type;
-                tooltip.enabled = true; // 툴팁 활성화
+                tooltip.SetTooltipMode(BlockTypeTooltip.TooltipMode.Tile);
+                tooltip.SetTilePosition(x, y);
+                tooltip.blockType = tile.block.type; // 백업용
+                tooltip.enabled = true;
             }
 
             // 블록이 있을 때
@@ -119,7 +119,4 @@ public class BlockPuzzleTile : MonoBehaviour
             image.color = Color.white;
         }
     }
-
-
-
 }
