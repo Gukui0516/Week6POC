@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using GameCore.Data;
 
 // 보드 타일 컴포넌트
 public class BlockPuzzleTile : MonoBehaviour
@@ -57,10 +58,12 @@ public class BlockPuzzleTile : MonoBehaviour
         var tile = gameManager.GetTile(x, y);
         if (tile == null) return; // 타일이 아직 초기화되지 않았으면 리턴
 
+        bool isNumberMode = gameManager.GetTileMode() == TileMode.WithNumbers;
+
         if (tile.HasBlock)
         {
             // 블록이 있을 때
-            if (gameManager.useNumbersMode && tile.tileNumber > 0)
+            if (isNumberMode && tile.tileNumber > 0)
             {
                 string turnText = tile.tileNumber == 1 ? "1턴 동안 유지" : $"{tile.tileNumber}턴 동안 유지";
                 text.text = $"{tile.block.type} [{turnText}]\n{tile.calculatedScore:+#;-#;0}";
@@ -81,7 +84,7 @@ public class BlockPuzzleTile : MonoBehaviour
         else
         {
             // 빈 타일일 때
-            if (gameManager.useNumbersMode && tile.tileNumber > 0)
+            if (isNumberMode && tile.tileNumber > 0)
             {
                 string turnText = tile.tileNumber == 1 ? "1턴 동안 유지" : $"{tile.tileNumber}턴 동안 유지";
                 text.text = $"[{turnText}]";

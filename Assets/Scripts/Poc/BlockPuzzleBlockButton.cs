@@ -2,11 +2,12 @@
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using GameCore.Data;
 
 // 인벤토리 블록 버튼 컴포넌트
 public class BlockPuzzleBlockButton : MonoBehaviour
 {
-    public GameManager.BlockType blockType;
+    public BlockType blockType;
     private GameManager gameManager;
     private BlockPuzzleUIController uiController;
     private Button button;
