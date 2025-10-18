@@ -3,11 +3,24 @@ using UnityEngine.EventSystems;
 using GameCore.Data;
 using System.Collections;
 
-// 블록 타입 툴팁을 표시하는 컴포넌트
+// 블록 타입 툴팁을 표시하는 컴포넌트 (인벤토리 모드 + 타일 모드)
 public class BlockTypeTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("Block Type")]
+    public enum TooltipMode
+    {
+        Inventory,  // 블록 타입 정보
+        Tile       // 점수 계산식
+    }
+
+    [Header("Tooltip Mode")]
+    public TooltipMode tooltipMode = TooltipMode.Inventory;
+
+    [Header("Block Type (For Inventory Mode)")]
     public BlockType blockType;
+
+    [Header("Tile Position (For Tile Mode)")]
+    public int tileX = -1;
+    public int tileY = -1;
 
     [Header("Tooltip Settings")]
     public TooltipDirection preferredDirection = TooltipDirection.Auto;
@@ -101,11 +114,47 @@ public class BlockTypeTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     public void Show()
     {
-        if (TooltipController.Instance != null)
+        if (TooltipController.Instance == null) return;
+
+        string tooltipText = "";
+
+        switch (tooltipMode)
         {
-            string tooltipText = BlockTypeInfo.GetTooltipText(blockType);
-            TooltipController.Instance.ShowTooltip(tooltipText, preferredDirection, transform as RectTransform);
+            case TooltipMode.Inventory:
+                tooltipText = BlockTypeInfo.GetTooltipText(blockType);
+                break;
+
+            case TooltipMode.Tile:
+                tooltipText = GetTileScoreTooltip();
+                break;
         }
+
+        TooltipController.Instance.ShowTooltip(tooltipText, preferredDirection, transform as RectTransform);
+    }
+
+    private string GetTileScoreTooltip()
+    {
+        // GameManager 확인
+        if (GameManager.Instance?.GetBoard() == null)
+        {
+            return "게임 정보를 로드 중...";
+        }
+
+        // 타일 확인
+        var tile = GameManager.Instance.GetTile(tileX, tileY);
+        if (tile == null || !tile.HasBlock)
+        {
+            return "이 타일에는 블록이 없습니다.";
+        }
+
+        // GameManager의 공용 메서드를 통해 ScoreBreakdown 가져오기
+        var breakdown = GameManager.Instance.GetScoreBreakdown(tileX, tileY);
+        if (breakdown != null)
+        {
+            return ScoreTooltipFormatter.GetScoreBreakdownText(breakdown);
+        }
+
+        return "점수 계산 정보를 가져올 수 없습니다.";
     }
 
     public void Hide()
@@ -114,6 +163,19 @@ public class BlockTypeTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         {
             TooltipController.Instance.HideTooltip();
         }
+    }
+
+    // 외부에서 타일 위치 설정 (BlockPuzzleTile에서 사용)
+    public void SetTilePosition(int x, int y)
+    {
+        tileX = x;
+        tileY = y;
+    }
+
+    // 외부에서 툴팁 모드 설정
+    public void SetTooltipMode(TooltipMode mode)
+    {
+        tooltipMode = mode;
     }
 
     private void OnDisable()

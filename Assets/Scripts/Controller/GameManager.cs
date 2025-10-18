@@ -391,5 +391,11 @@ public class GameManager : MonoBehaviour
         }
         return null;
     }
+
+    // ScoreCalculator에 접근하기 위한 공용 메서드 (툴팁에서 사용)
+    public ScoreBreakdown GetScoreBreakdown(int x, int y)
+    {
+        return scoreCalculator?.GetScoreBreakdown(x, y);
+    }
     #endregion
 }
