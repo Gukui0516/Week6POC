@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using GameCore.Data;
 
 // UI 컨트롤러 - 런타임에서 UI와 GameManager 연결
 public class BlockPuzzleUIController : MonoBehaviour
@@ -28,7 +29,7 @@ public class BlockPuzzleUIController : MonoBehaviour
     private BlockPuzzleBlockButton[] blockButtons;
 
     // 선택된 블록 타입
-    private GameManager.BlockType? selectedBlockType = null;
+    private BlockType? selectedBlockType = null;
     private BlockPuzzleBlockButton selectedButton = null;
 
     public void SetGameManager(GameManager gm)
@@ -36,19 +37,26 @@ public class BlockPuzzleUIController : MonoBehaviour
         gameManager = gm;
     }
 
+    // BlockPuzzleUIController.cs - 디버깅을 위해 초기화 부분만 수정
+
     private void Start()
     {
+        Debug.Log("[UIController] Start 메소드 시작");
+
         // GameManager가 설정되지 않았다면 찾기
         if (gameManager == null)
         {
             gameManager = FindFirstObjectByType<GameManager>();
+            Debug.Log("[UIController] GameManager 검색 결과: " + (gameManager != null ? "발견" : "없음"));
         }
 
         if (gameManager == null)
         {
-            Debug.LogError("GameManager를 찾을 수 없습니다! Tools > Generate Block Puzzle Canvas를 다시 실행하세요.");
+            Debug.LogError("[UIController] GameManager를 찾을 수 없습니다! Tools > Generate Block Puzzle Canvas를 다시 실행하세요.");
             return;
         }
+
+        Debug.Log("[UIController] GameManager 참조 확인됨");
 
         // GameManager의 Start가 실행될 때까지 대기
         StartCoroutine(InitializeAfterGameManager());
@@ -56,19 +64,34 @@ public class BlockPuzzleUIController : MonoBehaviour
 
     private System.Collections.IEnumerator InitializeAfterGameManager()
     {
+        Debug.Log("[UIController] GameManager 초기화 대기 시작");
+
+        int waitCount = 0;
         // GameManager의 보드가 초기화될 때까지 대기
         while (gameManager.GetBoard() == null)
         {
+            waitCount++;
+            if (waitCount > 100) // 무한 루프 방지
+            {
+                Debug.LogError("[UIController] GameManager 초기화 대기 시간 초과!");
+                yield break;
+            }
             yield return null;
         }
+
+        Debug.Log($"[UIController] GameManager 초기화 완료 (대기 횟수: {waitCount})");
 
         CacheUIReferences();
         SubscribeToEvents();
         UpdateUI();
+
+        Debug.Log("[UIController] UI 초기화 완료");
     }
 
     private void CacheUIReferences()
     {
+        Debug.Log("[UIController] UI 참조 캐싱 시작");
+
         turnText = GameObject.Find("TurnText")?.GetComponent<TextMeshProUGUI>();
         targetText = GameObject.Find("TargetText")?.GetComponent<TextMeshProUGUI>();
         scoreText = GameObject.Find("ScoreText")?.GetComponent<TextMeshProUGUI>();
@@ -77,21 +100,81 @@ public class BlockPuzzleUIController : MonoBehaviour
         tiles = FindObjectsByType<BlockPuzzleTile>(FindObjectsSortMode.None);
         blockButtons = FindObjectsByType<BlockPuzzleBlockButton>(FindObjectsSortMode.None);
 
+        Debug.Log($"[UIController] 발견된 UI 요소들:");
+        Debug.Log($"- 타일: {tiles?.Length ?? 0}개");
+        Debug.Log($"- 블록 버튼: {blockButtons?.Length ?? 0}개");
+
         // 각 컴포넌트에 참조 설정
         foreach (var tile in tiles)
+        {
             tile.SetGameManager(gameManager);
+        }
 
         foreach (var btn in blockButtons)
+        {
             btn.SetGameManager(gameManager);
+        }
 
         var gameButtons = FindObjectsByType<BlockPuzzleGameButton>(FindObjectsSortMode.None);
+        Debug.Log($"- 게임 버튼: {gameButtons?.Length ?? 0}개");
+
         foreach (var btn in gameButtons)
+        {
             btn.SetGameManager(gameManager);
+        }
 
         var modeToggle = FindFirstObjectByType<BlockPuzzleModeToggle>();
         if (modeToggle != null)
+        {
             modeToggle.SetGameManager(gameManager);
+            Debug.Log("- 모드 토글: 발견");
+        }
+        else
+        {
+            Debug.Log("- 모드 토글: 없음");
+        }
+
+        Debug.Log("[UIController] UI 참조 캐싱 완료");
     }
+
+    // private System.Collections.IEnumerator InitializeAfterGameManager()
+    // {
+    //     // GameManager의 보드가 초기화될 때까지 대기
+    //     while (gameManager.GetBoard() == null)
+    //     {
+    //         yield return null;
+    //     }
+
+    //     CacheUIReferences();
+    //     SubscribeToEvents();
+    //     UpdateUI();
+    // }
+
+    // private void CacheUIReferences()
+    // {
+    //     turnText = GameObject.Find("TurnText")?.GetComponent<TextMeshProUGUI>();
+    //     targetText = GameObject.Find("TargetText")?.GetComponent<TextMeshProUGUI>();
+    //     scoreText = GameObject.Find("ScoreText")?.GetComponent<TextMeshProUGUI>();
+    //     progressBar = GameObject.Find("ProgressBar")?.GetComponent<Slider>();
+
+    //     tiles = FindObjectsByType<BlockPuzzleTile>(FindObjectsSortMode.None);
+    //     blockButtons = FindObjectsByType<BlockPuzzleBlockButton>(FindObjectsSortMode.None);
+
+    //     // 각 컴포넌트에 참조 설정
+    //     foreach (var tile in tiles)
+    //         tile.SetGameManager(gameManager);
+
+    //     foreach (var btn in blockButtons)
+    //         btn.SetGameManager(gameManager);
+
+    //     var gameButtons = FindObjectsByType<BlockPuzzleGameButton>(FindObjectsSortMode.None);
+    //     foreach (var btn in gameButtons)
+    //         btn.SetGameManager(gameManager);
+
+    //     var modeToggle = FindFirstObjectByType<BlockPuzzleModeToggle>();
+    //     if (modeToggle != null)
+    //         modeToggle.SetGameManager(gameManager);
+    // }
 
     private void SubscribeToEvents()
     {
@@ -104,17 +187,17 @@ public class BlockPuzzleUIController : MonoBehaviour
         }
     }
 
-    private void OnGameStateChanged(GameManager.GameState state)
+    private void OnGameStateChanged(GameState state)
     {
-        if (state == GameManager.GameState.GameOver)
+        if (state == GameState.GameOver)
         {
             ShowGameOverUI();
         }
-        else if (state == GameManager.GameState.Victory)
+        else if (state == GameState.Victory)
         {
             ShowVictoryUI();
         }
-        else if (state == GameManager.GameState.Playing)
+        else if (state == GameState.Playing)
         {
             // 게임 재시작 시 모든 버튼 활성화
             EnableAllButtons();
@@ -219,18 +302,14 @@ public class BlockPuzzleUIController : MonoBehaviour
             int currentTurnScore = gameManager.GetTotalScore(); // 현재 보드 점수
             int cumulativeScore = gameManager.GetCumulativeScore(); // 게임 전체 누적 점수
 
-            // 다음 마일스톤 찾기
-            GameManager.Milestone nextMilestone = null;
-            foreach (var milestone in gameManager.milestones)
-            {
-                if (milestone.checkTurn >= turn.turnNumber)
-                {
-                    nextMilestone = milestone;
-                    break;
-                }
-            }
+            // 다음 마일스톤 찾기 - GameManager 헬퍼 메소드 사용
+            Milestone nextMilestone = gameManager.GetNextMilestone(turn.turnNumber);
 
-            if (turnText) turnText.text = $"턴: {turn.turnNumber}/{gameManager.maxTurns}";
+            if (turnText)
+            {
+                int maxTurns = gameManager.GetMaxTurns();
+                turnText.text = $"턴: {turn.turnNumber}/{maxTurns}";
+            }
 
             if (targetText && nextMilestone != null)
             {
@@ -277,6 +356,47 @@ public class BlockPuzzleUIController : MonoBehaviour
         UpdateBoard();
     }
 
+    // 리플렉션 코드 제거 - 더 이상 필요 없음들
+    private Milestone GetNextMilestone(int currentTurn)
+    {
+        // GameManager에 헬퍼 메소드 추가 필요
+        // 임시로 reflection 사용 (추후 GameManager에 public 메소드 추가 권장)
+        var gameConfigField = gameManager.GetType().GetField("gameConfig",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (gameConfigField != null)
+        {
+            var gameConfig = gameConfigField.GetValue(gameManager) as GameConfig;
+            if (gameConfig != null && gameConfig.milestones != null)
+            {
+                foreach (var milestone in gameConfig.milestones)
+                {
+                    if (milestone.checkTurn >= currentTurn)
+                    {
+                        return milestone;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private int GetMaxTurns()
+    {
+        var gameConfigField = gameManager.GetType().GetField("gameConfig",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (gameConfigField != null)
+        {
+            var gameConfig = gameConfigField.GetValue(gameManager) as GameConfig;
+            if (gameConfig != null)
+            {
+                return gameConfig.maxTurns;
+            }
+        }
+        return 20; // 기본값
+    }
+
     private void UpdateBoard()
     {
         if (tiles == null || gameManager == null) return;
@@ -303,7 +423,7 @@ public class BlockPuzzleUIController : MonoBehaviour
     }
 
     // 블록 선택
-    public void SelectBlock(GameManager.BlockType blockType, BlockPuzzleBlockButton button)
+    public void SelectBlock(BlockType blockType, BlockPuzzleBlockButton button)
     {
         // 이전 선택 해제
         if (selectedButton != null)
@@ -347,5 +467,5 @@ public class BlockPuzzleUIController : MonoBehaviour
     }
 
     // Getter
-    public GameManager.BlockType? GetSelectedBlockType() => selectedBlockType;
+    public BlockType? GetSelectedBlockType() => selectedBlockType;
 }
