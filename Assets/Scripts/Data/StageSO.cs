@@ -2,21 +2,56 @@
 using System.Collections.Generic;
 using GameCore.Data;
 
+/// <summary>
+/// 스테이지 데이터
+/// </summary>
 [CreateAssetMenu(fileName = "Stage_", menuName = "Game/Stage Data")]
 public class StageSO : ScriptableObject
 {
-    public int stageId; //현재 스테이지
+    [Header("Basic Settings")]
+    public int stageId; // 현재 스테이지
     public int endTurn = 3; // 최종 턴
-    public int target = 50; // 목표 수
-    public int firstDraw = 4; // 1 턴 드로우 수
-    public int secondDraw = 2;  // 2 턴 드로우 수
-    public int lastDraw = 1; // 3 턴 드로우 수
+    public int target = 50; // 목표 점수
+
+    [Header("Draw Settings")]
+    public int firstDraw = 4; // 1턴 드로우 수
+    public int secondDraw = 2; // 2턴 드로우 수
+    public int lastDraw = 1; // 마지막 턴 드로우 수
+
+    [Header("Card Restriction")]
+    [Tooltip("이전 턴에 사용한 카드를 다음 턴에 제외할지 여부")]
     public bool excludePreviousTurnTypes = true;
 
-    public List<int> ActiveCard; // 매 턴 새로 해금되는 카드
-    //1, 2, 3, 4, 5, 6, 7 
+    [Header("Card Unlock System")]
+    [Tooltip("각 턴마다 해금되는 카드 (1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G)")]
+    public List<int> ActiveCard = new List<int>();
+
+    /// <summary>
+    /// 특정 턴에 해금되는 카드 타입 반환
+    /// </summary>
+    public BlockType? GetUnlockCardForTurn(int turnNumber)
+    {
+        int index = turnNumber - 1;
+
+        if (index >= 0 && index < ActiveCard.Count)
+        {
+            int cardId = ActiveCard[index];
+
+            // cardId를 BlockType으로 변환 (1=A, 2=B, ..., 7=G)
+            if (cardId >= 1 && cardId <= 7)
+            {
+                return (BlockType)(cardId - 1);
+            }
+        }
+
+        return null;
+    }
+
 }
 
+/// <summary>
+/// 스테이지 컬렉션
+/// </summary>
 [CreateAssetMenu(fileName = "StageCollection", menuName = "Game/Stage Collection")]
 public class StageCollectionSO : ScriptableObject
 {
@@ -25,5 +60,10 @@ public class StageCollectionSO : ScriptableObject
     public StageSO GetStage(int stageId)
     {
         return stages.Find(s => s.stageId == stageId);
+    }
+
+    public int GetTotalStageCount()
+    {
+        return stages.Count;
     }
 }

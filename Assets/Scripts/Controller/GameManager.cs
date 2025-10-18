@@ -137,11 +137,13 @@ public class GameManager : MonoBehaviour
         boardManager.ClearAllBlocks();
         cumulativeScore = 0;
 
-        // 숫자 모드일 때 보드 초기화
         if (gameConfig.useNumbersMode)
         {
             boardManager.InitializeBoard();
         }
+
+        // 카드 덱 초기화 추가
+        turnManager.ResetForNewGame();
 
         // TurnManager에 스테이지 설정
         turnManager.SetStage(stage);
@@ -151,13 +153,12 @@ public class GameManager : MonoBehaviour
 
         OnGameStateChanged?.Invoke(gameState);
 
-        Debug.Log($"[GameManager] 스테이지 {stage.stageId} 시작!");
+        Debug.Log($"[GameManager] 스테이지 {stage.stageId} 시작! (덱 초기화됨)");
     }
 
     // 기본 게임 시작 (기존 호환성 유지)
     public void StartNewGame()
     {
-        // StageManager가 있으면 현재 스테이지 사용
         var stage = StageManager.Instance?.GetCurrentStage();
         if (stage != null)
         {
@@ -175,10 +176,13 @@ public class GameManager : MonoBehaviour
             boardManager.InitializeBoard();
         }
 
+        // 카드 덱 초기화 추가
+        turnManager.ResetForNewGame();
+
         StartTurn(1);
         OnGameStateChanged?.Invoke(gameState);
 
-        Debug.Log("[GameManager] 기본 게임 시작!");
+        Debug.Log("[GameManager] 기본 게임 시작! (덱 초기화됨)");
     }
 
     public void StartTurn(int turnNumber)
@@ -389,6 +393,8 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Getters
+
+    public TurnManager GetTurnManager() => turnManager;
     public Tile[,] GetBoard() => boardManager?.GetBoard();
     public TurnData GetCurrentTurn() => turnManager?.GetCurrentTurn();
     public GameState GetGameState() => gameState;
