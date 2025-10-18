@@ -4,7 +4,7 @@ using GameCore.Data;
 public class BoardPreview
 {
     public int previewX, previewY;
-    public BlockType previewBlockType;
+    public CardType previewBlockType;
     public int[,] originalScores;    // 3x3
     public int[,] previewScores;     // 3x3
     public int totalScoreChange;

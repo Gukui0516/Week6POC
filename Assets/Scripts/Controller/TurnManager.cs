@@ -44,7 +44,7 @@ public class TurnManager
         Debug.Log($"턴 {turnNumber} 시작 - 카드 {currentTurn.availableBlocks.Count}장 활성화");
     }
 
-    public void EndTurn(int currentTurnScore, List<BlockType> usedBlockTypes)
+    public void EndTurn(int currentTurnScore, List<CardType> usedBlockTypes)
     {
         if (currentTurn == null) return;
 
@@ -59,7 +59,7 @@ public class TurnManager
     /// <summary>
     /// 카드 사용 (배치 시)
     /// </summary>
-    public bool UseCard(BlockType blockType)
+    public bool UseCard(CardType blockType)
     {
         if (currentTurn == null) return false;
 
@@ -82,7 +82,7 @@ public class TurnManager
     /// <summary>
     /// 카드 반환 (배치 취소 시)
     /// </summary>
-    public void ReturnCard(Block block)
+    public void ReturnCard(Card block)
     {
         if (currentTurn != null && block != null)
         {
@@ -107,7 +107,7 @@ public class TurnManager
     /// <summary>
     /// 특정 카드가 선택 가능한지 여부
     /// </summary>
-    public bool CanSelectCard(BlockType cardType)
+    public bool CanSelectCard(CardType cardType)
     {
         return cardManager.CanSelectCard(cardType);
     }

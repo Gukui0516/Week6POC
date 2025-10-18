@@ -61,8 +61,8 @@ public class ScoreCalculator
         var occupiedTiles = boardManager.GetOccupiedTiles();
         var emptyCount = boardManager.GetEmptyTiles().Count;
 
-        var blockCounts = new Dictionary<BlockType, int>();
-        var uniqueTypes = new HashSet<BlockType>();
+        var blockCounts = new Dictionary<CardType, int>();
+        var uniqueTypes = new HashSet<CardType>();
 
         foreach (var tile in occupiedTiles)
         {
@@ -80,7 +80,7 @@ public class ScoreCalculator
             emptyTileCount = emptyCount,
             blockCounts = blockCounts,
             uniqueTypesCount = uniqueTypes.Count,
-            uniqueTypesExcludingF = uniqueTypes.Where(t => t != BlockType.F).Count()
+            uniqueTypesExcludingF = uniqueTypes.Where(t => t != CardType.Angel).Count()
         };
     }
 
@@ -94,38 +94,38 @@ public class ScoreCalculator
 
         switch (block.type)
         {
-            case BlockType.A:
-                int adjacentACount = adjacentBlocks.Count(b => b.type == BlockType.A);
+            case CardType.Orc:
+                int adjacentACount = adjacentBlocks.Count(b => b.type == CardType.Orc);
                 if (adjacentACount >= 2) score -= 1;
                 break;
 
-            case BlockType.B:
-                int nonBAdjacentCount = adjacentBlocks.Count(b => b.type != BlockType.B);
+            case CardType.Werewolf:
+                int nonBAdjacentCount = adjacentBlocks.Count(b => b.type != CardType.Werewolf);
                 if (nonBAdjacentCount >= 2) score += 1;
                 break;
 
-            case BlockType.C:
-                int adjacentCCount = adjacentBlocks.Count(b => b.type == BlockType.C);
+            case CardType.Goblin:
+                int adjacentCCount = adjacentBlocks.Count(b => b.type == CardType.Goblin);
                 score += adjacentCCount;
                 break;
 
-            case BlockType.D:
-                int adjacentDCount = adjacentBlocks.Count(b => b.type == BlockType.D);
+            case CardType.Elf:
+                int adjacentDCount = adjacentBlocks.Count(b => b.type == CardType.Elf);
                 if (adjacentDCount >= 1 && adjacentDCount <= 2) score += 1;
                 else if (adjacentDCount >= 3) score -= 1;
                 break;
 
-            case BlockType.E:
-                int totalECount = globalData.blockCounts.GetValueOrDefault(BlockType.E, 0);
+            case CardType.Dwarf:
+                int totalECount = globalData.blockCounts.GetValueOrDefault(CardType.Dwarf, 0);
                 score = 4 - ((totalECount - 1) + globalData.emptyTileCount);
                 break;
 
-            case BlockType.F:
-                int totalFCount = globalData.blockCounts.GetValueOrDefault(BlockType.F, 0);
+            case CardType.Angel:
+                int totalFCount = globalData.blockCounts.GetValueOrDefault(CardType.Angel, 0);
                 score = globalData.uniqueTypesExcludingF - (totalFCount - 1);
                 break;
 
-            case BlockType.G:
+            case CardType.Dragon:
                 int adjacentBlockCount = adjacentBlocks.Count;
                 score += adjacentBlockCount * (-1);
 
@@ -151,12 +151,12 @@ public class ScoreCalculator
 
         switch (block.type)
         {
-            case BlockType.A:
-                int adjacentACount = adjacentBlocks.Count(b => b.type == BlockType.A);
+            case CardType.Orc:
+                int adjacentACount = adjacentBlocks.Count(b => b.type == CardType.Orc);
                 if (adjacentACount >= 2)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"인접한 A 블록 {adjacentACount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"인접한 Orc 블록 {adjacentACount}개",
                         -1,
                         "2개 이상일 때 -1"
                     ));
@@ -164,20 +164,20 @@ public class ScoreCalculator
                 }
                 else if (adjacentACount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"인접한 A 블록 {adjacentACount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"인접한 Orc 블록 {adjacentACount}개",
                         0,
                         "1개 이하일 때 보너스 없음"
                     ));
                 }
                 break;
 
-            case BlockType.B:
-                int nonBAdjacentCount = adjacentBlocks.Count(b => b.type != BlockType.B);
+            case CardType.Werewolf:
+                int nonBAdjacentCount = adjacentBlocks.Count(b => b.type != CardType.Werewolf);
                 if (nonBAdjacentCount >= 2)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"B가 아닌 인접 블록 {nonBAdjacentCount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"Werewolf가 아닌 인접 블록 {nonBAdjacentCount}개",
                         1,
                         "2개 이상일 때 +1"
                     ));
@@ -185,33 +185,33 @@ public class ScoreCalculator
                 }
                 else if (nonBAdjacentCount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"B가 아닌 인접 블록 {nonBAdjacentCount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"Werewolf가 아닌 인접 블록 {nonBAdjacentCount}개",
                         0,
                         "1개 이하일 때 보너스 없음"
                     ));
                 }
                 break;
 
-            case BlockType.C:
-                int adjacentCCount = adjacentBlocks.Count(b => b.type == BlockType.C);
+            case CardType.Goblin:
+                int adjacentCCount = adjacentBlocks.Count(b => b.type == CardType.Goblin);
                 if (adjacentCCount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"인접한 C 블록 {adjacentCCount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"인접한 Goblin 블록 {adjacentCCount}개",
                         adjacentCCount,
-                        "C 1개당 +1"
+                        "Goblin 1개당 +1"
                     ));
                     score += adjacentCCount;
                 }
                 break;
 
-            case BlockType.D:
-                int adjacentDCount = adjacentBlocks.Count(b => b.type == BlockType.D);
+            case CardType.Elf:
+                int adjacentDCount = adjacentBlocks.Count(b => b.type == CardType.Elf);
                 if (adjacentDCount >= 1 && adjacentDCount <= 2)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"인접한 D 블록 {adjacentDCount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"인접한 Elf 블록 {adjacentDCount}개",
                         1,
                         "1~2개일 때 +1"
                     ));
@@ -219,8 +219,8 @@ public class ScoreCalculator
                 }
                 else if (adjacentDCount >= 3)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"인접한 D 블록 {adjacentDCount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"인접한 Elf 블록 {adjacentDCount}개",
                         -1,
                         "3개 이상일 때 -1"
                     ));
@@ -228,7 +228,7 @@ public class ScoreCalculator
                 }
                 else if (adjacentDCount == 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
+                    breakdown.modifiers.Add(new CardData(
                         "인접한 D 블록 없음",
                         0,
                         "0개일 때 보너스 없음"
@@ -236,23 +236,23 @@ public class ScoreCalculator
                 }
                 break;
 
-            case BlockType.E:
-                int totalECount = globalData.blockCounts.GetValueOrDefault(BlockType.E, 0);
+            case CardType.Dwarf:
+                int totalECount = globalData.blockCounts.GetValueOrDefault(CardType.Dwarf, 0);
                 int otherECount = totalECount - 1;
                 int penalty = otherECount + globalData.emptyTileCount;
 
                 if (otherECount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"다른 E 블록 {otherECount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"다른 Dwarf 블록 {otherECount}개",
                         -otherECount,
-                        "다른 E 1개당 -1"
+                        "다른 Dwarf 1개당 -1"
                     ));
                 }
 
                 if (globalData.emptyTileCount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
+                    breakdown.modifiers.Add(new CardData(
                         $"빈 타일 {globalData.emptyTileCount}개",
                         -globalData.emptyTileCount,
                         "빈 타일 1개당 -1"
@@ -262,14 +262,14 @@ public class ScoreCalculator
                 score = 4 - penalty;
                 break;
 
-            case BlockType.F:
-                int totalFCount = globalData.blockCounts.GetValueOrDefault(BlockType.F, 0);
+            case CardType.Angel:
+                int totalFCount = globalData.blockCounts.GetValueOrDefault(CardType.Angel, 0);
                 int otherFCount = totalFCount - 1;
 
                 if (globalData.uniqueTypesExcludingF > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"F 제외 블록 종류 {globalData.uniqueTypesExcludingF}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"Angel 제외 블록 종류 {globalData.uniqueTypesExcludingF}개",
                         globalData.uniqueTypesExcludingF,
                         "종류 1개당 +1"
                     ));
@@ -277,23 +277,23 @@ public class ScoreCalculator
 
                 if (otherFCount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
-                        $"다른 F 블록 {otherFCount}개",
+                    breakdown.modifiers.Add(new CardData(
+                        $"다른 Angel 블록 {otherFCount}개",
                         -otherFCount,
-                        "다른 F 1개당 -1"
+                        "다른 Angel 1개당 -1"
                     ));
                 }
 
                 score = globalData.uniqueTypesExcludingF - otherFCount;
                 break;
 
-            case BlockType.G:
+            case CardType.Dragon:
                 int adjacentBlockCount = adjacentBlocks.Count;
                 int adjacentEmptyCount = adjacentTiles.Count - adjacentBlocks.Count;
 
                 if (adjacentBlockCount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
+                    breakdown.modifiers.Add(new CardData(
                         $"인접한 블록 {adjacentBlockCount}개",
                         -adjacentBlockCount,
                         "인접 블록 1개당 -1"
@@ -303,7 +303,7 @@ public class ScoreCalculator
 
                 if (adjacentEmptyCount > 0)
                 {
-                    breakdown.modifiers.Add(new ScoreModifier(
+                    breakdown.modifiers.Add(new CardData(
                         $"인접한 빈칸 {adjacentEmptyCount}개",
                         -adjacentEmptyCount * 2,
                         "인접 빈칸 1개당 -2"
@@ -325,7 +325,7 @@ public class ScoreCalculator
     }
 
     // 미리보기: 특정 위치에 블록을 배치했을 때 전체 보드의 점수 변화 계산
-    public BoardPreview CalculateFullBoardPreview(int previewX, int previewY, BlockType blockType)
+    public BoardPreview CalculateFullBoardPreview(int previewX, int previewY, CardType blockType)
     {
         var preview = new BoardPreview();
         preview.previewX = previewX;
@@ -346,7 +346,7 @@ public class ScoreCalculator
         }
 
         // 2. 임시로 블록 배치
-        var tempBlock = new Block(blockType);
+        var tempBlock = new Card(blockType);
         var originalBlock = board[previewX, previewY].block;
         board[previewX, previewY].block = tempBlock;
 

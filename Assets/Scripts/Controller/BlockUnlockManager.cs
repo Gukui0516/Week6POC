@@ -8,7 +8,7 @@ using System.Collections.Generic;
 /// </summary>
 public class BlockUnlockManager : MonoBehaviour
 {
-    private Dictionary<BlockType, LockPanel> lockPanels = new Dictionary<BlockType, LockPanel>();
+    private Dictionary<CardType, LockPanel> lockPanels = new Dictionary<CardType, LockPanel>();
 
     private void Start()
     {
@@ -36,7 +36,7 @@ public class BlockUnlockManager : MonoBehaviour
             {
                 string blockTypeName = parentName.Replace("Info_", "");
 
-                if (System.Enum.TryParse<BlockType>(blockTypeName, out BlockType type))
+                if (System.Enum.TryParse<CardType>(blockTypeName, out CardType type))
                 {
                     lockPanels[type] = panel;
                 }
@@ -50,8 +50,8 @@ public class BlockUnlockManager : MonoBehaviour
     /// </summary>
     private void SetupInitialState()
     {
-        BlockType[] unlockedBlocks = { BlockType.A, BlockType.B, BlockType.C, BlockType.D };
-        BlockType[] lockedBlocks = { BlockType.E, BlockType.F, BlockType.G };
+        CardType[] unlockedBlocks = { CardType.Orc, CardType.Werewolf, CardType.Goblin, CardType.Elf };
+        CardType[] lockedBlocks = { CardType.Dwarf, CardType.Angel, CardType.Dragon };
 
         // 개방된 블록
         foreach (var type in unlockedBlocks)
@@ -75,7 +75,7 @@ public class BlockUnlockManager : MonoBehaviour
     /// <summary>
     /// 특정 블록 해제
     /// </summary>
-    public void UnlockBlock(BlockType type)
+    public void UnlockBlock(CardType type)
     {
         if (lockPanels.ContainsKey(type))
         {
@@ -92,7 +92,7 @@ public class BlockUnlockManager : MonoBehaviour
     /// </summary>
     public void UnlockNextBlock()
     {
-        BlockType[] lockedBlocks = { BlockType.E, BlockType.F, BlockType.G };
+        CardType[] lockedBlocks = { CardType.Dwarf, CardType.Angel, CardType.Dragon };
 
         foreach (var type in lockedBlocks)
         {

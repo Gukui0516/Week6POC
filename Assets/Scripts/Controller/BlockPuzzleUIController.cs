@@ -325,5 +325,5 @@ public class BlockPuzzleUIController : MonoBehaviour
     }
 
     // Getter
-    public BlockType? GetSelectedBlockType() => inventoryController?.GetSelectedBlockType();
+    public CardType? GetSelectedBlockType() => inventoryController?.GetSelectedBlockType();
 }

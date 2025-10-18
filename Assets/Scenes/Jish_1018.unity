@@ -386,7 +386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -903,7 +903,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1098,7 +1098,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1122,7 +1122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1157,7 +1157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1259,6 +1259,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ToolTip
       objectReference: {fileID: 0}
+    - target: {fileID: 4729054741316328830, guid: 71360411c2d1cc94c96f08a3b0ab115c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7807342788420253420, guid: 71360411c2d1cc94c96f08a3b0ab115c, type: 3}
       propertyPath: m_Name
       value: ToolTipText
@@ -1334,7 +1338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1472,7 +1476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1624,7 +1628,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1648,7 +1652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1672,7 +1676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1696,7 +1700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1720,7 +1724,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1849,6 +1853,58 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1665064396
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1665064398}
+  - component: {fileID: 1665064397}
+  m_Layer: 0
+  m_Name: CardDataLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1665064397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665064396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49c5ade866b3a7240a8ed9c48f972adf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allCardSOList:
+  - {fileID: 11400000, guid: 18dbefe84395d2b498770ddafea27852, type: 2}
+  - {fileID: 11400000, guid: dcb27b68196553d4b8e3e35570ac2998, type: 2}
+  - {fileID: 11400000, guid: 5aa0d522f1c5b8c469d96ccfecb88e4a, type: 2}
+  - {fileID: 11400000, guid: 813eabe9064707e48a30f26625c20a91, type: 2}
+  - {fileID: 11400000, guid: 9751238663e3f8446b5a3778d090c48e, type: 2}
+  - {fileID: 11400000, guid: 51a252f4042670a458eaec687c8ef31f, type: 2}
+  - {fileID: 11400000, guid: a906df1e747fb464189234efbc00b3fb, type: 2}
+--- !u!4 &1665064398
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665064396}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1685206340
 GameObject:
   m_ObjectHideFlags: 0
@@ -1912,7 +1968,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -2722,7 +2778,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -2848,7 +2904,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -2894,7 +2950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  blockType: 0
+  cardType: 0
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -2909,3 +2965,4 @@ SceneRoots:
   - {fileID: 1729210342}
   - {fileID: 1944547579}
   - {fileID: 1654470141}
+  - {fileID: 1665064398}

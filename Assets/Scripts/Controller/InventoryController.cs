@@ -14,7 +14,7 @@ public class InventoryController : MonoBehaviour
     private InventoryButton[] blockButtons;
 
     // 선택된 블록 상태
-    private BlockType? selectedBlockType = null;
+    private CardType? selectedBlockType = null;
     private InventoryButton selectedButton = null;
 
     #region Drag
@@ -80,7 +80,7 @@ public class InventoryController : MonoBehaviour
     /// <summary>
     /// 블록 선택
     /// </summary>
-    public void SelectBlock(BlockType blockType, InventoryButton button)
+    public void SelectBlock(CardType blockType, InventoryButton button)
     {
         var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
         if (cardManager == null) return;
@@ -160,7 +160,7 @@ public class InventoryController : MonoBehaviour
     }
 
     #region Drag
-    public void OnBeginDrag(BlockType blockType, InventoryButton button)
+    public void OnBeginDrag(CardType blockType, InventoryButton button)
     {
         // 선택 가능한지 먼저 확인
         var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
@@ -243,5 +243,5 @@ public class InventoryController : MonoBehaviour
     }
     #endregion
 
-    public BlockType? GetSelectedBlockType() => selectedBlockType;
+    public CardType? GetSelectedBlockType() => selectedBlockType;
 }

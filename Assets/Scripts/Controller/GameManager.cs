@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
         }
 
 
-      
+
     }
     #endregion
 
@@ -276,7 +276,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
- 
+
 
     private void ProcessTurnEnd()
     {
@@ -294,9 +294,9 @@ public class GameManager : MonoBehaviour
         scoreCalculator.UpdateScores();
     }
 
-    private List<BlockType> GetUsedBlockTypes(int turnNumber)
+    private List<CardType> GetUsedBlockTypes(int turnNumber)
     {
-        var usedTypes = new List<BlockType>();
+        var usedTypes = new List<CardType>();
         var occupiedTiles = boardManager.GetOccupiedTiles();
 
         foreach (var tile in occupiedTiles)
@@ -315,7 +315,7 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Block Management
-    public bool PlaceBlock(int x, int y, BlockType blockType)
+    public bool PlaceBlock(int x, int y, CardType blockType)
     {
         if (gameState != GameState.Playing) return false;
         if (!boardManager.IsValidPosition(x, y)) return false;
@@ -334,11 +334,11 @@ public class GameManager : MonoBehaviour
         if (turn == null)
         {
             // 실패 시 카드 반환
-            turnManager.ReturnCard(new Block(blockType));
+            turnManager.ReturnCard(new Card(blockType));
             return false;
         }
 
-        var block = new Block(blockType);
+        var block = new Card(blockType);
 
         // 보드에 배치
         bool success = boardManager.PlaceBlock(x, y, block, turn.turnNumber);
@@ -422,7 +422,7 @@ public class GameManager : MonoBehaviour
     }
 
     // 미리보기용
-    public BoardPreview GetBoardPreview(int x, int y, BlockType blockType)
+    public BoardPreview GetBoardPreview(int x, int y, CardType blockType)
     {
         if (scoreCalculator == null || !IsValidPosition(x, y)) return null;
 

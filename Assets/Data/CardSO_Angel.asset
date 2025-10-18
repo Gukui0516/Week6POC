@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
+  m_Name: CardSO_Angel
+  m_EditorClassIdentifier: 
+  id: 0
+  cardType: 5
+  cardName: "\uCC9C\uC0AC"
+  description: 
+  tooltipDescription: "\uB2E4\uC591\uC131\uC744 \uC120\uD638\uD558\uB294 \uBE14\uB85D"
+  effectDescription: "\uAE30\uBCF8 \uC810\uC218: 0\\nF \uC81C\uC678 \uBE14\uB85D
+    \uC885\uB958 \uC218\uB9CC\uD07C: +1\\n\uB2E4\uB978 F 1\uAC1C\uB2F9: -1"
+  baseScore: 0
+  formula: 
+  iconSprite: {fileID: 0}

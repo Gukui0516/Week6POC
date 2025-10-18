@@ -11,7 +11,7 @@ using GameCore.Data;
 /// </summary>
 public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public BlockType blockType;
+    public CardType blockType;
     private InventoryController inventoryController;
     private Button button;
     private Image buttonImage;

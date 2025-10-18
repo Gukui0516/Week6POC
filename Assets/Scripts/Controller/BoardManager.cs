@@ -72,7 +72,7 @@ public class BoardManager
     #endregion
 
     #region Block Placement
-    public bool PlaceBlock(int x, int y, Block block, int currentTurn)
+    public bool PlaceBlock(int x, int y, Card block, int currentTurn)
     {
         if (!IsValidPosition(x, y) || !board[x, y].IsEmpty) return false;
 
