@@ -397,5 +397,21 @@ public class GameManager : MonoBehaviour
     {
         return scoreCalculator?.GetScoreBreakdown(x, y);
     }
+
+    // 블록 배치 미리보기 계산 (타일 호버 시 사용)
+    public BoardPreview GetBoardPreview(int x, int y, BlockType blockType)
+    {
+        if (scoreCalculator == null || !IsValidPosition(x, y)) return null;
+
+        var tile = GetTile(x, y);
+        if (tile == null || !tile.IsEmpty) return null;
+
+        return scoreCalculator.CalculateFullBoardPreview(x, y, blockType);
+    }
+
+    private bool IsValidPosition(int x, int y)
+    {
+        return x >= 0 && x < GameConfig.BOARD_SIZE && y >= 0 && y < GameConfig.BOARD_SIZE;
+    }
     #endregion
 }

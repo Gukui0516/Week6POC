@@ -323,5 +323,54 @@ public class ScoreCalculator
         totalScore = occupiedTiles.Sum(tile => tile.calculatedScore);
         return totalScore;
     }
+
+    // 미리보기: 특정 위치에 블록을 배치했을 때 전체 보드의 점수 변화 계산
+    public BoardPreview CalculateFullBoardPreview(int previewX, int previewY, BlockType blockType)
+    {
+        var preview = new BoardPreview();
+        preview.previewX = previewX;
+        preview.previewY = previewY;
+        preview.previewBlockType = blockType;
+
+        var board = boardManager.GetBoard();
+
+        // 1. 현재 점수들 저장
+        int totalOriginal = 0;
+        for (int x = 0; x < GameConfig.BOARD_SIZE; x++)
+        {
+            for (int y = 0; y < GameConfig.BOARD_SIZE; y++)
+            {
+                preview.originalScores[x, y] = board[x, y].calculatedScore;
+                totalOriginal += board[x, y].calculatedScore;
+            }
+        }
+
+        // 2. 임시로 블록 배치
+        var tempBlock = new Block(blockType);
+        var originalBlock = board[previewX, previewY].block;
+        board[previewX, previewY].block = tempBlock;
+
+        // 3. 전체 점수 재계산
+        CalculateAllScores();
+
+        // 4. 새로운 점수들 저장
+        int totalPreview = 0;
+        for (int x = 0; x < GameConfig.BOARD_SIZE; x++)
+        {
+            for (int y = 0; y < GameConfig.BOARD_SIZE; y++)
+            {
+                preview.previewScores[x, y] = board[x, y].calculatedScore;
+                totalPreview += board[x, y].calculatedScore;
+            }
+        }
+
+        preview.totalScoreChange = totalPreview - totalOriginal;
+
+        // 5. 원래 상태로 복원
+        board[previewX, previewY].block = originalBlock;
+        CalculateAllScores();
+
+        return preview;
+    }
     #endregion
 }
