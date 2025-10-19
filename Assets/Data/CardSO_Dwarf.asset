@@ -16,10 +16,12 @@ MonoBehaviour:
   cardType: 4
   cardName: "\uB4DC\uC6CC\uD504"
   description: 
-  tooltipDescription: "\uBCF4\uB4DC\uAC00 \uCC44\uC6CC\uC9C8\uC218\uB85D \uBD88\uB9AC\uD568"
-  effectDescription: "\uAE30\uBCF8 \uC810\uC218: +4\\n\uC810\uC218 = 4 - (\uB2E4\uB978
-    E \uAC1C\uC218 + \uBE48\uCE78 \uAC1C\uC218)"
-  baseScore: 4
+  tooltipDescription: "\uB4DC\uC6CC\uD504 \uC815\uD655\uD788 2\uAC1C \uBD99\uC774\uAE30"
+  synergyDescription: "(+1) : \uC778\uC811\uD55C \uB4DC\uC6CC\uD504 \uBE14\uB85D\uC774
+    \uC815\uD655\uD788 1\uAC1C\uC77C \uB54C "
+  penaltyDescription: "(-1): \uC778\uC811\uD55C \uB4DC\uC6CC\uD504 \uBE14\uB85D\uC774
+    2\uAC1C \uC774\uC0C1\uC77C \uB54C"
+  baseScore: 1
   formula: 
-  iconSprite: {fileID: 0}
-  count: 1
+  iconSprite: {fileID: 21300000, guid: 949c45278b69067488a1da49871f65fd, type: 3}
+  count: 9

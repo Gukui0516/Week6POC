@@ -144,7 +144,8 @@ public class ScoreCalculator
         breakdown.baseScore = block.baseScore;
         breakdown.modifiers.Clear();
 
-        int score = block.baseScore;
+        // 실제 점수는 기존 메서드로 계산
+        int score = CalculateTileScore(tile, globalData);
 
         var adjacentTiles = boardManager.GetAdjacentTiles(tile.x, tile.y);
         var adjacentBlocks = adjacentTiles.Where(t => t.HasBlock).Select(t => t.block).ToList();
@@ -160,7 +161,6 @@ public class ScoreCalculator
                         -1,
                         "2개 이상일 때 -1"
                     ));
-                    score -= 1;
                 }
                 else if (adjacentACount > 0)
                 {
@@ -181,7 +181,6 @@ public class ScoreCalculator
                         1,
                         "2개 이상일 때 +1"
                     ));
-                    score += 1;
                 }
                 else if (nonBAdjacentCount > 0)
                 {
@@ -202,7 +201,6 @@ public class ScoreCalculator
                         adjacentCCount,
                         "Goblin 1개당 +1"
                     ));
-                    score += adjacentCCount;
                 }
                 break;
 
@@ -215,7 +213,6 @@ public class ScoreCalculator
                         1,
                         "1~2개일 때 +1"
                     ));
-                    score += 1;
                 }
                 else if (adjacentDCount >= 3)
                 {
@@ -224,7 +221,6 @@ public class ScoreCalculator
                         -1,
                         "3개 이상일 때 -1"
                     ));
-                    score -= 1;
                 }
                 else if (adjacentDCount == 0)
                 {
@@ -239,7 +235,6 @@ public class ScoreCalculator
             case CardType.Dwarf:
                 int totalECount = globalData.blockCounts.GetValueOrDefault(CardType.Dwarf, 0);
                 int otherECount = totalECount - 1;
-                int penalty = otherECount + globalData.emptyTileCount;
 
                 if (otherECount > 0)
                 {
@@ -258,8 +253,6 @@ public class ScoreCalculator
                         "빈 타일 1개당 -1"
                     ));
                 }
-
-                score = 4 - penalty;
                 break;
 
             case CardType.Angel:
@@ -283,8 +276,6 @@ public class ScoreCalculator
                         "다른 Angel 1개당 -1"
                     ));
                 }
-
-                score = globalData.uniqueTypesExcludingF - otherFCount;
                 break;
 
             case CardType.Dragon:
@@ -298,7 +289,6 @@ public class ScoreCalculator
                         -adjacentBlockCount,
                         "인접 블록 1개당 -1"
                     ));
-                    score += adjacentBlockCount * (-1);
                 }
 
                 if (adjacentEmptyCount > 0)
@@ -308,7 +298,6 @@ public class ScoreCalculator
                         -adjacentEmptyCount * 2,
                         "인접 빈칸 1개당 -2"
                     ));
-                    score += adjacentEmptyCount * (-2);
                 }
                 break;
         }
