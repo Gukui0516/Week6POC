@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using GameCore.Data;
@@ -19,10 +19,13 @@ public class BlockPuzzleUIController : MonoBehaviour
     private GameManager gameManager;
     private InventoryController inventoryController;
 
-    // UI 참조들
+    [SerializeField]
     private TextMeshProUGUI turnText;
-    private TextMeshProUGUI targetText;
+    [SerializeField]
+    private TextMeshProUGUI currentScoreText;
+    [SerializeField]
     private TextMeshProUGUI scoreText;
+    [SerializeField]
     private Slider progressBar;
 
     private BlockPuzzleTile[] tiles;
@@ -78,10 +81,10 @@ public class BlockPuzzleUIController : MonoBehaviour
     {
         Debug.Log("[UIController] UI 참조 캐싱 시작");
 
-        turnText = GameObject.Find("TurnText")?.GetComponent<TextMeshProUGUI>();
+/*        turnText = GameObject.Find("TurnText")?.GetComponent<TextMeshProUGUI>();
         targetText = GameObject.Find("TargetText")?.GetComponent<TextMeshProUGUI>();
         scoreText = GameObject.Find("ScoreText")?.GetComponent<TextMeshProUGUI>();
-        progressBar = GameObject.Find("ProgressBar")?.GetComponent<Slider>();
+        progressBar = GameObject.Find("ProgressBar")?.GetComponent<Slider>();*/
 
         tiles = FindObjectsByType<BlockPuzzleTile>(FindObjectsSortMode.None);
 
@@ -232,57 +235,10 @@ public class BlockPuzzleUIController : MonoBehaviour
             int currentTurnScore = gameManager.GetTotalScore(); // 현재 보드 점수
             int cumulativeScore = gameManager.GetCumulativeScore(); // 게임 전체 누적 점수
 
+            currentScoreText.text = $"현재 점수 : {currentTurnScore}";
+
             // 인벤토리 업데이트 (위임)
             inventoryController?.UpdateInventory();
-            /*
-            // 다음 마일스톤 찾기 - GameManager 헬퍼 메소드 사용
-            Milestone nextMilestone = gameManager.GetNextMilestone(turn.turnNumber);
-
-            if (turnText)
-            {
-                int maxTurns = gameManager.GetCurrentStageMaxTurns();
-                turnText.text = $"턴: {turn.turnNumber}/{maxTurns}";
-            }
-
-            if (targetText && nextMilestone != null)
-            {
-                targetText.text = $"다음 목표: {nextMilestone.checkTurn}턴까지 {nextMilestone.targetScore}점";
-            }
-
-            if (scoreText)
-            {
-                scoreText.text = $"누적: {cumulativeScore} | 보드: {currentTurnScore}";
-
-                // 다음 마일스톤 기준으로 색상 변경
-                if (nextMilestone != null)
-                {
-                    if (cumulativeScore >= nextMilestone.targetScore)
-                        scoreText.color = scoreHighColor;
-                    else if (cumulativeScore >= nextMilestone.targetScore * 0.7f)
-                        scoreText.color = scoreMidColor;
-                    else
-                        scoreText.color = scoreLowColor;
-                }
-            }
-
-            if (progressBar && nextMilestone != null)
-            {
-                float progress = (float)cumulativeScore / nextMilestone.targetScore;
-                progressBar.value = Mathf.Clamp01(progress);
-
-                // 진행도에 따른 색상 변경
-                var fillImage = progressBar.fillRect?.GetComponent<Image>();
-                if (fillImage != null)
-                {
-                    if (progress >= 1f)
-                        fillImage.color = progressCompleteColor;
-                    else if (progress >= 0.7f)
-                        fillImage.color = progressHighColor;
-                    else
-                        fillImage.color = progressLowColor;
-                }
-            }*/
-
         }
 
         UpdateBoard();
