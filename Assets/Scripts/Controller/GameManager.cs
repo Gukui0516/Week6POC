@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using GameCore.Data;
@@ -207,6 +207,10 @@ public class GameManager : MonoBehaviour
         // 점수 계산
         scoreCalculator.CalculateAllScores();
         int turnScore = scoreCalculator.GetTotalScore();
+        if(turnScore < 0)
+        {
+            turnScore = 0;
+        }
 
         // 사용한 블록 타입 수집
         var usedTypes = GetUsedBlockTypes(turn.turnNumber);
