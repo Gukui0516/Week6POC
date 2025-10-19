@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
-  m_Name: CardSO_Ork
+  m_Name: CardSO_Troll
   m_EditorClassIdentifier: 
-  id: 1
-  cardType: 0
-  cardName: "\uC624\uD06C"
+  id: 8
+  cardType: 7
+  cardName: "\uD2B8\uB864"
   description: 
-  tooltipDescription: "\uC8FC\uBCC0\uC5D0 \uAC19\uC740 \uD0C0\uC785\uC774 \uB9CE\uC73C\uBA74
-    \uBD88\uB9AC\uD568"
-  effectDescription: "\uAE30\uBCF8 \uC810\uC218: +2\\n\uC778\uC811\uD55C A\uAC00
-    2\uAC1C \uC774\uC0C1: -1"
-  baseScore: 2
+  tooltipDescription: "\uB2E4\uB978 \uD0C0\uC785\uACFC \uC778\uC811\uD560 \uB54C
+    \uC720\uB9AC\uD568"
+  effectDescription: "\uAE30\uBCF8 \uC810\uC218: +1\\nB\uAC00 \uC544\uB2CC \uC778\uC811
+    \uBE14\uB85D 2\uAC1C \uC774\uC0C1: +1"
+  baseScore: 1
   formula: 
   iconSprite: {fileID: 0}
   count: 9

@@ -33,22 +33,12 @@ public class CardManager
     }
 
     /// <summary>
-    /// 시작 덱 초기화 (A, B, C, D만 소유)
+    /// 시작 덱 초기화 (빈 덱으로 시작, 스테이지가 카드를 제공)
     /// </summary>
     private void InitializeStartingDeck()
     {
         ownedCards.Clear();
-
-        // 기본 카드 추가 (각 3장씩)
-        for (int i = 0; i < 3; i++)
-        {
-            ownedCards.Add(CardType.Orc);
-            ownedCards.Add(CardType.Werewolf);
-            ownedCards.Add(CardType.Goblin);
-            ownedCards.Add(CardType.Elf);
-        }
-
-        Debug.Log($"[CardManager] 시작 덱 초기화: {ownedCards.Count}장");
+        Debug.Log($"[CardManager] 시작 덱 초기화: 빈 덱 (스테이지에서 카드 제공)");
         OnDeckChanged?.Invoke();
     }
 
@@ -75,49 +65,73 @@ public class CardManager
     }
 
     /// <summary>
-    /// 덱에 카드 추가 (해금)
+    /// 덱에 카드 추가 (해금) - CardSO의 count만큼 자동으로 추가
     /// </summary>
-    public void AddCardToDeck(CardType cardType, int count = 1)
+    public void AddCardToDeck(CardType cardType)
     {
+        // CardSO에서 count 값 가져오기
+        var cardData = CardDataLoader.GetData(cardType);
+        if (cardData == null)
+        {
+            Debug.LogError($"[CardManager] {cardType}의 CardSO를 찾을 수 없습니다!");
+            return;
+        }
+
+        int count = cardData.count;
+
         for (int i = 0; i < count; i++)
         {
             ownedCards.Add(cardType);
         }
 
-        Debug.Log($"[CardManager] {cardType} 카드 {count}장 추가됨");
+        Debug.Log($"[CardManager] {cardType} 카드 {count}장 추가됨 (CardSO count 기준)");
         OnDeckChanged?.Invoke();
     }
 
     /// <summary>
     /// 턴 시작 - 활성 카드 선택
+    /// firstDraw=4 → 4개의 CardType 선택 → 각 CardType의 count개씩 활성화
     /// </summary>
     public List<Card> ActivateCardsForTurn(int turnNumber)
     {
         activeCards.Clear();
 
-        // 1. 드로우 개수 결정
+        // 1. 드로우 개수 결정 (CardType 개수)
         int drawCount = GetDrawCount(turnNumber);
 
-        // 2. 선택 가능한 카드 풀 생성
+        // 2. 선택 가능한 CardType 풀 생성
         var availablePool = GetAvailableCardsPool();
 
-        // 3. 랜덤하게 활성 카드 선택
-        activeCards = SelectRandomCards(availablePool, drawCount);
+        // 3. 랜덤하게 CardType 선택 (중복 제거)
+        var selectedTypes = SelectRandomCardTypes(availablePool, drawCount);
 
-        // 4. 각 카드의 선택 가능 여부 업데이트
+        // 4. 각 CardType의 count개씩 activeCards에 추가
+        foreach (var cardType in selectedTypes)
+        {
+            var cardData = CardDataLoader.GetData(cardType);
+            if (cardData == null) continue;
+
+            int count = cardData.count;
+            for (int i = 0; i < count; i++)
+            {
+                activeCards.Add(cardType);
+            }
+        }
+
+        // 5. 각 카드의 선택 가능 여부 업데이트
         UpdateCanSelectStatus();
 
-        // 5. Block 리스트로 변환
+        // 6. Block 리스트로 변환
         var blocks = activeCards.Select(type => new Card(type)).ToList();
 
-        Debug.Log($"[CardManager] 턴 {turnNumber}: {activeCards.Count}장 활성화 (선택가능: {canSelectThisTurn.Count(x => x.Value)}장)");
+        Debug.Log($"[CardManager] 턴 {turnNumber}: {selectedTypes.Count}개 CardType 활성화 → 총 {blocks.Count}장 (선택가능: {canSelectThisTurn.Count(x => x.Value)}장)");
         OnActiveCardsChanged?.Invoke();
 
         return blocks;
     }
 
     /// <summary>
-    /// 드로우 개수 결정
+    /// 드로우 개수 결정 (CardType 개수)
     /// </summary>
     private int GetDrawCount(int turnNumber)
     {
@@ -159,13 +173,18 @@ public class CardManager
     }
 
     /// <summary>
-    /// 랜덤하게 카드 선택
+    /// 랜덤하게 CardType 선택 (중복 없이)
     /// </summary>
-    private List<CardType> SelectRandomCards(List<CardType> pool, int count)
+    private List<CardType> SelectRandomCardTypes(List<CardType> pool, int count)
     {
-        var selected = new List<CardType>();
-        var shuffled = pool.OrderBy(x => Random.value).ToList();
+        // 중복 제거된 CardType 목록
+        var uniqueTypes = pool.Distinct().ToList();
 
+        // 셔플
+        var shuffled = uniqueTypes.OrderBy(x => Random.value).ToList();
+
+        // count개만큼 선택
+        var selected = new List<CardType>();
         for (int i = 0; i < Mathf.Min(count, shuffled.Count); i++)
         {
             selected.Add(shuffled[i]);
@@ -268,23 +287,24 @@ public class CardManager
 
     /// <summary>
     /// 특정 턴에 카드 해금 (StageSO.ActiveCard 기반)
+    /// CardSO의 count만큼 덱에 추가
     /// </summary>
     public void UnlockCardsForTurn(int turnNumber)
     {
-        if (currentStage == null || currentStage.ActiveCard == null) return;
+        if (currentStage == null || currentStage.unlockCard == null) return;
 
         // 턴 번호에 해당하는 인덱스 계산 (1턴 = 인덱스 0)
         int index = turnNumber - 1;
 
-        if (index >= 0 && index < currentStage.ActiveCard.Count)
+        if (index >= 0 && index < currentStage.unlockCard.Count)
         {
-            int cardId = currentStage.ActiveCard[index];
+            int cardId = currentStage.unlockCard[index];
 
-            // cardId를 BlockType으로 변환 (1=A, 2=B, ..., 7=G)
-            if (cardId >= 1 && cardId <= 7)
+            // cardId를 CardType으로 변환 (1=Orc, 2=Werewolf, ..., 7=Dragon)
+            if (cardId >= 1 && cardId <= 10)
             {
                 CardType newCard = (CardType)(cardId - 1);
-                AddCardToDeck(newCard, 3); // 3장씩 추가
+                AddCardToDeck(newCard); // CardSO의 count만큼 자동 추가
 
                 Debug.Log($"[CardManager] 턴 {turnNumber}: {newCard} 카드 해금!");
             }

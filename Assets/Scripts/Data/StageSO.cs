@@ -24,7 +24,7 @@ public class StageSO : ScriptableObject
 
     [Header("Card Unlock System")]
     [Tooltip("각 턴마다 해금되는 카드 (1=A, 2=B, 3=C, 4=D, 5=E, 6=F, 7=G)")]
-    public List<int> ActiveCard = new List<int>();
+    public List<int> unlockCard = new List<int>();
 
     /// <summary>
     /// 특정 턴에 해금되는 카드 타입 반환
@@ -33,9 +33,9 @@ public class StageSO : ScriptableObject
     {
         int index = turnNumber - 1;
 
-        if (index >= 0 && index < ActiveCard.Count)
+        if (index >= 0 && index < unlockCard.Count)
         {
-            int cardId = ActiveCard[index];
+            int cardId = unlockCard[index];
 
             // cardId를 BlockType으로 변환 (1=A, 2=B, ..., 7=G)
             if (cardId >= 1 && cardId <= 7)

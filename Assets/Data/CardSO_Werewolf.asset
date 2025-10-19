@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
   m_Name: CardSO_Werewolf
   m_EditorClassIdentifier: 
-  id: 0
+  id: 2
   cardType: 1
   cardName: "\uC6E8\uC5B4\uC6B8\uD504"
   description: 
@@ -23,3 +23,4 @@ MonoBehaviour:
   baseScore: 1
   formula: 
   iconSprite: {fileID: 0}
+  count: 9

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
   m_Name: CardSO_Dragon
   m_EditorClassIdentifier: 
-  id: 0
+  id: 7
   cardType: 6
   cardName: "\uB4DC\uB798\uACE4"
   description: 
@@ -22,3 +22,4 @@ MonoBehaviour:
   baseScore: 5
   formula: 
   iconSprite: {fileID: 0}
+  count: 3

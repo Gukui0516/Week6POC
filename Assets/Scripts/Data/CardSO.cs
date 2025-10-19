@@ -1,14 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum CardType
 {
-    Orc,
-    Werewolf,
-    Goblin,
-    Elf,
-    Dwarf,
-    Angel,
-    Dragon,
+    Orc, //1
+    Werewolf, //2
+    Goblin, // 3
+    Elf, //4 
+    Dwarf, // 5
+    Angel, // 6
+    Dragon, // 7
     Troll,
     Vampire,
     Naga,
@@ -27,6 +27,8 @@ public class CardData : ScriptableObject
     public int baseScore;
     public string formula;
     public Sprite iconSprite;
+    public int count;
+
 
     public CardData(string description, int baseScore, string formula)
     {
