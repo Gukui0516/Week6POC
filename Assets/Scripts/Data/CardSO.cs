@@ -9,9 +9,11 @@ public enum CardType
     Dwarf, // 5
     Angel, // 6
     Dragon, // 7
-    Troll,
-    Vampire,
-    Naga,
+    Devil, // 8
+    Vampire, // 9
+    Naga, // 10
+    Robot, // 11
+    Slime // 12
 }
 
 [CreateAssetMenu(fileName = "CardSO_", menuName = "Game/Card Data")]
@@ -23,7 +25,10 @@ public class CardData : ScriptableObject
     public string cardName;
     public string description;
     public string tooltipDescription;
-    public string effectDescription;
+    //public string effectDescription;
+    public string synergyDescription;
+    public string penaltyDescription;
+
     public int baseScore;
     public string formula;
     public Sprite iconSprite;

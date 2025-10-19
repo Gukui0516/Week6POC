@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
+  m_Name: CardSO_Slime
+  m_EditorClassIdentifier: 
+  id: 12
+  cardType: 11
+  cardName: "\uC2AC\uB77C\uC784"
+  description: 
+  tooltipDescription: "1\uD134\uC5D0 3\uD134\uC5D0 \uC720\uC9C0\uC5D0 \uBC30\uCE58\uD558\uACE0,
+    3\uD134\uC5D0 \uBE14\uB85D \uBC30\uCE58"
+  synergyDescription: "(+ 5) :  \uC2AC\uB77C\uC784 \uD558\uB098\uB2F9"
+  penaltyDescription: "(-10) : \uAC19\uC740 \uD134\uC5D0 \uC2AC\uB77C\uC784\uC744
+    \uB450\uBC88 \uB0C8\uC73C\uBA74"
+  baseScore: 0
+  formula: 
+  iconSprite: {fileID: 368543389579951487, guid: ee2d1a28a6c14dd4b96873731a81bb28, type: 3}
+  count: 2

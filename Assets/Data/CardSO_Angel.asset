@@ -16,10 +16,11 @@ MonoBehaviour:
   cardType: 5
   cardName: "\uCC9C\uC0AC"
   description: 
-  tooltipDescription: "\uB2E4\uC591\uC131\uC744 \uC120\uD638\uD558\uB294 \uBE14\uB85D"
-  effectDescription: "\uAE30\uBCF8 \uC810\uC218: 0\\nF \uC81C\uC678 \uBE14\uB85D
-    \uC885\uB958 \uC218\uB9CC\uD07C: +1\\n\uB2E4\uB978 F 1\uAC1C\uB2F9: -1"
-  baseScore: 0
+  tooltipDescription: "\uCD5C\uB300\uD55C \uB2E4\uC591\uD55C \uBE14\uB85D \uC885\uB958"
+  synergyDescription: "(+1) : \uC804\uC7A5\uC5D0 \uC788\uB294, \uCC9C\uC0AC\uAC00
+    \uC544\uB2CC \uBE14\uB85D \uC885\uB958 \uD558\uB098\uB2F9"
+  penaltyDescription: "\uC720\uB2C8\uD06C"
+  baseScore: 1
   formula: 
-  iconSprite: {fileID: 0}
-  count: 4
+  iconSprite: {fileID: 21300000, guid: 9600b5f837e9bdf42aad1f7ba3c73570, type: 3}
+  count: 6
