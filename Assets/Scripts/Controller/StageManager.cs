@@ -1,6 +1,9 @@
-﻿using UnityEditor.SceneManagement;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// 스테이지 생명주기 관리 전담
+/// Stage 1 → Stage 2 → Stage 3...
+/// </summary>
 public class StageManager : MonoBehaviour
 {
     #region Singleton
@@ -26,9 +29,10 @@ public class StageManager : MonoBehaviour
     [SerializeField] private StageCollectionSO stageCollection;
 
     private StageSO currentStage;
+    private int currentStageId = 0;
 
     public System.Action<StageSO> OnStageStarted;
-    public System.Action<StageSO, bool> OnStageEnded;
+    public System.Action<StageSO, bool> OnStageEnded; // stage, isCleared
 
     private void Awake()
     {
@@ -40,45 +44,72 @@ public class StageManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        // 스테이지 초기화
-        StartStage(1);
-
     }
 
+    /// <summary>
+    /// 특정 스테이지 시작
+    /// </summary>
     public void StartStage(int stageId)
     {
         var stage = stageCollection.GetStage(stageId);
         if (stage == null)
         {
-            Debug.LogError($"스테이지 {stageId}를 찾을 수 없습니다!");
+            Debug.LogError($"[StageManager] 스테이지 {stageId}를 찾을 수 없습니다!");
             return;
         }
 
         currentStage = stage;
+        currentStageId = stageId;
 
-      
+        Debug.Log($"[StageManager] 스테이지 {stageId} 시작!");
         OnStageStarted?.Invoke(stage);
-
-        Debug.Log($"스테이지 {stageId} 시작!");
     }
 
+    /// <summary>
+    /// 다음 스테이지로 이동
+    /// </summary>
+    public void MoveToNextStage()
+    {
+        int nextStageId = currentStageId + 1;
+
+        if (nextStageId > stageCollection.GetTotalStageCount())
+        {
+            Debug.Log($"[StageManager] 모든 스테이지 완료! 게임 클리어!");
+            return;
+        }
+
+        StartStage(nextStageId);
+    }
+
+    /// <summary>
+    /// 스테이지 종료 (성공/실패)
+    /// </summary>
     public void EndStage(bool isCleared)
     {
         if (currentStage == null) return;
 
+        Debug.Log($"[StageManager] 스테이지 {currentStageId} {(isCleared ? "클리어!" : "실패!")}");
         OnStageEnded?.Invoke(currentStage, isCleared);
 
         if (isCleared)
         {
-            Debug.Log($"스테이지 {currentStage.stageId} 클리어!");
-        }
-        else
-        {
-            Debug.Log($"스테이지 {currentStage.stageId} 실패!");
+            // 클리어 시 다음 스테이지로 이동할지 결정
+            // 여기서는 자동으로 넘어가지 않고, 외부에서 MoveToNextStage() 호출
         }
     }
 
+    /// <summary>
+    /// 첫 스테이지부터 다시 시작
+    /// </summary>
+    public void RestartFromFirstStage()
+    {
+        StartStage(1);
+    }
+
+    #region Getters
     public StageSO GetCurrentStage() => currentStage;
+    public int GetCurrentStageId() => currentStageId;
     public StageCollectionSO GetStageCollection() => stageCollection;
+    public int GetTotalStageCount() => stageCollection?.GetTotalStageCount() ?? 0;
+    #endregion
 }

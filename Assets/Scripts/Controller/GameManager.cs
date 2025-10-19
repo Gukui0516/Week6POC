@@ -3,6 +3,9 @@ using System.Linq;
 using UnityEngine;
 using GameCore.Data;
 
+/// <summary>
+/// 게임 전체 흐름 조율 - StageManager와 TurnManager를 연결
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     #region Singleton
@@ -35,9 +38,6 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("[GameManager] 중복된 GameManager 발견! 파괴합니다.");
             Destroy(gameObject);
         }
-
-
-
     }
     #endregion
 
@@ -55,51 +55,50 @@ public class GameManager : MonoBehaviour
     private BoardManager boardManager;
     private ScoreCalculator scoreCalculator;
     private TurnManager turnManager;
+    private StageManager stageManager;
     #endregion
 
     #region Game State
     private GameState gameState = GameState.Playing;
-    private StageSO currentStage;
-    private int cumulativeScore = 0;
+    private int cumulativeScore = 0; // 스테이지 내 누적 점수
     #endregion
 
     #region Unity Lifecycle
     private void Start()
     {
-
         if (gameConfig == null)
         {
-            Debug.LogError("[GameManager] GameConfig가 할당되지 않았습니다! Inspector에서 GameConfig를 할당하세요.");
+            Debug.LogError("[GameManager] GameConfig가 할당되지 않았습니다!");
             return;
         }
 
-
         InitializeManagers();
+        SubscribeToEvents();
 
+        // 게임 시작
+        StartGame();
     }
 
     private void InitializeManagers()
     {
-
-        // 설정 검증
         if (!gameConfig.IsValid())
         {
+            Debug.LogError("[GameManager] GameConfig가 유효하지 않습니다!");
             return;
         }
 
         // 매니저 초기화
         boardManager = new BoardManager(gameConfig);
-
         scoreCalculator = new ScoreCalculator(boardManager);
-
         turnManager = new TurnManager(gameConfig);
+        stageManager = StageManager.Instance;
 
-        // 이벤트 연결
-        ConnectEvents();
+        Debug.Log("[GameManager] 모든 매니저 초기화 완료");
     }
 
-    private void ConnectEvents()
+    private void SubscribeToEvents()
     {
+        // Board 이벤트
         if (boardManager != null)
         {
             boardManager.OnBoardUpdated += () =>
@@ -109,121 +108,95 @@ public class GameManager : MonoBehaviour
             };
         }
 
+        // Score 이벤트
         if (scoreCalculator != null)
         {
             scoreCalculator.OnScoreUpdated += (score) => OnScoreUpdated?.Invoke(score);
         }
 
+        // Turn 이벤트
         if (turnManager != null)
         {
             turnManager.OnTurnStart += (turn) => OnTurnStart?.Invoke(turn);
         }
+
+        // Stage 이벤트
+        if (stageManager != null)
+        {
+            stageManager.OnStageStarted += OnStageStarted;
+            stageManager.OnStageEnded += OnStageEnded;
+        }
+
+        Debug.Log("[GameManager] 모든 이벤트 구독 완료");
     }
     #endregion
 
     #region Game Flow
-    // 스테이지 시작 (새로운 방식)
-    public void StartStage(StageSO stage)
+    /// <summary>
+    /// 게임 시작 (첫 스테이지부터)
+    /// </summary>
+    public void StartGame()
     {
-        if (stage == null)
-        {
-            Debug.LogError("StageSO가 null입니다!");
-            return;
-        }
-
-        currentStage = stage;
-        gameState = GameState.Playing;
-
-        boardManager.ClearAllBlocks();
-        cumulativeScore = 0;
-
-        if (gameConfig.useNumbersMode)
-        {
-            boardManager.InitializeBoard();
-        }
-
-        // 카드 덱 초기화 추가
-        turnManager.ResetForNewGame();
-
-        // TurnManager에 스테이지 설정
-        turnManager.SetStage(stage);
-
-        // 첫 턴 시작
-        StartTurn(1);
-
-        OnGameStateChanged?.Invoke(gameState);
-
-        Debug.Log($"[GameManager] 스테이지 {stage.stageId} 시작! (덱 초기화됨)");
+        Debug.Log("[GameManager] 게임 시작!");
+        stageManager.StartStage(1);
     }
 
-    // 기본 게임 시작 (기존 호환성 유지)
+    /// <summary>
+    /// 새 게임 (재시작)
+    /// </summary>
     public void StartNewGame()
     {
-        var stage = StageManager.Instance?.GetCurrentStage();
-        if (stage != null)
-        {
-            StartStage(stage);
-            return;
-        }
+        Debug.Log("[GameManager] 새 게임 시작!");
+        stageManager.RestartFromFirstStage();
+    }
 
-        // 스테이지 없이 기존 방식으로 시작
+    /// <summary>
+    /// 스테이지 시작 이벤트 핸들러
+    /// </summary>
+    private void OnStageStarted(StageSO stage)
+    {
+        Debug.Log($"[GameManager] 스테이지 {stage.stageId} 시작 처리");
+
         gameState = GameState.Playing;
-        boardManager.ClearAllBlocks();
         cumulativeScore = 0;
 
+        // 보드 초기화
+        boardManager.ClearAllBlocks();
         if (gameConfig.useNumbersMode)
         {
             boardManager.InitializeBoard();
         }
 
-        // 카드 덱 초기화 추가
-        turnManager.ResetForNewGame();
+        // TurnManager에 스테이지 설정 및 첫 턴 시작
+        turnManager.ResetForStage(stage);
+        turnManager.StartNextTurn();
 
-        StartTurn(1);
         OnGameStateChanged?.Invoke(gameState);
-
-        Debug.Log("[GameManager] 기본 게임 시작! (덱 초기화됨)");
     }
 
-    public void StartTurn(int turnNumber)
+    /// <summary>
+    /// 스테이지 종료 이벤트 핸들러
+    /// </summary>
+    private void OnStageEnded(StageSO stage, bool isCleared)
     {
-        if (gameState != GameState.Playing) return;
+        Debug.Log($"[GameManager] 스테이지 {stage.stageId} {(isCleared ? "클리어" : "실패")} 처리");
 
-        // 최대 턴 수 체크
-        if (currentStage != null)
+        if (isCleared)
         {
-            // 스테이지 모드
-            if (turnNumber > currentStage.endTurn)
-            {
-                gameState = GameState.Victory;
-                OnGameStateChanged?.Invoke(gameState);
-                Debug.Log($"게임 클리어! {currentStage.endTurn}턴 완료!");
-                return;
-            }
+            gameState = GameState.Victory;
+            // 다음 스테이지로 이동하려면: stageManager.MoveToNextStage();
         }
         else
         {
-            // 기존 모드
-            if (turnNumber > gameConfig.EndStage)
-            {
-                gameState = GameState.Victory;
-                OnGameStateChanged?.Invoke(gameState);
-                return;
-            }
+            gameState = GameState.GameOver;
         }
 
-        // 목표 점수 결정
-        int targetScore = GetTargetScore(turnNumber);
-
-        // TurnManager에게 턴 시작 위임
-        turnManager.StartTurn(turnNumber, targetScore);
+        OnGameStateChanged?.Invoke(gameState);
     }
 
-    private int GetTargetScore(int turnNumber)
-    {
-        return currentStage.target;
-    }
-
+    /// <summary>
+    /// 턴 종료 버튼 클릭
+    /// </summary>
     public void EndTurn()
     {
         if (gameState != GameState.Playing) return;
@@ -231,6 +204,7 @@ public class GameManager : MonoBehaviour
         var turn = turnManager.GetCurrentTurn();
         if (turn == null) return;
 
+        // 점수 계산
         scoreCalculator.CalculateAllScores();
         int turnScore = scoreCalculator.GetTotalScore();
 
@@ -243,41 +217,40 @@ public class GameManager : MonoBehaviour
         // 누적 점수 업데이트
         cumulativeScore += turnScore;
 
-        Debug.Log($"턴 {turn.turnNumber} 종료 - 이번 턴: {turnScore}점, 누적: {cumulativeScore}점");
+        Debug.Log($"[GameManager] 턴 {turn.turnNumber} 종료 - 이번 턴: {turnScore}점, 누적: {cumulativeScore}점");
 
-        CheckStageMilestone(turn.turnNumber);
-
+        // 스테이지 완료 체크
+        CheckStageCompletion();
     }
 
-    private void CheckStageMilestone(int turnNumber)
+    /// <summary>
+    /// 스테이지 완료 조건 체크
+    /// </summary>
+    private void CheckStageCompletion()
     {
-        // 스테이지 모드: endTurn 체크
-        if (turnNumber >= currentStage.endTurn)
-        {
-            if (cumulativeScore >= currentStage.target)
-            {
-                Debug.Log($"✅ 목표 달성! ({cumulativeScore}/{currentStage.target})");
-                gameState = GameState.Victory;
-                StageManager.Instance?.EndStage(true);
-            }
-            else
-            {
-                Debug.Log($"❌ 목표 미달성! ({cumulativeScore}/{currentStage.target})");
-                gameState = GameState.GameOver;
-                StageManager.Instance?.EndStage(false);
-            }
+        var stage = turnManager.GetCurrentStage();
+        if (stage == null) return;
 
-            OnGameStateChanged?.Invoke(gameState);
+        // 마지막 턴이면 스테이지 종료
+        if (turnManager.IsLastTurn())
+        {
+            bool isCleared = cumulativeScore >= stage.target;
+
+            Debug.Log($"[GameManager] 스테이지 완료 체크: {cumulativeScore}/{stage.target} → {(isCleared ? "성공" : "실패")}");
+
+            stageManager.EndStage(isCleared);
         }
         else
         {
+            // 다음 턴으로
             ProcessTurnEnd();
-            StartTurn(turnNumber + 1);
+            turnManager.StartNextTurn();
         }
     }
 
-
-
+    /// <summary>
+    /// 턴 종료 후 보드 처리
+    /// </summary>
     private void ProcessTurnEnd()
     {
         if (!gameConfig.useNumbersMode)
@@ -294,6 +267,9 @@ public class GameManager : MonoBehaviour
         scoreCalculator.UpdateScores();
     }
 
+    /// <summary>
+    /// 현재 턴에 사용한 블록 타입 수집
+    /// </summary>
     private List<CardType> GetUsedBlockTypes(int turnNumber)
     {
         var usedTypes = new List<CardType>();
@@ -393,10 +369,12 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Getters
-
     public TurnManager GetTurnManager() => turnManager;
+    public StageManager GetStageManager() => stageManager;
     public Tile[,] GetBoard() => boardManager?.GetBoard();
     public TurnData GetCurrentTurn() => turnManager?.GetCurrentTurn();
+    public int GetCurrentTurnNumber() => turnManager?.GetCurrentTurnNumber() ?? 0;
+    public StageSO GetCurrentStage() => turnManager?.GetCurrentStage();
     public GameState GetGameState() => gameState;
     public TileMode GetTileMode() => gameConfig.useNumbersMode ? TileMode.WithNumbers : TileMode.NoNumbers;
     public Tile GetTile(int x, int y) => boardManager?.GetTile(x, y);
@@ -409,11 +387,11 @@ public class GameManager : MonoBehaviour
     // UI에서 필요한 설정값들
     public int GetCurrentStageMaxTurns()
     {
-        if (currentStage != null)
-            return currentStage.endTurn;
+        var stage = turnManager?.GetCurrentStage();
+        if (stage != null)
+            return stage.endTurn;
         return gameConfig.EndStage;
     }
-
 
     // 툴팁용
     public ScoreBreakdown GetScoreBreakdown(int x, int y)
@@ -443,8 +421,5 @@ public class GameManager : MonoBehaviour
     {
         return x >= 0 && x < GameConfig.BOARD_SIZE && y >= 0 && y < GameConfig.BOARD_SIZE;
     }
-
-    // 현재 스테이지 정보 (추가)
-    public StageSO GetCurrentStage() => currentStage;
     #endregion
 }
