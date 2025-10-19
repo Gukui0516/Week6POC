@@ -12,17 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d8e5a29a87a92342b0cb542c8989558, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: 
-  maxTurns: 20
-  milestones:
-  - checkTurn: 5
-    targetScore: 50
-  - checkTurn: 10
-    targetScore: 100
-  - checkTurn: 15
-    targetScore: 150
-  - checkTurn: 20
-    targetScore: 200
-  useNumbersMode: 0
+  EndStage: 20
+  useNumbersMode: 1
   maxTileNumber0: 2
   maxTileNumber1: 3
   maxTileNumber2: 2
@@ -31,7 +22,4 @@ MonoBehaviour:
   weightTileNumber1: 2
   weightTileNumber2: 2
   weightTileNumber3: 1
-  minBlockTypes: 3
-  maxBlockTypes: 5
-  excludePreviousTurnTypes: 0
   excludeTurnCount: 2
