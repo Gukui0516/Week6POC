@@ -879,7 +879,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  cardType: 0
+  cardType: 3
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1074,7 +1074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  cardType: 0
+  cardType: 2
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1532,7 +1532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  cardType: 0
+  cardType: 5
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1556,7 +1556,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  cardType: 0
+  cardType: 4
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1580,7 +1580,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  cardType: 0
+  cardType: 6
   tileX: -1
   tileY: -1
   preferredDirection: 0
@@ -1866,6 +1866,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 226
       objectReference: {fileID: 0}
+    - target: {fileID: 401570781839882747, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
+      propertyPath: CardType
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 839229678268497820, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
       propertyPath: m_Name
       value: BlockPuzzleCanvas
@@ -2078,9 +2082,17 @@ PrefabInstance:
       propertyPath: m_RaycastTarget
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1619814022501494551, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
+      propertyPath: CardType
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1654336845046019439, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1841418261032988810, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
+      propertyPath: CardType
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2107872379653298721, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
       propertyPath: m_hasFontAssetChanged
@@ -2110,9 +2122,17 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2288255553789216219, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
+      propertyPath: CardType
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2792432688348426109, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2855225070108625569, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
+      propertyPath: CardType
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2918122168926576531, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2301,6 +2321,10 @@ PrefabInstance:
     - target: {fileID: 4856111415907298774, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4921109912333762495, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
+      propertyPath: CardType
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5071463792162066019, guid: 2540b6e974cb87844b84f2fa882895fe, type: 3}
       propertyPath: m_hasFontAssetChanged
@@ -2901,7 +2925,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltipMode: 0
-  cardType: 0
+  cardType: 1
   tileX: -1
   tileY: -1
   preferredDirection: 0

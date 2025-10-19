@@ -27,7 +27,7 @@ public class StageSO : ScriptableObject
     public List<int> unlockCard = new List<int>();
 
     /// <summary>
-    /// 특정 턴에 해금되는 카드 타입 반환
+    /// 특정 턴에 덱에 추가되는 카드 타입 반환
     /// </summary>
     public CardType? GetUnlockCardForTurn(int turnNumber)
     {
@@ -37,8 +37,7 @@ public class StageSO : ScriptableObject
         {
             int cardId = unlockCard[index];
 
-            // cardId를 BlockType으로 변환 (1=A, 2=B, ..., 7=G)
-            if (cardId >= 1 && cardId <= 7)
+            if (cardId >= 1 && cardId <= 10)
             {
                 return (CardType)(cardId - 1);
             }

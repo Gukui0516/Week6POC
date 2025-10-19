@@ -19,4 +19,4 @@ MonoBehaviour:
   secondDraw: 2
   lastDraw: 1
   excludePreviousTurnTypes: 1
-  ActiveCard: 01000000020000000300000004000000
+  unlockCard: 01000000020000000300000004000000

@@ -33,16 +33,17 @@ public class TurnManager
     {
         currentTurn = new TurnData(turnNumber, targetScore);
 
-        // 1. 해당 턴에 새로 해금되는 카드 처리
+        // 1. 해당 턴에 새로 해금되는 카드를 덱에 추가
         cardManager.UnlockCardsForTurn(turnNumber);
 
-        // 2. 카드 활성화 (드로우)
+        // 2. 소유한 카드 중에서 활성화 (이전 턴 사용 타입 제외)
         currentTurn.availableBlocks = cardManager.ActivateCardsForTurn(turnNumber);
 
         OnTurnStart?.Invoke(currentTurn);
 
-        Debug.Log($"턴 {turnNumber} 시작 - 카드 {currentTurn.availableBlocks.Count}장 활성화");
+        Debug.Log($"턴 {turnNumber} 시작 - 활성 카드 {currentTurn.availableBlocks.Count}장");
     }
+
 
     public void EndTurn(int currentTurnScore, List<CardType> usedBlockTypes)
     {

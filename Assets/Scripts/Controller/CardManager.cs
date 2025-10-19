@@ -148,14 +148,14 @@ public class CardManager
     }
 
     /// <summary>
-    /// 선택 가능한 카드 풀 생성
+    /// 선택 가능한 카드 풀 생성 (소유한 카드 중에서)
     /// </summary>
     private List<CardType> GetAvailableCardsPool()
     {
         // 소유한 모든 카드를 풀에 추가
         var pool = new List<CardType>(ownedCards);
 
-        // 이전 턴에 사용한 카드 제외 (옵션)
+        // 이전 턴에 사용한 카드 타입 제외
         if (currentStage != null && currentStage.excludePreviousTurnTypes)
         {
             var excludedTypes = GetExcludedTypes();
@@ -164,11 +164,12 @@ public class CardManager
             // 모든 카드가 제외되면 다시 전체 사용
             if (pool.Count == 0)
             {
-                Debug.LogWarning("[CardManager] 모든 카드가 제외됨 - 전체 덱 사용");
+                Debug.LogWarning("[CardManager] 모든 카드 타입이 제외됨 - 전체 덱 사용");
                 pool = new List<CardType>(ownedCards);
             }
         }
 
+        Debug.Log($"[CardManager] 선택 가능한 카드 풀: {string.Join(", ", pool.Distinct())}");
         return pool;
     }
 
@@ -177,8 +178,14 @@ public class CardManager
     /// </summary>
     private List<CardType> SelectRandomCardTypes(List<CardType> pool, int count)
     {
-        // 중복 제거된 CardType 목록
+        // ⭐ 중복 제거된 CardType 목록 (소유한 타입만)
         var uniqueTypes = pool.Distinct().ToList();
+
+        if (uniqueTypes.Count == 0)
+        {
+            Debug.LogWarning("[CardManager] 선택 가능한 카드 타입이 없습니다!");
+            return new List<CardType>();
+        }
 
         // 셔플
         var shuffled = uniqueTypes.OrderBy(x => Random.value).ToList();
@@ -190,6 +197,7 @@ public class CardManager
             selected.Add(shuffled[i]);
         }
 
+        Debug.Log($"[CardManager] 선택된 카드 타입 ({selected.Count}개): {string.Join(", ", selected)}");
         return selected;
     }
 
@@ -286,7 +294,7 @@ public class CardManager
     }
 
     /// <summary>
-    /// 특정 턴에 카드 해금 (StageSO.ActiveCard 기반)
+    /// 특정 턴에 카드 해금 (StageSO.unlockCard 기반)
     /// CardSO의 count만큼 덱에 추가
     /// </summary>
     public void UnlockCardsForTurn(int turnNumber)
@@ -296,18 +304,28 @@ public class CardManager
         // 턴 번호에 해당하는 인덱스 계산 (1턴 = 인덱스 0)
         int index = turnNumber - 1;
 
-        if (index >= 0 && index < currentStage.unlockCard.Count)
+        List<int> ar = currentStage.unlockCard;
+
+        foreach (int card in ar)
         {
-            int cardId = currentStage.unlockCard[index];
 
             // cardId를 CardType으로 변환 (1=Orc, 2=Werewolf, ..., 7=Dragon)
-            if (cardId >= 1 && cardId <= 10)
+            if (card >= 1 && card <= 10)
             {
-                CardType newCard = (CardType)(cardId - 1);
+                CardType newCard = (CardType)(card - 1);
                 AddCardToDeck(newCard); // CardSO의 count만큼 자동 추가
 
-                Debug.Log($"[CardManager] 턴 {turnNumber}: {newCard} 카드 해금!");
+                Debug.Log($"[CardManager] 턴 {turnNumber}: {newCard} 카드 해금! (덱에 추가됨)");
             }
+            else
+            {
+                Debug.LogError("Card Value Error  :  " + card);
+            }
+        }
+
+        if (index >= 0 && index < currentStage.unlockCard.Count)
+        {
+           
         }
     }
 
