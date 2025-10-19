@@ -4,13 +4,15 @@ using UnityEngine;
 using GameCore.Data;
 
 /// <summary>
-/// 턴 관리 및 카드 시스템 (CardManager 사용)
+/// 턴 생명주기 관리 전담 (스테이지 내부)
+/// Turn 1 → Turn 2 → Turn 3... (within a stage)
 /// </summary>
 public class TurnManager
 {
     public System.Action<TurnData> OnTurnStart;
     public System.Action OnTurnEnd;
 
+    private int currentTurnNumber = 0;
     private TurnData currentTurn;
     private CardManager cardManager;
     private StageSO currentStage;
@@ -22,29 +24,60 @@ public class TurnManager
         cardManager = new CardManager(config);
     }
 
-    public void SetStage(StageSO stage)
+    /// <summary>
+    /// 새 스테이지 시작 시 턴 초기화
+    /// </summary>
+    public void ResetForStage(StageSO stage)
     {
         currentStage = stage;
+        currentTurnNumber = 0;
+        currentTurn = null;
+
+        // 카드 매니저 초기화
+        cardManager.ResetDeck();
         cardManager.SetStage(stage);
-        Debug.Log($"[TurnManager] 스테이지 {stage.stageId} 설정");
+
+        Debug.Log($"[TurnManager] 스테이지 {stage.stageId}에 맞춰 턴 초기화 (턴 번호: 0)");
     }
 
-    public void StartTurn(int turnNumber, int targetScore)
+    /// <summary>
+    /// 다음 턴 시작 (턴 번호 자동 증가)
+    /// </summary>
+    public void StartNextTurn()
     {
-        currentTurn = new TurnData(turnNumber, targetScore);
+        if (currentStage == null)
+        {
+            Debug.LogError("[TurnManager] 스테이지가 설정되지 않았습니다!");
+            return;
+        }
+
+        currentTurnNumber++;
+
+        // 스테이지 최대 턴 체크
+        if (currentTurnNumber > currentStage.endTurn)
+        {
+            Debug.LogWarning($"[TurnManager] 스테이지 최대 턴({currentStage.endTurn})을 초과했습니다!");
+            return;
+        }
+
+        // 턴 데이터 생성
+        int targetScore = currentStage.target;
+        currentTurn = new TurnData(currentTurnNumber, targetScore);
 
         // 1. 해당 턴에 새로 해금되는 카드를 덱에 추가
-        cardManager.UnlockCardsForTurn(turnNumber);
+        cardManager.UnlockCardsForTurn(currentTurnNumber);
 
         // 2. 소유한 카드 중에서 활성화 (이전 턴 사용 타입 제외)
-        currentTurn.availableBlocks = cardManager.ActivateCardsForTurn(turnNumber);
+        currentTurn.availableBlocks = cardManager.ActivateCardsForTurn(currentTurnNumber);
 
         OnTurnStart?.Invoke(currentTurn);
 
-        Debug.Log($"턴 {turnNumber} 시작 - 활성 카드 {currentTurn.availableBlocks.Count}장");
+        Debug.Log($"[TurnManager] 턴 {currentTurnNumber}/{currentStage.endTurn} 시작 - 활성 카드 {currentTurn.availableBlocks.Count}장");
     }
 
-
+    /// <summary>
+    /// 턴 종료
+    /// </summary>
     public void EndTurn(int currentTurnScore, List<CardType> usedBlockTypes)
     {
         if (currentTurn == null) return;
@@ -54,9 +87,29 @@ public class TurnManager
         // 사용한 카드 기록 (다음 턴 제한용)
         cardManager.OnTurnEnd(usedBlockTypes);
 
+        Debug.Log($"[TurnManager] 턴 {currentTurnNumber} 종료 - 점수: {currentTurnScore}");
+
         OnTurnEnd?.Invoke();
     }
 
+    /// <summary>
+    /// 스테이지의 마지막 턴인지 확인
+    /// </summary>
+    public bool IsLastTurn()
+    {
+        return currentStage != null && currentTurnNumber >= currentStage.endTurn;
+    }
+
+    /// <summary>
+    /// 스테이지 내 남은 턴 수
+    /// </summary>
+    public int GetRemainingTurns()
+    {
+        if (currentStage == null) return 0;
+        return Mathf.Max(0, currentStage.endTurn - currentTurnNumber);
+    }
+
+    #region Card Management
     /// <summary>
     /// 카드 사용 (배치 시)
     /// </summary>
@@ -91,18 +144,12 @@ public class TurnManager
             cardManager.ReturnCard(block.type);
         }
     }
-
-    /// <summary>
-    /// 새 게임 시작 (덱 초기화)
-    /// </summary>
-    public void ResetForNewGame()
-    {
-        cardManager.ResetDeck();
-        currentTurn = null;
-    }
+    #endregion
 
     #region Getters
     public TurnData GetCurrentTurn() => currentTurn;
+    public int GetCurrentTurnNumber() => currentTurnNumber;
+    public StageSO GetCurrentStage() => currentStage;
     public CardManager GetCardManager() => cardManager;
 
     /// <summary>
