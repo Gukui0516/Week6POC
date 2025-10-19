@@ -27,6 +27,6 @@ public class CardDataLoader : MonoBehaviour
     public static string GetTooltipText(CardType cardType)
     {
         var info = GetData(cardType);
-        return $"<b>{info.name}</b>\n\n{info.description}\n\n<color=yellow>{info.synergyDescription}</color>\nn\n<color=red>{info.penaltyDescription}</color>";
+        return $"<b>{info.name}</b>\n\n{info.description}\n\n<color=yellow>{info.synergyDescription}</color>\n\n<color=red>{info.penaltyDescription}</color>";
     }
 }

@@ -11,7 +11,7 @@ public static class ScoreTooltipFormatter
         var sb = new StringBuilder();
 
         // 첫 번째 줄: 헤더와 기본 점수
-        sb.AppendLine($"<color=white>블록 {breakdown.cardType}</color>\n\n<color=yellow>기본점수: +{breakdown.baseScore}</color>");
+        sb.AppendLine($"<color=white>{breakdown.cardName}</color>\n\n<color=yellow>기본점수: {breakdown.baseScore}</color>");
 
         // 두 번째 줄: 수정자들 (있을 때만)
         if (breakdown.modifiers.Count > 0)

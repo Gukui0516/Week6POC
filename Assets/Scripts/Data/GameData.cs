@@ -76,4 +76,20 @@ namespace GameCore.Data
             blockCounts = new Dictionary<CardType, int>();
         }
     }
+
+    // 점수 계산 과정의 각 수정자를 추적하기 위한 클래스
+    [System.Serializable]
+    public class ScoreModifier
+    {
+        public string description;  // 수정자 설명 (예: "인접한 Orc 1개")
+        public int value;           // 점수 변화량 (예: -1)
+        public string reason;       // 공식/이유 (예: "인접 Orc 있을 때 -1")
+
+        public ScoreModifier(string description, int value, string reason)
+        {
+            this.description = description;
+            this.value = value;
+            this.reason = reason;
+        }
+    }
 }
