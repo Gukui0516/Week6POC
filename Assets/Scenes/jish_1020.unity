@@ -3113,7 +3113,7 @@ MonoBehaviour:
   tooltipPanel: {fileID: 1985728610}
   tooltipText: {fileID: 532585218}
   tooltipRect: {fileID: 1985728611}
-  offsetTop: {x: 0, y: 100}
+  offsetTop: {x: 0, y: 220}
   offsetBottom: {x: 0, y: -10}
   offsetLeft: {x: -10, y: 0}
   offsetRight: {x: 10, y: 0}
