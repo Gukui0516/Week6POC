@@ -392,7 +392,7 @@ public class ScoreCalculator
         if (trackModifiers && penalty != 0)
         {
             modifiers.Add(new GameCore.Data.ScoreModifier(
-                $"유니크({GetCardName(cardType)}) {totalCount - 1}개",
+                $"전장에 있는 {GetCardName(cardType)} 블록 하나당 {totalCount - 1}개",
                 penalty,
                 "같은 종족 1개당 -1"
             ));
