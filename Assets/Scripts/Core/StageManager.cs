@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor.SceneManagement;
+using UnityEngine;
 
 /// <summary>
 /// 스테이지 생명주기 관리 전담
@@ -97,11 +98,23 @@ public class StageManager : MonoBehaviour
             // 진짜 하드코딩 겁나 하기 싫은데 어쩔 수 없이 했음
             if (currentStageId < 4)
             {
-                newCardUI.SetCardUI((CardType)currentStage.unlockCard[0]);
-                newCardUI.gameObject.SetActive(true);
+                if(currentStageId == 1)
+                {
+                    var stage = stageCollection.GetStage(2); // 다음 꺼
+                    newCardUI.SetCardUI((CardType)stage.unlockCard[0] - 1);
+                    newCardUI.gameObject.SetActive(true);
+                }
+                else
+                {
+                    newCardUI.SetCardUI((CardType)currentStage.unlockCard[0]);
+                    newCardUI.gameObject.SetActive(true);
+                }
+                   
             }
             // 클리어 시 다음 스테이지로 이동할지 결정
             // 여기서는 자동으로 넘어가지 않고, 외부에서 MoveToNextStage() 호출
+
+            
         }
     }
 
