@@ -15,8 +15,8 @@ MonoBehaviour:
   id: 4
   cardType: 3
   cardName: "\uC5D8\uD504"
-  description: "1. \uC720\uB2C8\uD06C\\n2. \uC804\uC7A5\uC5D0 \uC788\uB294, \uBE48
-    \uD0C0\uC77C \uD558\uB098\uB2F9 \uACF5\uACA9\uB825 -1 "
+  description: "\uC720\uB2C8\uD06C \\n(-1) : \uC804\uC7A5\uC5D0 \uC788\uB294, \uBE48
+    \uD0C0\uC77C \uD558\uB098\uB2F9"
   tooltipDescription: " \uCD5C\uB300\uD55C \uCC44\uC6B0\uAE30"
   synergyDescription: 
   penaltyDescription: "\uC720\uB2C8\uD06C / (-1) : \uC804\uC7A5\uC5D0 \uC788\uB294,
