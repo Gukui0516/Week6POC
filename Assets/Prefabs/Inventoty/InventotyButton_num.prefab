@@ -88,7 +88,6 @@ GameObject:
   - component: {fileID: 1038152961445888776}
   - component: {fileID: 3635405870074446058}
   - component: {fileID: 6924455142867459211}
-  - component: {fileID: 7359338426072919666}
   m_Layer: 0
   m_Name: InventotyButton_num
   m_TagString: Untagged
@@ -212,25 +211,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CardType: 0
---- !u!114 &7359338426072919666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5900188458489202545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa191da030fb9f94a8cf2e55abba855c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tooltipMode: 0
-  cardType: 0
-  tileX: -1
-  tileY: -1
-  preferredDirection: 0
-  showDelay: 0.3
-  hideDelay: 0
 --- !u!1 &8328081302722078810
 GameObject:
   m_ObjectHideFlags: 0

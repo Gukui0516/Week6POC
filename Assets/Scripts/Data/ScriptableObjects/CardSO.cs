@@ -33,6 +33,7 @@ public class CardData : ScriptableObject
     public string formula;
     public Sprite iconSprite;
     public int count;
+    public Color backGroundColor;
 
 
     public CardData(string description, int baseScore, string formula)

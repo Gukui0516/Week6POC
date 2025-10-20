@@ -159,16 +159,13 @@ public class ShopManager : MonoBehaviour
     /// </summary>
     public bool TrySwap()
     {
-        // 이제 인덱스 + 타입이 모두 선택되어야 실행
+        // 인덱스 + 타입이 모두 선택되어야 실행
         if (currentSelectedDeckIndex == null || currentSelectedDeckType == null ||
             currentSelectedShopIndex == null || currentSelectedShopType == null)
         {
             Debug.LogWarning("[ShopManager] 교체할 덱/상점 슬롯이 선택되지 않았습니다.");
             return false;
         }
-
-        // DebugOwnedDeck();
-        // DebugShopOffers();
 
         int deckIdx = currentSelectedDeckIndex.Value;
         int shopIdx = currentSelectedShopIndex.Value;
@@ -183,7 +180,10 @@ public class ShopManager : MonoBehaviour
         }
 
         // 상점의 해당 인덱스 자리에는 덱에서 나온 타입을 넣음
-        if (shopIdx >= 0 && shopIdx < currentOffers.Count) currentOffers[shopIdx] = outType;
+        if (shopIdx >= 0 && shopIdx < currentOffers.Count)
+        {
+            currentOffers[shopIdx] = outType;
+        }
 
         Debug.Log($"[ShopManager] 교체 완료: 덱[{deckIdx}] ({deckType}) ⇄ 상점[{shopIdx}] ({shopType})");
 
@@ -197,15 +197,15 @@ public class ShopManager : MonoBehaviour
         SetOwnedCardUI();
         SetShopCardUI();
 
-        // Debug.LogWarning("교체후");
-        // DebugOwnedDeck();
-        // DebugShopOffers();
-
+        // 선택 해제
         DeselectAll();
+
+        // ⭐ CardManager의 OnDeckChanged 이벤트가 자동으로 발생하여
+        // InventoryController.RebuildInventoryUI()가 호출됨
+        // (CardManager.TryReplaceTypeAtIndex 내부에서 OnDeckChanged?.Invoke() 호출)
 
         return true;
     }
-
     private void DebugOwnedDeck(string tag = "OwnedDeck")
     {
         if (cardManager == null)

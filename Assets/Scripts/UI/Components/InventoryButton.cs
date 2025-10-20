@@ -86,22 +86,34 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private void LoadIconFromCardData()
     {
         var cardData = CardDataLoader.GetData(CardType);
-        if (cardData != null && cardData.iconSprite != null && buttonIcon != null)
+        if (cardData != null)
         {
-            Image iconImage = buttonIcon.GetComponent<Image>();
-            if (iconImage != null)
+            // 아이콘 스프라이트 설정
+            if (cardData.iconSprite != null && buttonIcon != null)
             {
-                iconImage.sprite = cardData.iconSprite;
-                Debug.Log($"[InventoryButton] {CardType} 아이콘 로드 완료");
+                Image iconImage = buttonIcon.GetComponent<Image>();
+                if (iconImage != null)
+                {
+                    iconImage.sprite = cardData.iconSprite;
+                    Debug.Log($"[InventoryButton] {CardType} 아이콘 로드 완료");
+                }
+                else
+                {
+                    Debug.LogWarning($"[InventoryButton] ButtonIcon에 Image 컴포넌트가 없습니다.");
+                }
             }
             else
             {
-                Debug.LogWarning($"[InventoryButton] ButtonIcon에 Image 컴포넌트가 없습니다.");
+                Debug.LogWarning($"[InventoryButton] {CardType}의 CardData 또는 iconSprite를 찾을 수 없습니다.");
             }
-        }
-        else
-        {
-            Debug.LogWarning($"[InventoryButton] {CardType}의 CardData 또는 iconSprite를 찾을 수 없습니다.");
+
+            // 배경색 설정
+            if (buttonImage != null)
+            {
+                buttonImage.color = cardData.backGroundColor;
+                originalColor = cardData.backGroundColor; // 원래 색상도 업데이트
+                Debug.Log($"[InventoryButton] {CardType} 배경색 설정: {cardData.backGroundColor}");
+            }
         }
     }
 
