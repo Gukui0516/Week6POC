@@ -15,12 +15,13 @@ MonoBehaviour:
   id: 4
   cardType: 3
   cardName: "\uC5D8\uD504"
-  description: "\uC720\uB2C8\uD06C \\n(-1) : \uC804\uC7A5\uC5D0 \uC788\uB294, \uBE48
-    \uD0C0\uC77C \uD558\uB098\uB2F9"
+  description: "(-1) : \uC804\uC7A5\uC5D0 \uC788\uB294, \uBE48 \uD0C0\uC77C \uD558\uB098\uB2F9\\n(-1):
+    \uC804\uC7A5\uC5D0 \uC788\uB294, \uB2E4\uB978 \uC5D8\uD504 \uD558\uB098\uB2F9"
   tooltipDescription: " \uCD5C\uB300\uD55C \uCC44\uC6B0\uAE30"
   synergyDescription: 
-  penaltyDescription: "\uC720\uB2C8\uD06C / (-1) : \uC804\uC7A5\uC5D0 \uC788\uB294,
-    \uBE48 \uD0C0\uC77C \uD558\uB098\uB2F9"
+  penaltyDescription: "(-1) : \uC804\uC7A5\uC5D0 \uC788\uB294, \uBE48 \uD0C0\uC77C
+    \uD558\uB098\uB2F9\\n(-1): \uC804\uC7A5\uC5D0 \uC788\uB294, \uB2E4\uB978 \uC5D8\uD504
+    \uD558\uB098\uB2F9"
   baseScore: 4
   formula: 
   iconSprite: {fileID: 21300000, guid: a12cc198158d4b34c8ef74fcaefe8cd1, type: 3}
