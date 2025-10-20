@@ -19,9 +19,4 @@ public class ShopCardUI : MonoBehaviour
         description.text = cardData.description;
         baseScore.text = cardData.baseScore.ToString();
     }
-
-    private void Start()
-    {
-        SetCardUI(CardType.Vampire);
-    }
 }

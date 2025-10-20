@@ -5,26 +5,23 @@ using UnityEngine;
 
 public class ShopManager : MonoBehaviour
 {
-    [SerializeField] private List<ShopCardUI> shopCardUIList;
-    [SerializeField] private List<ShopOwnCardUI> offeredCardTypes;
+    [SerializeField] private List<ShopCardUI> shopCards;
+    [SerializeField] private List<ShopOwnCardUI> ownedCards;
 
-    private readonly CardManager cardManager;
+    private CardManager cardManager;
     private const int OfferCount = 3;
     private readonly List<CardType> currentOffers = new();
 
     public IReadOnlyList<CardType> CurrentOffers => currentOffers;
     public Action OnOffersChanged;
 
-    public ShopManager(CardManager cm)
+    private void Start()
     {
-        cardManager = cm;
-    }
+        cardManager = GameManager.Instance.GetTurnManager().GetCardManager();
 
-    public void SetShopCardUI()
-    {
-        if (shopCardUIList == null) return;
-        for (int i = 0; i < 3; i++)
-            shopCardUIList[i].SetCardUI(currentOffers[i]);
+        RollOffers();
+        SetOwnedCardUI();
+        SetShopCardUI();
     }
 
     /// <summary>
@@ -52,6 +49,20 @@ public class ShopManager : MonoBehaviour
 
         Debug.Log($"[ShopManager] 새로운 제시: {string.Join(", ", currentOffers)}");
         OnOffersChanged?.Invoke();
+    }
+
+    private void SetOwnedCardUI()
+    {
+        var ownedTypes = cardManager.GetOwnedTypes().ToList();
+        for (int i = 0; i < ownedCards.Count; i++)
+        {
+            if (i < ownedTypes.Count) ownedCards[i].SetCardUI(ownedTypes[i]);
+        }
+    }
+
+    private void SetShopCardUI()
+    {
+        for (int i = 0; i < 3; i++) shopCards[i].SetCardUI(currentOffers[i]);
     }
 
     /// <summary>
