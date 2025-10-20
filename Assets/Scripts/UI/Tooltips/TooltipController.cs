@@ -293,10 +293,10 @@ public class TooltipController : MonoBehaviour
         // 텍스트 크기에 맞게 패널 크기 조정
         Canvas.ForceUpdateCanvases();
         Vector2 textSize = tooltipText.GetPreferredValues();
-        tooltipRect.sizeDelta = new Vector2(
-            Mathf.Min(textSize.x + 20f, 300f),
-            Mathf.Min(textSize.y + 20f, 250f)
-        );
+        tooltipRect.sizeDelta = new Vector2(450f, 300f);
+     /*       Mathf.Min(textSize.x + 20f, 350f),
+            Mathf.Min(textSize.y + 20f, 300f)
+        );*/
     }
 
     public void HideTooltip()
