@@ -185,13 +185,14 @@ public class GameManager : MonoBehaviour
 
         if (isCleared)
         {
+            Debug.Log(stage.stageId);
             // 마지막 스테이지가 아니면 상점으로
-            if (stage.stageId < stageManager.GetTotalStageCount())
+            if (stage.stageId < stageManager.GetTotalStageCount() && stage.stageId > 3)
             {
                 gameState = GameState.Shop;
                 Debug.Log("[GameManager] 상점 열기");
             }
-            else
+            else if (stage.stageId == stageManager.GetTotalStageCount())
             {
                 // 마지막 스테이지 클리어
                 gameState = GameState.Victory;
@@ -203,6 +204,7 @@ public class GameManager : MonoBehaviour
             gameState = GameState.GameOver;
         }
 
+        Debug.Log($"[GameManager] 게임 상태 변경: {gameState}");
         OnGameStateChanged?.Invoke(gameState);
     }
 
@@ -211,11 +213,11 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void ExitShopAndContinue()
     {
-        if (gameState != GameState.Shop)
-        {
-            Debug.LogWarning("[GameManager] 상점 상태가 아닙니다!");
-            return;
-        }
+        // if (gameState != GameState.Shop)
+        // {
+        //     Debug.LogWarning("[GameManager] 상점 상태가 아닙니다!");
+        //     return;
+        // }
 
         // 다음 스테이지로 이동
         stageManager.MoveToNextStage();
