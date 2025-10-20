@@ -53,11 +53,13 @@ public class GameManager : MonoBehaviour
     #region Dependencies
     [Header("Configuration")]
     [SerializeField] private GameConfig gameConfig;
+    [SerializeField] private EndingUI endingUI;
 
     private BoardManager boardManager;
     private ScoreCalculator scoreCalculator;
     private TurnManager turnManager;
     private StageManager stageManager;
+
     #endregion
 
     #region Game State
@@ -94,8 +96,6 @@ public class GameManager : MonoBehaviour
         scoreCalculator = new ScoreCalculator(boardManager);
         turnManager = new TurnManager(gameConfig);
         stageManager = StageManager.Instance;
-
-        turnManager.GetCardManager().SetBoardManager(boardManager);
 
         Debug.Log("[GameManager] 모든 매니저 초기화 완료");
     }
@@ -198,15 +198,16 @@ public class GameManager : MonoBehaviour
             {
                 // 마지막 스테이지 클리어
                 gameState = GameState.Victory;
+                endingUI.ShowVictoryUI(true);
                 Debug.Log("[GameManager] 게임 완전 클리어!");
             }
         }
         else
         {
             gameState = GameState.GameOver;
+            endingUI.ShowVictoryUI(false);
         }
 
-        Debug.Log($"[GameManager] 게임 상태 변경: {gameState}");
         OnGameStateChanged?.Invoke(gameState);
     }
 
