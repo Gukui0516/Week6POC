@@ -32,6 +32,9 @@ public class BlockPuzzleTile : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     // ToolBox 관련
     private bool isHoveringForToolBox = false;
+
+    // ⭐ 아웃라인 관련 (못 빼는 블록 표시용)
+    private Outline outline;
     #endregion
 
     #region Unity Lifecycle
@@ -40,6 +43,16 @@ public class BlockPuzzleTile : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         button = GetComponent<Button>();
         image = GetComponent<Image>();
+
+        // ⭐ Outline 컴포넌트 추가 (초기에는 비활성화)
+        outline = gameObject.GetComponent<Outline>();
+        if (outline == null)
+        {
+            outline = gameObject.AddComponent<Outline>();
+        }
+        outline.effectColor = new Color(1f, 0.2f, 0.2f, 1f); // 빨간색 아웃라인
+        outline.effectDistance = new Vector2(3, -3);
+        outline.enabled = false;
 
         // 아이콘 찾기
         Transform iconTransform = transform.Find("BlockIcon");
@@ -578,6 +591,15 @@ public class BlockPuzzleTile : MonoBehaviour, IPointerEnterHandler, IPointerExit
             }
         }
 
+        // ⭐ 현재 턴에 배치된 블록인지 확인하여 아웃라인 표시
+        var currentTurn = GameManager.Instance?.GetCurrentTurn();
+        bool isRemovable = currentTurn != null && tile.IsRemovable(currentTurn.turnNumber);
+
+        if (outline != null)
+        {
+            outline.enabled = !isRemovable; // 못 빼는 블록만 아웃라인 표시
+        }
+
         // 아이콘 표시 및 스프라이트 설정
         SetBlockIcon(tile.block.type);
 
@@ -601,6 +623,12 @@ public class BlockPuzzleTile : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     private void UpdateEmptyTileVisual(GameCore.Data.Tile tile, bool isNumberMode)
     {
+        // ⭐ 빈 타일은 아웃라인 비활성화
+        if (outline != null)
+        {
+            outline.enabled = false;
+        }
+
         // PowerText: 빈 칸으로 유지
         if (powerText != null)
         {
