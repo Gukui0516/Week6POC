@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShopManager : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class ShopManager : MonoBehaviour
 
     private int? currentSelectedShopIndex;
     private int? currentSelectedDeckIndex;
+
+    // 교환 제한 관련
+    private bool hasSwapped = false;
 
     private void Start()
     {
@@ -47,12 +51,18 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
+        // 교환 제한 초기화
+        hasSwapped = false;
+
         // 새로운 제안 생성
         RollOffers();
 
         // UI 업데이트
         SetOwnedCardUI();
         SetShopCardUI();
+
+        // 모든 카드 활성화
+        EnableAllCards();
 
         Debug.Log("[ShopManager] 상점 초기화 완료");
     }
@@ -159,6 +169,13 @@ public class ShopManager : MonoBehaviour
     /// </summary>
     public bool TrySwap()
     {
+        // 이미 교환했는지 체크
+        if (hasSwapped)
+        {
+            Debug.LogWarning("[ShopManager] 이미 교환을 완료했습니다! 나가기 버튼을 눌러주세요.");
+            return false;
+        }
+
         // 인덱스 + 타입이 모두 선택되어야 실행
         if (currentSelectedDeckIndex == null || currentSelectedDeckType == null ||
             currentSelectedShopIndex == null || currentSelectedShopType == null)
@@ -187,6 +204,9 @@ public class ShopManager : MonoBehaviour
 
         Debug.Log($"[ShopManager] 교체 완료: 덱[{deckIdx}] ({outType}) ⇄ 상점[{shopIdx}] ({shopType})");
 
+        // 교환 완료 표시
+        hasSwapped = true;
+
         // 선택 초기화
         currentSelectedDeckIndex = null;
         currentSelectedDeckType = null;
@@ -199,6 +219,11 @@ public class ShopManager : MonoBehaviour
 
         // 선택 해제
         DeselectAll();
+
+        // 모든 카드 비활성화
+        DisableAllCards();
+
+        Debug.Log("[ShopManager] 교환이 완료되었습니다. 나가기 버튼을 눌러 다음으로 진행하세요.");
 
         // ⭐ CardManager의 OnDeckChanged 이벤트가 자동으로 발생하여
         // InventoryController.RebuildInventoryUI()가 호출됨
@@ -239,5 +264,65 @@ public class ShopManager : MonoBehaviour
         {
             ownedCard.Deselect();
         }
+    }
+
+    /// <summary>
+    /// 모든 카드 UI를 활성화 (상점 진입 시)
+    /// </summary>
+    private void EnableAllCards()
+    {
+        foreach (var shopCard in shopCards)
+        {
+            if (shopCard != null && shopCard.gameObject != null)
+            {
+                var toggle = shopCard.GetComponent<Toggle>();
+                if (toggle != null)
+                {
+                    toggle.interactable = true;
+                }
+            }
+        }
+        foreach (var ownedCard in ownedCards)
+        {
+            if (ownedCard != null && ownedCard.gameObject != null)
+            {
+                var toggle = ownedCard.GetComponent<Toggle>();
+                if (toggle != null)
+                {
+                    toggle.interactable = true;
+                }
+            }
+        }
+        Debug.Log("[ShopManager] 모든 카드가 활성화되었습니다.");
+    }
+
+    /// <summary>
+    /// 모든 카드 UI를 비활성화 (교환 완료 후)
+    /// </summary>
+    private void DisableAllCards()
+    {
+        foreach (var shopCard in shopCards)
+        {
+            if (shopCard != null && shopCard.gameObject != null)
+            {
+                var toggle = shopCard.GetComponent<Toggle>();
+                if (toggle != null)
+                {
+                    toggle.interactable = false;
+                }
+            }
+        }
+        foreach (var ownedCard in ownedCards)
+        {
+            if (ownedCard != null && ownedCard.gameObject != null)
+            {
+                var toggle = ownedCard.GetComponent<Toggle>();
+                if (toggle != null)
+                {
+                    toggle.interactable = false;
+                }
+            }
+        }
+        Debug.Log("[ShopManager] 교환 완료! 모든 카드가 비활성화되었습니다. 나가기 버튼을 눌러주세요.");
     }
 }
