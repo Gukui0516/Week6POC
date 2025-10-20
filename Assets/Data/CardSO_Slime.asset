@@ -25,4 +25,4 @@ MonoBehaviour:
   formula: 
   iconSprite: {fileID: 21300000, guid: ee2d1a28a6c14dd4b96873731a81bb28, type: 3}
   count: 2
-  backGroundColor: {r: 1, g: 0, b: 0.8249526, a: 1}
+  backGroundColor: {r: 0.9622642, g: 0.6282842, b: 0.54013884, a: 1}
