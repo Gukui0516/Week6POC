@@ -17,7 +17,7 @@ MonoBehaviour:
   cardName: "\uBC40\uD30C\uC774\uC5B4"
   description: "(+1) : \uC774 \uAC00\uB85C \uC904\uC5D0, \uB2E4\uB978 \uC885\uC871\uC774
     \uC788\uC73C\uBA74"
-  tooltipDescription: "\uAC19\uC740 \uC904\uC5D0 \uC5EC\uB824 \uC885\uC871 \uBC30\uCE58"
+  tooltipDescription: "\uAC19\uC740 \uC904\uC5D0 \uC5EC\uB7EC\uC885\uC871 \uBC30\uCE58"
   synergyDescription: "(+1) : \uC774 \uAC00\uB85C \uC904\uC5D0, \uB2E4\uB978 \uC885\uC871\uC774
     \uC788\uC73C\uBA74"
   penaltyDescription: 

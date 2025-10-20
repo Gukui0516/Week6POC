@@ -511,7 +511,7 @@ public class ScoreCalculator
     }
 
     // 미리보기: 특정 위치에 블록을 배치했을 때 전체 보드의 점수 변화 계산
-    public BoardPreview CalculateFullBoardPreview(int previewX, int previewY, CardType blockType)
+    public BoardPreview CalculateFullBoardPreview(int previewX, int previewY, CardType blockType, int currentTurnNumber = 0)
     {
         var preview = new BoardPreview();
         preview.previewX = previewX;
@@ -534,7 +534,9 @@ public class ScoreCalculator
         // 2. 임시로 블록 배치
         var tempBlock = new Card(blockType);
         var originalBlock = board[previewX, previewY].block;
+        var originalPlacedTurn = board[previewX, previewY].placedTurn;
         board[previewX, previewY].block = tempBlock;
+        board[previewX, previewY].placedTurn = currentTurnNumber;
 
         // 3. 전체 점수 재계산
         CalculateAllScores();
@@ -554,6 +556,7 @@ public class ScoreCalculator
 
         // 5. 원래 상태로 복원
         board[previewX, previewY].block = originalBlock;
+        board[previewX, previewY].placedTurn = originalPlacedTurn;
         CalculateAllScores();
 
         return preview;

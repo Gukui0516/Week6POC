@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EndStage: 20
   useNumbersMode: 1
-  maxTileNumber0: 2
-  maxTileNumber1: 3
+  maxTileNumber0: 5
+  maxTileNumber1: 2
   maxTileNumber2: 2
   maxTileNumber3: 0
   weightTileNumber0: 1
-  weightTileNumber1: 2
-  weightTileNumber2: 2
+  weightTileNumber1: 1
+  weightTileNumber2: 1
   weightTileNumber3: 1
   excludeTurnCount: 1

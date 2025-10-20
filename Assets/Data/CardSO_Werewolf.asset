@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 2
   cardType: 1
-  cardName: "\uC6E8\uC5B4\uC6B8\uD504"
+  cardName: "\uB291\uB300\uC778\uAC04"
   description: "(+1) : \uC778\uC811\uD55C \uBE14\uB85D \uC911, \uB291\uB300\uC778\uAC04\uC774
     \uC544\uB2CC \uBE14\uB85D\uC774 2\uC7A5 \uC774\uC0C1\uC774\uBA74"
   tooltipDescription: "\uB2E4\uB978 \uC885\uC871\uACFC \uC778\uC811\uD558\uAC8C"
