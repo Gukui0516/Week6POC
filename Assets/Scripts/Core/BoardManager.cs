@@ -258,6 +258,26 @@ public class BoardManager
         return adjacentTiles;
     }
 
+    // 주위 타일 (상하좌우 + 대각선 8방향)
+    public List<Tile> GetSurroundingTiles(int x, int y)
+    {
+        List<Tile> surroundingTiles = new List<Tile>();
+        int[] dx = { -1, -1, -1, 0, 0, 1, 1, 1 };
+        int[] dy = { -1, 0, 1, -1, 1, -1, 0, 1 };
+
+        for (int i = 0; i < 8; i++)
+        {
+            int newX = x + dx[i];
+            int newY = y + dy[i];
+
+            if (IsValidPosition(newX, newY))
+            {
+                surroundingTiles.Add(board[newX, newY]);
+            }
+        }
+        return surroundingTiles;
+    }
+
     public bool IsValidPosition(int x, int y)
     {
         return x >= 0 && x < GameConfig.BOARD_SIZE && y >= 0 && y < GameConfig.BOARD_SIZE;
