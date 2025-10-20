@@ -15,15 +15,13 @@ MonoBehaviour:
   id: 12
   cardType: 11
   cardName: "\uC2AC\uB77C\uC784"
-  description: "\uC2AC\uB77C\uC784 \uD558\uB098\uB2F9 \uACF5\uACA9\uB825 \uACF5\uACA9\uB825
-    +5 \uAC19\uC740 \uD134\uC5D0 \uC2AC\uB77C\uC784\uC744 \uB450\uBC88 \uB0C8\uC73C\uBA74
-    \uACF5\uACA9\uB825 - 10"
-  tooltipDescription: "1\uD134\uC5D0 3\uD134\uC5D0 \uC720\uC9C0\uC5D0 \uBC30\uCE58\uD558\uACE0,
-    3\uD134\uC5D0 \uBE14\uB85D \uBC30\uCE58"
-  synergyDescription: "(+ 5) :  \uC2AC\uB77C\uC784 \uD558\uB098\uB2F9"
+  description: "(+5) :  \uC2AC\uB77C\uC784 \uD558\uB098\uB2F9 \\n(-10) : \uAC19\uC740
+    \uD134\uC5D0 \uC2AC\uB77C\uC784\uC744 \uB450\uBC88 \uB0C8\uC73C\uBA74"
+  tooltipDescription: "1\uD134\uC5D0 \uC2AC\uB77C\uC784 \uBBF8\uB9AC \uBC30\uCE58\uD558\uAE30"
+  synergyDescription: "(+5) :  \uC2AC\uB77C\uC784 \uD558\uB098\uB2F9"
   penaltyDescription: "(-10) : \uAC19\uC740 \uD134\uC5D0 \uC2AC\uB77C\uC784\uC744
     \uB450\uBC88 \uB0C8\uC73C\uBA74"
-  baseScore: 0
+  baseScore: -5
   formula: 
   iconSprite: {fileID: 21300000, guid: ee2d1a28a6c14dd4b96873731a81bb28, type: 3}
   count: 2
