@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
+  m_Name: CardSO_Devil
+  m_EditorClassIdentifier: 
+  id: 8
+  cardType: 7
+  cardName: "\uC545\uB9C8"
+  description: "(+1) : \uC774 \uC138\uB85C \uC904\uC5D0, \uC545\uB9C8\uAC00 \uC5C6\uC73C\uBA74"
+  tooltipDescription: "\uAC19\uC740 \uC904\uC5D0 \uC545\uB9C8\uAC00 1\uAC1C\uB9CC
+    \uC788\uAC8C"
+  synergyDescription: "(+1) : \uC774 \uC138\uB85C \uC904\uC5D0 \uC545\uB9C8\uAC00
+    \uC5C6\uC73C\uBA74"
+  penaltyDescription: 
+  baseScore: 1
+  formula: 
+  iconSprite: {fileID: 21300000, guid: 66b681784e41df84981b96f56e0bfcdc, type: 3}
+  count: 9
+  backGroundColor: {r: 0.74433124, g: 0.6740388, b: 0.764151, a: 1}

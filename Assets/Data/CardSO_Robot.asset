@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
+  m_Name: CardSO_Robot
+  m_EditorClassIdentifier: 
+  id: 11
+  cardType: 10
+  cardName: "\uB85C\uBD07"
+  description: "(+7) : \uC815\uC911\uC559\uC774 \uBE48 \uD0C0\uC77C\uC774\uBA74"
+  tooltipDescription: "\uC911\uC559 \uBE48\uCE78\uC73C\uB85C \uD558\uAE30"
+  synergyDescription: "(+7) : \uC815\uC911\uC559\uC774 \uBE48 \uD0C0\uC77C\uC774\uBA74"
+  penaltyDescription: 
+  baseScore: 0
+  formula: 
+  iconSprite: {fileID: 21300000, guid: 334abe8cc3788304e9c6fff82a566672, type: 3}
+  count: 1
+  backGroundColor: {r: 0.72463506, g: 0.86155605, b: 0.8679245, a: 1}

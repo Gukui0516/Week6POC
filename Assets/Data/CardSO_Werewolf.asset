@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4d21d055c61b9f49a3ac320fe37da0f, type: 3}
+  m_Name: CardSO_Werewolf
+  m_EditorClassIdentifier: 
+  id: 2
+  cardType: 1
+  cardName: "\uB291\uB300\uC778\uAC04"
+  description: "(+1) : \uC778\uC811\uD55C \uBE14\uB85D \uC911, \uB291\uB300\uC778\uAC04\uC774
+    \uC544\uB2CC \uBE14\uB85D\uC774 2\uC7A5 \uC774\uC0C1\uC774\uBA74"
+  tooltipDescription: "\uB2E4\uB978 \uC885\uC871\uACFC \uC778\uC811\uD558\uAC8C"
+  synergyDescription: "(+1) : \uC778\uC811\uD55C \uBE14\uB85D \uC911, \uB291\uB300\uC778\uAC04\uC774
+    \uC544\uB2CC \uBE14\uB85D\uC774 2\uC7A5 \uC774\uC0C1\uC774\uBA74"
+  penaltyDescription: 
+  baseScore: 1
+  formula: 
+  iconSprite: {fileID: 21300000, guid: fab1c005471183d4687ab6ef570bc53c, type: 3}
+  count: 9
+  backGroundColor: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 1}
