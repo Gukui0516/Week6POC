@@ -231,8 +231,9 @@ public class ScoreCalculator
 
             #region Dragon
             case CardType.Dragon:
-                // (+1): 주위에 있는 타일 하나당
-                int surroundingTileCount = adjacentTiles.Count;
+                // (+1): 주위에 있는 타일 하나당 (상하좌우 + 대각선)
+                var surroundingTiles = boardManager.GetSurroundingTiles(tile.x, tile.y);
+                int surroundingTileCount = surroundingTiles.Count;
                 score += surroundingTileCount;
                 if (trackModifiers && surroundingTileCount > 0)
                     modifiers.Add(new GameCore.Data.ScoreModifier(
@@ -244,7 +245,7 @@ public class ScoreCalculator
                 // 유니크: 전장에 있는, 자신과 종족이 같은 블록 하나당 (-1)
                 ApplyUniquePenalty(CardType.Dragon, globalData, ref score, modifiers, trackModifiers);
 
-                // (-1): 인접한 블록 하나당
+                // (-1): 인접한 블록 하나당 (상하좌우만)
                 int adjacentBlockCount = adjacentBlocks.Count;
                 int dragonBlockPenalty = -adjacentBlockCount;
                 score += dragonBlockPenalty;
@@ -284,22 +285,22 @@ public class ScoreCalculator
 
             #region Vampire
             case CardType.Vampire:
-                // (+1): 이 가로 줄에, 다른 종족이 있으면
-                bool hasOtherTypeInRow = HasOtherTypeInRow(tile.y, CardType.Vampire);
-                if (hasOtherTypeInRow)
+                // (+1): 이 세로 줄에 있는 다른 종족 하나당
+                int otherTypesInColumn = GetOtherTypeCountInColumn(tile.x, CardType.Vampire);
+                int vampireBonus = otherTypesInColumn;
+                score += vampireBonus;
+                if (trackModifiers && vampireBonus > 0)
                 {
-                    score += 1;
-                    if (trackModifiers)
-                        modifiers.Add(new GameCore.Data.ScoreModifier(
-                            "이 가로줄에 다른 종족 있음",
-                            1,
-                            "다른 종족 있을 때 +1"
-                        ));
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"이 세로줄에 다른 종족 {otherTypesInColumn}개",
+                        vampireBonus,
+                        "다른 종족 1개당 +1"
+                    ));
                 }
                 else if (trackModifiers)
                 {
                     modifiers.Add(new GameCore.Data.ScoreModifier(
-                        "이 가로줄에 다른 종족 없음",
+                        "이 세로줄에 다른 종족 없음",
                         0,
                         "다른 종족 없을 때 보너스 없음"
                     ));
@@ -309,13 +310,15 @@ public class ScoreCalculator
 
             #region Naga
             case CardType.Naga:
-                // (+2): 주위에 있는 다른 블록 종류 하나당
-                var uniqueAdjacentTypes = adjacentBlocks.Select(b => b.type).Distinct().Count();
-                int nagaBonus = uniqueAdjacentTypes * 2;
+                // (+2): 주위에 있는 다른 블록 종류 하나당 (상하좌우 + 대각선)
+                var surroundingTilesForNaga = boardManager.GetSurroundingTiles(tile.x, tile.y);
+                var surroundingBlocks = surroundingTilesForNaga.Where(t => t.HasBlock).Select(t => t.block).ToList();
+                var uniqueSurroundingTypes = surroundingBlocks.Select(b => b.type).Distinct().Count();
+                int nagaBonus = uniqueSurroundingTypes * 2;
                 score += nagaBonus;
                 if (trackModifiers && nagaBonus > 0)
                     modifiers.Add(new GameCore.Data.ScoreModifier(
-                        $"인접한 다른 블록 종류 {uniqueAdjacentTypes}개",
+                        $"주위 다른 블록 종류 {uniqueSurroundingTypes}개",
                         nagaBonus,
                         "종류 1개당 +2"
                     ));
@@ -429,6 +432,24 @@ public class ScoreCalculator
         }
 
         return false;
+    }
+
+    // 세로 줄에서 다른 종족의 개수를 세는 헬퍼 메서드
+    private int GetOtherTypeCountInColumn(int column, CardType excludeType)
+    {
+        int count = 0;
+        var board = boardManager.GetBoard();
+
+        for (int y = 0; y < GameConfig.BOARD_SIZE; y++)
+        {
+            var tile = board[column, y];
+            if (tile.HasBlock && tile.block.type != excludeType)
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     // 같은 턴에 배치된 슬라임 개수를 세는 헬퍼 메서드
