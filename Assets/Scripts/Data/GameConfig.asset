@@ -17,7 +17,7 @@ MonoBehaviour:
   maxTileNumber0: 2
   maxTileNumber1: 3
   maxTileNumber2: 2
-  maxTileNumber3: 2
+  maxTileNumber3: 0
   weightTileNumber0: 1
   weightTileNumber1: 2
   weightTileNumber2: 2
