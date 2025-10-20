@@ -28,6 +28,9 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     // 상태 표시용 오버레이
     private GameObject disabledOverlay;
 
+    // 선택 아웃라인
+    private Outline outline;
+
     // ToolBox 관련
     private bool isHoveringForToolBox = false;
 
@@ -69,6 +72,16 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             Debug.LogWarning($"[InventoryButton] ButtonIcon을 찾지 못함.");
         }
+
+        // 아웃라인 컴포넌트 추가
+        outline = gameObject.GetComponent<Outline>();
+        if (outline == null)
+        {
+            outline = gameObject.AddComponent<Outline>();
+        }
+        outline.effectColor = Color.yellow; // 노란색 아웃라인
+        outline.effectDistance = new Vector2(3, -3);
+        outline.enabled = false;
 
         button.onClick.AddListener(OnClick);
 
@@ -319,13 +332,9 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void SetSelected(bool selected)
     {
-        if (selected)
+        if (outline != null)
         {
-            buttonImage.color = Color.yellow;
-        }
-        else
-        {
-            buttonImage.color = originalColor;
+            outline.enabled = selected;
         }
     }
 
