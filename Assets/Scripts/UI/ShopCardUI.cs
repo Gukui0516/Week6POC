@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,12 +18,16 @@ public class ShopCardUI : MonoBehaviour
     [SerializeField] private Color selectedColor = Color.green;
 
     private Image toggleBackground; // Toggle의 배경 이미지
+    private BlockTypeTooltip blockTypeTooltip; // 추가
 
     // 외부에서 Set 해줄 인덱스 (ShopManager가 할당)
     public int Index { get; set; }
 
     private void Start()
     {
+        // BlockTypeTooltip 컴포넌트 가져오기
+        blockTypeTooltip = GetComponent<BlockTypeTooltip>();
+
         // Toggle의 배경 이미지 가져오기
         if (toggle != null)
         {
@@ -62,6 +66,14 @@ public class ShopCardUI : MonoBehaviour
         cardName.text = cardData.cardName;
         description.text = cardData.description;
         baseScore.text = cardData.baseScore.ToString();
+
+        // BlockTypeTooltip의 카드 타입도 업데이트
+        if (blockTypeTooltip != null)
+        {
+            blockTypeTooltip.cardType = type;
+            // Inventory 모드인지 확인하고 설정 (필요한 경우)
+            blockTypeTooltip.SetTooltipMode(BlockTypeTooltip.TooltipMode.Inventory);
+        }
 
         if (toggle != null)
         {

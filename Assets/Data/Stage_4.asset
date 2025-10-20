@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageId: 4
   endTurn: 3
-  target: 50
+  target: 4
   firstDraw: 4
   secondDraw: 2
   lastDraw: 1

@@ -119,6 +119,30 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &2614199 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2665722984854709867, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+  m_PrefabInstance: {fileID: 1617914900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2614205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2614199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa191da030fb9f94a8cf2e55abba855c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipMode: 0
+  cardType: 0
+  tileX: -1
+  tileY: -1
+  preferredDirection: 0
+  showDelay: 0.3
+  hideDelay: 0
 --- !u!1001 &23251527
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -682,6 +706,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8094853417151998808, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
   m_PrefabInstance: {fileID: 1617914900}
   m_PrefabAsset: {fileID: 0}
+--- !u!223 &303930225 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 1541009984674136593, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+  m_PrefabInstance: {fileID: 1617914900}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &304979835
 GameObject:
   m_ObjectHideFlags: 0
@@ -803,6 +832,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 304979835}
   m_CullTransparentMesh: 1
+--- !u!1 &416410320 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7877349190317099525, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+  m_PrefabInstance: {fileID: 1617914900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &416410326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 416410320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa191da030fb9f94a8cf2e55abba855c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipMode: 0
+  cardType: 0
+  tileX: -1
+  tileY: -1
+  preferredDirection: 0
+  showDelay: 0.3
+  hideDelay: 0
+--- !u!1 &424985229 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4463142948642315660, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+  m_PrefabInstance: {fileID: 1617914900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &424985235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 424985229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa191da030fb9f94a8cf2e55abba855c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipMode: 0
+  cardType: 0
+  tileX: -1
+  tileY: -1
+  preferredDirection: 0
+  showDelay: 0.3
+  hideDelay: 0
 --- !u!1 &482515828
 GameObject:
   m_ObjectHideFlags: 0
@@ -1125,6 +1202,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 55510221}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &532585218 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2998120694806313258, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+  m_PrefabInstance: {fileID: 1617914900}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -2014,6 +2102,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6974195228619278586, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -477
+      objectReference: {fileID: 0}
+    - target: {fileID: 6974195228619278586, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 871
+      objectReference: {fileID: 0}
     - target: {fileID: 8094853417151998808, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -2116,7 +2212,16 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8094853417151998808, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
       insertIndex: 0
       addedObject: {fileID: 1208963123}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2665722984854709867, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2614205}
+    - targetCorrespondingSourceObject: {fileID: 7877349190317099525, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 416410326}
+    - targetCorrespondingSourceObject: {fileID: 4463142948642315660, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 424985235}
   m_SourcePrefab: {fileID: 100100000, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
 --- !u!1 &1654470136
 GameObject:
@@ -2708,6 +2813,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1890293532}
   - component: {fileID: 1890293534}
+  - component: {fileID: 1890293535}
   m_Layer: 0
   m_Name: TooltipController
   m_TagString: Untagged
@@ -2744,6 +2850,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   toolboxPanel: {fileID: 2002975952}
   toolboxText: {fileID: 994913014}
+--- !u!114 &1890293535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1890293531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6982d465efc5b649acfdffdd16b7316, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltipPanel: {fileID: 1985728610}
+  tooltipText: {fileID: 532585218}
+  tooltipRect: {fileID: 1985728611}
+  offsetTop: {x: 0, y: 10}
+  offsetBottom: {x: 0, y: -10}
+  offsetLeft: {x: -10, y: 0}
+  offsetRight: {x: 10, y: 0}
+  fadeSpeed: 10
+  canvas: {fileID: 303930225}
+--- !u!1 &1985728610 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3368157431209361295, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+  m_PrefabInstance: {fileID: 1617914900}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1985728611 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6974195228619278586, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+  m_PrefabInstance: {fileID: 1617914900}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2002975952 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4729054741316328830, guid: 71360411c2d1cc94c96f08a3b0ab115c, type: 3}
