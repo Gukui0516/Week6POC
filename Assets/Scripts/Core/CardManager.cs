@@ -69,6 +69,13 @@ public class CardManager
     /// </summary>
     public void AddCardToDeck(CardType cardType)
     {
+        // ⭐ 이미 덱에 있는지 확인
+        if (HasType(cardType))
+        {
+            Debug.Log($"[CardManager] {cardType}은(는) 이미 덱에 있습니다. 추가하지 않습니다.");
+            return;
+        }
+
         // CardSO에서 count 값 가져오기
         var cardData = CardDataLoader.GetData(cardType);
         if (cardData == null)

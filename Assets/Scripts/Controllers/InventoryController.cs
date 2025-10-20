@@ -7,12 +7,12 @@ using UnityEngine.UI;
 public class InventoryController : MonoBehaviour
 {
     [Header("Dynamic Inventory")]
-    [SerializeField] private GameObject inventoryButtonPrefab; // 프리팹 참조
-    [SerializeField] private Transform inventoryContainer; // 버튼들이 생성될 부모 Transform
-    [SerializeField] private int maxInventorySlots = 10; // 최대 슬롯 수
+    [SerializeField] private GameObject inventoryButtonPrefab;
+    [SerializeField] private Transform inventoryContainer;
+    [SerializeField] private int maxInventorySlots = 10;
 
     private GameManager gameManager;
-    private List<InventoryButton> activeButtons = new List<InventoryButton>(); // 동적 리스트
+    private List<InventoryButton> activeButtons = new List<InventoryButton>();
 
     // 선택된 카드 상태
     private CardType? selectedCardType = null;
@@ -35,14 +35,12 @@ public class InventoryController : MonoBehaviour
 
         mainCanvas = FindFirstObjectByType<Canvas>();
 
-        // CardManager의 덱 변경 이벤트 구독
         var cardManager = gameManager.GetTurnManager()?.GetCardManager();
         if (cardManager != null)
         {
             cardManager.OnDeckChanged += RebuildInventoryUI;
         }
 
-        // 초기 인벤토리 생성
         RebuildInventoryUI();
     }
 
@@ -51,16 +49,14 @@ public class InventoryController : MonoBehaviour
     /// </summary>
     public void RebuildInventoryUI()
     {
-        // 기존 버튼들 제거
+        // ⭐ 개선: 기존 버튼들 즉시 제거
         ClearInventory();
 
         var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
         if (cardManager == null) return;
 
-        // 소유한 카드 타입 가져오기 (순서 유지)
-        var ownedCards = cardManager.GetOwnedCards(); // List<(CardType type, int count)>
+        var ownedCards = cardManager.GetOwnedCards();
 
-        // 각 소유 카드에 대해 버튼 생성
         foreach (var (cardType, count) in ownedCards)
         {
             CreateInventoryButton(cardType);
@@ -80,7 +76,6 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // 프리팹 인스턴스화
         GameObject buttonObj = Instantiate(inventoryButtonPrefab, inventoryContainer);
         InventoryButton button = buttonObj.GetComponent<InventoryButton>();
 
@@ -91,7 +86,6 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // 버튼 설정
         button.CardType = cardType;
         button.SetInventoryController(this);
         button.name = $"InventoryButton_{cardType}";
@@ -100,18 +94,29 @@ public class InventoryController : MonoBehaviour
     }
 
     /// <summary>
-    /// 모든 인벤토리 버튼 제거
+    /// ⭐ 수정: 모든 인벤토리 버튼 즉시 제거
     /// </summary>
     private void ClearInventory()
     {
+        // 방법 1: DestroyImmediate 사용 (권장)
         foreach (var button in activeButtons)
         {
             if (button != null)
             {
-                Destroy(button.gameObject);
+                DestroyImmediate(button.gameObject);
             }
         }
         activeButtons.Clear();
+
+        // 방법 2: 컨테이너의 모든 자식 제거 (더 확실함)
+        if (inventoryContainer != null)
+        {
+            // 혹시 남아있는 자식들도 모두 제거
+            for (int i = inventoryContainer.childCount - 1; i >= 0; i--)
+            {
+                DestroyImmediate(inventoryContainer.GetChild(i).gameObject);
+            }
+        }
 
         // 선택 상태도 초기화
         selectedCardType = null;
@@ -130,7 +135,6 @@ public class InventoryController : MonoBehaviour
 
         if (cardManager == null) return;
 
-        // 활성 카드 개수 계산
         var activeCards = turn.availableBlocks.GroupBy(b => b.type)
                               .ToDictionary(g => g.Key, g => g.Count());
 
@@ -143,9 +147,6 @@ public class InventoryController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 블록 선택
-    /// </summary>
     public void SelectBlock(CardType cardType, InventoryButton button)
     {
         var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
@@ -157,14 +158,12 @@ public class InventoryController : MonoBehaviour
             return;
         }
 
-        // 같은 블록을 다시 선택하면 선택 해제
         if (selectedCardType == cardType && selectedButton == button)
         {
             DeselectBlock();
             return;
         }
 
-        // 이전 선택 해제
         if (selectedButton != null)
         {
             selectedButton.SetSelected(false);
@@ -228,7 +227,7 @@ public class InventoryController : MonoBehaviour
         }
     }
 
-    #region Drag (기존 코드 유지)
+    #region Drag
     public void OnBeginDrag(CardType blockType, InventoryButton button)
     {
         var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
@@ -319,7 +318,6 @@ public class InventoryController : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 이벤트 구독 해제
         var cardManager = gameManager?.GetTurnManager()?.GetCardManager();
         if (cardManager != null)
         {
