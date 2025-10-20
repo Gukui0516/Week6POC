@@ -138,6 +138,8 @@ MonoBehaviour:
   description: {fileID: 4330494553481710319}
   baseScore: {fileID: 5784476171789025862}
   cardType: 0
+  normalColor: {r: 0.79215693, g: 0.7490196, b: 0.8313726, a: 1}
+  selectedColor: {r: 0.39038858, g: 0.31297255, b: 0.45490196, a: 1}
 --- !u!114 &8146612816676002718
 MonoBehaviour:
   m_ObjectHideFlags: 0
