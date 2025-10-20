@@ -1738,6 +1738,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2818822461446265027, guid: 7fdd551807f47b14e8bc65e50497e97d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5953614975252724505, guid: 7fdd551807f47b14e8bc65e50497e97d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8497039549434971356, guid: 7fdd551807f47b14e8bc65e50497e97d, type: 3}
       propertyPath: m_Name
       value: EndingUI
