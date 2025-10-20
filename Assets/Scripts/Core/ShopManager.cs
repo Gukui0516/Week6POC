@@ -15,6 +15,11 @@ public class ShopManager : MonoBehaviour
     public IReadOnlyList<CardType> CurrentOffers => currentOffers;
     public Action OnOffersChanged;
 
+    private CardType currentSelectedShopType;
+    private CardType currentSelectedDeckType;
+    public void SetcurrentSelectedShopTypes(CardType shopType) => currentSelectedShopType = shopType;
+    public void SetcurrentSelectedDeckTypes(CardType deckType) => currentSelectedDeckType = deckType;
+
     private void Start()
     {
         cardManager = GameManager.Instance.GetTurnManager().GetCardManager();

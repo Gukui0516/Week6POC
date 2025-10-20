@@ -131,6 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24fa5590ecda9ba439a775a1a3ebec06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shopManager: {fileID: 0}
   icon: {fileID: 4182249241322514145}
   cardName: {fileID: 1258289997937121266}
   description: {fileID: 4330494553481710319}
@@ -179,7 +180,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 849730002496891252}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5794603585462301097}
+        m_TargetAssemblyTypeName: ShopCardUI, Assembly-CSharp
+        m_MethodName: SelectType
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!222 &8089262254843920002
 CanvasRenderer:
   m_ObjectHideFlags: 0

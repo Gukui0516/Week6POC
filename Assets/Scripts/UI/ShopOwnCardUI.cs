@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class ShopOwnCardUI : MonoBehaviour
 {
+    [SerializeField] private ShopManager shopManager;
     [SerializeField] private Image icon;
     [SerializeField] private TextMeshProUGUI cardName;
     private CardType cardType;
@@ -16,8 +17,8 @@ public class ShopOwnCardUI : MonoBehaviour
         cardName.text = cardData.cardName;
     }
 
-    private void Start()
+    public void SelectType()
     {
-        SetCardUI(CardType.Vampire);
+        shopManager.SetcurrentSelectedShopTypes(cardType);
     }
 }

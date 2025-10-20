@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class ShopCardUI : MonoBehaviour
 {
+    [SerializeField] private ShopManager shopManager;
     [SerializeField] private Image icon;
     [SerializeField] private TextMeshProUGUI cardName;
     [SerializeField] private TextMeshProUGUI description;
@@ -18,5 +19,10 @@ public class ShopCardUI : MonoBehaviour
         cardName.text = cardData.cardName;
         description.text = cardData.description;
         baseScore.text = cardData.baseScore.ToString();
+    }
+
+    public void SelectType()
+    {
+        shopManager.SetcurrentSelectedShopTypes(cardType);
     }
 }
