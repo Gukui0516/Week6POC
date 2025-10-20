@@ -95,6 +95,8 @@ public class GameManager : MonoBehaviour
         turnManager = new TurnManager(gameConfig);
         stageManager = StageManager.Instance;
 
+        turnManager.GetCardManager().SetBoardManager(boardManager);
+
         Debug.Log("[GameManager] 모든 매니저 초기화 완료");
     }
 
