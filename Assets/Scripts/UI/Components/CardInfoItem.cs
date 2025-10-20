@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
@@ -12,6 +12,7 @@ public class CardInfoItem : MonoBehaviour
     [SerializeField] private CardType cardType;
 
     [Header("UI References (Auto-Find)")]
+    private Image backgroundImage; // ⭐ 배경 이미지 추가
     private Image iconImage;
     private TextMeshProUGUI nameText;
     private TextMeshProUGUI tooltipDescriptionText;
@@ -34,6 +35,13 @@ public class CardInfoItem : MonoBehaviour
     /// </summary>
     private void FindUIReferences()
     {
+        // ⭐ 배경 이미지 찾기 (자기 자신의 Image 컴포넌트)
+        backgroundImage = GetComponent<Image>();
+        if (backgroundImage == null)
+        {
+            Debug.LogWarning($"[CardInfoItem] {gameObject.name}: 배경 Image 컴포넌트를 찾을 수 없습니다.");
+        }
+
         // Icon 찾기
         Transform iconTransform = transform.Find("Icon");
         if (iconTransform != null)
@@ -101,6 +109,13 @@ public class CardInfoItem : MonoBehaviour
         {
             Debug.LogError($"[CardInfoItem] {cardType}의 CardData를 찾을 수 없습니다.");
             return;
+        }
+
+        // ⭐ 배경색 설정
+        if (backgroundImage != null)
+        {
+            backgroundImage.color = cardData.backGroundColor;
+            Debug.Log($"[CardInfoItem] {cardType} 배경색 설정 완료: {cardData.backGroundColor}");
         }
 
         // 아이콘 설정
