@@ -83,7 +83,7 @@ public class BoardManager
         return true;
     }
 
-    public bool RemoveBlock(int x, int y, int currentTurn)
+    public bool RemoveBlock(int x, int y, int currentTurn, bool suppressEvent = false)
     {
         if (!IsValidPosition(x, y)) return false;
         if (!board[x, y].HasBlock) return false;
@@ -106,7 +106,12 @@ public class BoardManager
             board[x, y].tileNumber = 0;
         }
 
-        OnBoardUpdated?.Invoke();
+        // ⭐ suppressEvent가 true면 이벤트 발생 안 함
+        if (!suppressEvent)
+        {
+            OnBoardUpdated?.Invoke();
+        }
+
         return true;
     }
     #endregion

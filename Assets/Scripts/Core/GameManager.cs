@@ -405,13 +405,17 @@ public class GameManager : MonoBehaviour
         // 블록 정보 저장
         var removedBlock = tile.block;
 
-        // 보드에서 제거
-        bool success = boardManager.RemoveBlock(x, y, turn.turnNumber);
+        // ⭐ 이벤트 발생 억제하고 제거
+        bool success = boardManager.RemoveBlock(x, y, turn.turnNumber, suppressEvent: true);
 
         if (success && removedBlock != null)
         {
             // 카드를 인벤토리에 반환
             turnManager.ReturnCard(removedBlock);
+
+            // ⭐ 이제 이벤트 발생 (카드 반환 후)
+            scoreCalculator?.UpdateScores();
+            OnBoardUpdated?.Invoke();
         }
 
         return success;

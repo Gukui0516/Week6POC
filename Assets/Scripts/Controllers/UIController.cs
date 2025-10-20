@@ -175,7 +175,11 @@ public class UIController : MonoBehaviour
         {
             gameManager.OnTurnStart += (turn) => UpdateUI();
             gameManager.OnScoreUpdated += (score) => UpdateUI();
-            gameManager.OnBoardUpdated += UpdateBoard;
+            gameManager.OnBoardUpdated += () =>
+            {
+                UpdateBoard();
+                inventoryController?.UpdateInventory(); // ⭐ 보드 변경 시 인벤토리도 함께 업데이트
+            };
             gameManager.OnGameStateChanged += OnGameStateChanged; // ⭐ 게임 상태 변화 구독
         }
     }
