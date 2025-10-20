@@ -1,5 +1,4 @@
-﻿using UnityEditor.SceneManagement;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// 스테이지 생명주기 관리 전담
