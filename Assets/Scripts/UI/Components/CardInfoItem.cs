@@ -5,6 +5,11 @@ using TMPro;
 /// <summary>
 /// 개별 카드 정보 아이템 컴포넌트
 /// Icon, Name, TooltipDescription 자식 오브젝트를 찾아서 CardData로 채움
+/// 
+/// 사용 방법:
+/// 1. Info_Block 프리팹에 기본 IconDescriptionPanel 오브젝트가 있어야 함
+/// 2. CardSO의 iconDescriptionPanelPrefab 필드에 각 카드에 맞는 IconDescriptionPanel 프리팹 할당
+/// 3. CardInfoItem이 자동으로 기존 패널을 SO의 프리팹으로 교체
 /// </summary>
 public class CardInfoItem : MonoBehaviour
 {
@@ -19,6 +24,10 @@ public class CardInfoItem : MonoBehaviour
     private TextMeshProUGUI descriptionText;
     private TextMeshProUGUI baseScoreText;
 
+    [Header("Icon Description Panel")]
+    private GameObject originalIconPanel; // 기존 IconDescriptionPanel (교체될 대상)
+    private GameObject replacedIconPanel; // SO에서 받아서 교체한 새 패널
+
     private void Awake()
     {
         FindUIReferences();
@@ -28,6 +37,15 @@ public class CardInfoItem : MonoBehaviour
     {
         // CardDataLoader가 초기화된 후 데이터 로드
         LoadCardData();
+    }
+
+    private void OnDestroy()
+    {
+        // 생성된 IconDescriptionPanel 정리
+        if (replacedIconPanel != null)
+        {
+            Destroy(replacedIconPanel);
+        }
     }
 
     /// <summary>
@@ -40,6 +58,18 @@ public class CardInfoItem : MonoBehaviour
         if (backgroundImage == null)
         {
             Debug.LogWarning($"[CardInfoItem] {gameObject.name}: 배경 Image 컴포넌트를 찾을 수 없습니다.");
+        }
+
+        // ⭐ 기존 IconDescriptionPanel 찾기 (교체될 대상)
+        Transform iconPanelTransform = transform.Find("IconDescriptionPanel");
+        if (iconPanelTransform != null)
+        {
+            originalIconPanel = iconPanelTransform.gameObject;
+            Debug.Log($"[CardInfoItem] {gameObject.name}: 기존 IconDescriptionPanel 찾기 성공");
+        }
+        else
+        {
+            Debug.LogWarning($"[CardInfoItem] {gameObject.name}: IconDescriptionPanel 오브젝트를 찾을 수 없습니다.");
         }
 
         // Icon 찾기
@@ -116,6 +146,55 @@ public class CardInfoItem : MonoBehaviour
         {
             backgroundImage.color = cardData.backGroundColor;
             Debug.Log($"[CardInfoItem] {cardType} 배경색 설정 완료: {cardData.backGroundColor}");
+        }
+
+        // ⭐ IconDescriptionPanel 교체
+        if (originalIconPanel != null && cardData.iconDescriptionPanelPrefab != null)
+        {
+            // 기존 패널의 위치 정보 저장
+            Transform parent = originalIconPanel.transform.parent;
+            int siblingIndex = originalIconPanel.transform.GetSiblingIndex();
+            RectTransform originalRect = originalIconPanel.GetComponent<RectTransform>();
+
+            // 기존 패널의 RectTransform 정보 저장
+            Vector2 anchorMin = originalRect.anchorMin;
+            Vector2 anchorMax = originalRect.anchorMax;
+            Vector2 anchoredPosition = originalRect.anchoredPosition;
+            Vector2 sizeDelta = originalRect.sizeDelta;
+            Vector2 pivot = originalRect.pivot;
+            Vector3 localScale = originalRect.localScale;
+
+            // 기존 패널 제거
+            Destroy(originalIconPanel);
+
+            // SO에서 받은 새 패널 생성
+            replacedIconPanel = Instantiate(cardData.iconDescriptionPanelPrefab, parent);
+            replacedIconPanel.name = "IconDescriptionPanel"; // 이름 유지
+
+            // 동일한 위치와 설정 적용
+            RectTransform newRect = replacedIconPanel.GetComponent<RectTransform>();
+            if (newRect != null)
+            {
+                newRect.anchorMin = anchorMin;
+                newRect.anchorMax = anchorMax;
+                newRect.anchoredPosition = anchoredPosition;
+                newRect.sizeDelta = sizeDelta;
+                newRect.pivot = pivot;
+                newRect.localScale = localScale;
+            }
+
+            // 같은 위치에 배치
+            replacedIconPanel.transform.SetSiblingIndex(siblingIndex);
+
+            Debug.Log($"[CardInfoItem] {cardType} IconDescriptionPanel 교체 완료");
+        }
+        else if (originalIconPanel == null)
+        {
+            Debug.LogWarning($"[CardInfoItem] {cardType} - 기존 IconDescriptionPanel을 찾을 수 없습니다.");
+        }
+        else if (cardData.iconDescriptionPanelPrefab == null)
+        {
+            Debug.LogWarning($"[CardInfoItem] {cardType}의 IconDescriptionPanel 프리팹이 설정되지 않았습니다.");
         }
 
         // 아이콘 설정

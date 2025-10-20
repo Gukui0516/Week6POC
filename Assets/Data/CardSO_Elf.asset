@@ -26,3 +26,4 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: a12cc198158d4b34c8ef74fcaefe8cd1, type: 3}
   count: 5
   backGroundColor: {r: 0, g: 0.26565337, b: 1, a: 1}
+  iconDescriptionPanelPrefab: {fileID: 3825198058884681089, guid: b03e9d458361ed9439393dcec32460e1, type: 3}

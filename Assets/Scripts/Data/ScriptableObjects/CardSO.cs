@@ -34,7 +34,7 @@ public class CardData : ScriptableObject
     public Sprite iconSprite;
     public int count;
     public Color backGroundColor;
-
+    public GameObject iconDescriptionPanelPrefab;
 
     public CardData(string description, int baseScore, string formula)
     {
