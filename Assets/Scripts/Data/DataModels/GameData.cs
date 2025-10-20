@@ -7,7 +7,14 @@ namespace GameCore.Data
     public enum TileMode { NoNumbers, WithNumbers }
 
     [System.Serializable]
-    public enum GameState { Playing, GameOver, Victory }
+    public enum GameState
+    {
+        Playing,
+        GameOver,
+        Victory,
+        Shop  
+    }
+
 
     [System.Serializable]
     public class Card

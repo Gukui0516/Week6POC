@@ -4,7 +4,7 @@ using UnityEngine.UI;
 // 게임 컨트롤 버튼 컴포넌트 (New Game, End Turn) 
 public class GameUIButton : MonoBehaviour
 {
-    public enum ButtonType { NewGame, EndTurn }
+    public enum ButtonType { NewGame, EndTurn, NextStage }
     public ButtonType buttonType;
 
     private Button button;
@@ -25,6 +25,9 @@ public class GameUIButton : MonoBehaviour
                 GameManager.Instance.StartNewGame();
                 break;
             case ButtonType.EndTurn:
+                GameManager.Instance.EndTurn();
+                break;
+            case ButtonType.NextStage:
                 GameManager.Instance.EndTurn();
                 break;
         }

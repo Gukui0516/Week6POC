@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -22,11 +22,46 @@ public class ShopManager : MonoBehaviour
 
     private void Start()
     {
-        cardManager = GameManager.Instance.GetTurnManager().GetCardManager();
+        // ⭐ 게임 상태 변경 이벤트 구독
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
+        }
+    }
 
+    /// <summary>
+    /// 게임 상태가 상점으로 변경되면 상점 초기화
+    /// </summary>
+    private void OnGameStateChanged(GameCore.Data.GameState state)
+    {
+        if (state == GameCore.Data.GameState.Shop)
+        {
+            InitializeShop();
+        }
+    }
+
+    /// <summary>
+    /// 상점 초기화 (상점이 열릴 때마다 호출)
+    /// </summary>
+    private void InitializeShop()
+    {
+        // CardManager 최신 정보 가져오기
+        cardManager = GameManager.Instance?.GetTurnManager()?.GetCardManager();
+
+        if (cardManager == null)
+        {
+            Debug.LogError("[ShopManager] CardManager를 찾을 수 없습니다!");
+            return;
+        }
+
+        // 새로운 제안 생성
         RollOffers();
+
+        // UI 업데이트
         SetOwnedCardUI();
         SetShopCardUI();
+
+        Debug.Log("[ShopManager] 상점 초기화 완료");
     }
 
     /// <summary>
@@ -35,6 +70,12 @@ public class ShopManager : MonoBehaviour
     public void RollOffers()
     {
         currentOffers.Clear();
+
+        if (cardManager == null)
+        {
+            Debug.LogWarning("[ShopManager] CardManager가 초기화되지 않았습니다!");
+            return;
+        }
 
         var owned = cardManager.GetOwnedTypes();
         var allTypes = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
@@ -58,24 +99,35 @@ public class ShopManager : MonoBehaviour
 
     private void SetOwnedCardUI()
     {
+        if (cardManager == null) return;
+
         var ownedTypes = cardManager.GetOwnedTypes().ToList();
         for (int i = 0; i < ownedCards.Count; i++)
         {
-            if (i < ownedTypes.Count) ownedCards[i].SetCardUI(ownedTypes[i]);
+            if (i < ownedTypes.Count)
+                ownedCards[i].SetCardUI(ownedTypes[i]);
         }
     }
 
     private void SetShopCardUI()
     {
-        for (int i = 0; i < 3; i++) shopCards[i].SetCardUI(currentOffers[i]);
+        for (int i = 0; i < Mathf.Min(3, currentOffers.Count); i++)
+        {
+            shopCards[i].SetCardUI(currentOffers[i]);
+        }
     }
 
     /// <summary>
     /// 덱의 deckType과 상점의 shopType을 '서로 교체'
-    /// - 성공 시: 상점 목록에서 shopType 자리에 deckType이 들어가며, 덱에는 shopType이 들어감
     /// </summary>
     public bool TrySwap(CardType deckType, CardType shopType)
     {
+        if (cardManager == null)
+        {
+            Debug.LogWarning("[ShopManager] CardManager가 초기화되지 않았습니다!");
+            return false;
+        }
+
         if (!currentOffers.Contains(shopType))
         {
             Debug.LogWarning($"[ShopManager] 교체 실패: 상점에 {shopType} 없음");
@@ -96,7 +148,21 @@ public class ShopManager : MonoBehaviour
         currentOffers[idx] = deckType;
 
         Debug.Log($"[ShopManager] 교체 완료: 덱 {deckType} → 상점, 상점 {shopType} → 덱");
+
+        // UI 갱신
+        SetOwnedCardUI();
+        SetShopCardUI();
+
         OnOffersChanged?.Invoke();
         return true;
+    }
+
+    private void OnDestroy()
+    {
+        // 이벤트 구독 해제
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnGameStateChanged -= OnGameStateChanged;
+        }
     }
 }

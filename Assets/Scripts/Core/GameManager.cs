@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using GameCore.Data;
@@ -183,14 +183,42 @@ public class GameManager : MonoBehaviour
 
         if (isCleared)
         {
-            gameState = GameState.Victory;
-            // 다음 스테이지로 이동하려면: stageManager.MoveToNextStage();
+            // 마지막 스테이지가 아니면 상점으로
+            if (stage.stageId < stageManager.GetTotalStageCount())
+            {
+                gameState = GameState.Shop;
+                Debug.Log("[GameManager] 상점 열기");
+            }
+            else
+            {
+                // 마지막 스테이지 클리어
+                gameState = GameState.Victory;
+                Debug.Log("[GameManager] 게임 완전 클리어!");
+            }
         }
         else
         {
             gameState = GameState.GameOver;
         }
 
+        OnGameStateChanged?.Invoke(gameState);
+    }
+
+    /// <summary>
+    /// 상점에서 다음 스테이지로 이동 (상점 나가기 버튼에서 호출)
+    /// </summary>
+    public void ExitShopAndContinue()
+    {
+        if (gameState != GameState.Shop)
+        {
+            Debug.LogWarning("[GameManager] 상점 상태가 아닙니다!");
+            return;
+        }
+
+        // 다음 스테이지로 이동
+        stageManager.MoveToNextStage();
+
+        gameState = GameState.Playing;
         OnGameStateChanged?.Invoke(gameState);
     }
 

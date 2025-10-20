@@ -67,7 +67,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         {
             blockIcon = iconTransform.gameObject;
             initialIconScale = blockIcon.transform.localScale; // 초기 스케일 저장
-            Debug.Log($"[BlockPuzzleTile] BlockIcon 설정됨: {blockIcon.name}, 초기 스케일: {initialIconScale}");
+            // Debug.Log($"[BlockPuzzleTile] BlockIcon 설정됨: {blockIcon.name}, 초기 스케일: {initialIconScale}");
         }
         else
         {
@@ -431,10 +431,10 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         {
             Vector3 oldScale = targetTransform.localScale;
             targetTransform.localScale = Vector3.one * targetScale;
-
+/*
             Debug.Log($"[BlockPuzzleTile] 타일({x},{y}) 블록:{tile.block.type} 점수:{tile.calculatedScore} " +
                      $"스케일: {oldScale} → {targetScale:F2} " +
-                     $"대상: {targetTransform.gameObject.name}");
+                     $"대상: {targetTransform.gameObject.name}");*/
         }
         else
         {
@@ -534,7 +534,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
             {
                 iconImage.sprite = cardData.iconSprite;
                 iconImage.enabled = true; // 아이콘 표시
-                Debug.Log($"[BlockPuzzleTile] 타일({x},{y}) 아이콘 설정: {cardType}");
+                //Debug.Log($"[BlockPuzzleTile] 타일({x},{y}) 아이콘 설정: {cardType}");
             }
         }
         else
