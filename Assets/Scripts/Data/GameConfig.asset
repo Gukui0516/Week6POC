@@ -22,4 +22,4 @@ MonoBehaviour:
   weightTileNumber1: 2
   weightTileNumber2: 2
   weightTileNumber3: 1
-  excludeTurnCount: 2
+  excludeTurnCount: 1

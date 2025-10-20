@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16609e7c681bb0c4f9ac6da4cd0c81b7, type: 3}
-  m_Name: Stage_7
+  m_Name: Stage_10
   m_EditorClassIdentifier: 
-  stageId: 7
+  stageId: 10
   endTurn: 3
-  target: 70
+  target: 90
   firstDraw: 4
   secondDraw: 2
   lastDraw: 1
   excludePreviousTurnTypes: 1
-  unlockCard: 07000000
+  unlockCard: 
