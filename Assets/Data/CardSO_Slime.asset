@@ -25,5 +25,5 @@ MonoBehaviour:
     \uB450\uBC88 \uB0C8\uC73C\uBA74"
   baseScore: 0
   formula: 
-  iconSprite: {fileID: 368543389579951487, guid: ee2d1a28a6c14dd4b96873731a81bb28, type: 3}
+  iconSprite: {fileID: 21300000, guid: ee2d1a28a6c14dd4b96873731a81bb28, type: 3}
   count: 2

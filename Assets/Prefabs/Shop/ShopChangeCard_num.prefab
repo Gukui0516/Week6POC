@@ -86,7 +86,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1280775285968994236}
   - component: {fileID: 5794603585462301097}
-  - component: {fileID: 760959713188139499}
+  - component: {fileID: 8146612816676002718}
   - component: {fileID: 8089262254843920002}
   - component: {fileID: 849730002496891252}
   m_Layer: 0
@@ -131,12 +131,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24fa5590ecda9ba439a775a1a3ebec06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shopManager: {fileID: 0}
+  toggle: {fileID: 8146612816676002718}
   icon: {fileID: 4182249241322514145}
   cardName: {fileID: 1258289997937121266}
   description: {fileID: 4330494553481710319}
   baseScore: {fileID: 5784476171789025862}
   cardType: 0
---- !u!114 &760959713188139499
+--- !u!114 &8146612816676002718
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,7 +147,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2883146748681559010}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -177,9 +179,13 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 849730002496891252}
-  m_OnClick:
+  toggleTransition: 1
+  graphic: {fileID: 0}
+  m_Group: {fileID: 0}
+  onValueChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_IsOn: 0
 --- !u!222 &8089262254843920002
 CanvasRenderer:
   m_ObjectHideFlags: 0

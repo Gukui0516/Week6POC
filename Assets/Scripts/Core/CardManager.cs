@@ -426,4 +426,79 @@ public class CardManager
         Debug.Log($"[CardManager] {outType} ↔ {inType} 타입 교체 완료");
         return true;
     }
+
+    /// <summary>
+    /// 덱의 특정 인덱스 위치에 있는 타입을 새로운 타입으로 교체합니다 (칸 유지).
+    /// - outType은 해당 인덱스에서 제거된 기존 타입을 out param으로 반환합니다.
+    /// - inType이 이미 덱의 다른 위치에 있으면 실패합니다.
+    /// </summary>
+    public bool TryReplaceTypeAtIndex(int deckIndex, CardType inType, out CardType outType)
+    {
+        outType = default;
+
+        // 인덱스 범위 체크
+        if (deckIndex < 0 || deckIndex >= ownedCards.Count)
+        {
+            Debug.LogWarning($"[CardManager] 잘못된 deckIndex: {deckIndex}");
+            return false;
+        }
+
+        // 기존 값 보존
+        var old = ownedCards[deckIndex];
+        outType = old.type;
+
+        // 동일 타입 치환은 의미 없음
+        if (outType == inType)
+        {
+            Debug.LogWarning("[CardManager] 동일 타입으로 교체 시도(무시)");
+            return false;
+        }
+
+        // inType이 이미 다른 인덱스에 존재하면 유니크 규칙 위반 → 실패
+        for (int i = 0; i < ownedCards.Count; i++)
+        {
+            if (i == deckIndex) continue;
+            if (ownedCards[i].type == inType)
+            {
+                Debug.LogWarning($"[CardManager] 교체 실패: '{inType}'는 이미 덱에 존재");
+                return false;
+            }
+        }
+
+        // 방어적 정리: outType이 덱 내 다른 위치에 중복되어 있으면 제거
+        // (혹시 과거 데이터/버그로 중복이 있었다면 여기서 정리)
+        for (int i = ownedCards.Count - 1; i >= 0; --i)
+        {
+            if (i == deckIndex) continue;
+            if (ownedCards[i].type == outType)
+            {
+                ownedCards.RemoveAt(i);
+                // 앞쪽 원소가 빠지면 deckIndex가 한 칸 당겨지므로 보정
+                if (i < deckIndex) deckIndex--;
+                Debug.Log($"[CardManager] 방어적 정리: 중복 {outType} 제거 at {i}");
+            }
+        }
+
+        // 실제 치환(같은 칸 유지)
+        ownedCards[deckIndex] = (inType, old.count);
+
+        // 유니크 제한 안전망 (이상 시 롤백)
+        if (GetUniqueTypeCount() > DeckUniqueLimit)
+        {
+            Debug.LogError("[CardManager] 유니크 타입 수 7 초과! 롤백");
+            ownedCards[deckIndex] = old;
+            return false;
+        }
+
+        OnDeckChanged?.Invoke();
+        Debug.Log($"[CardManager] 인덱스 {deckIndex}에서 {outType} → {inType} 교체 완료");
+        return true;
+    }
+
+    private void DeselectAll()
+    {
+        // 활성 카드 전체 선택 해제
+        canSelectThisTurn.Clear();
+        OnActiveCardsChanged?.Invoke();
+    }
 }
