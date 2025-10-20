@@ -22,11 +22,18 @@ public class ShopManager : MonoBehaviour
     // 교환 제한 관련
     private bool hasSwapped = false;
 
-    private void Start()
+/*    private void Start()
     {
         if (GameManager.Instance != null)
             GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
 
+    }
+*/
+
+    private void OnEnable()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnGameStateChanged += OnGameStateChanged;
     }
 
     /// <summary>
