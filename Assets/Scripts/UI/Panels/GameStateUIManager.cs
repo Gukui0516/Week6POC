@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using GameCore.Data;
 
@@ -16,6 +16,10 @@ public class GameStateUIManager : MonoBehaviour
     public Color gameOverColor = Color.red;        // 게임 오버
     public Color victoryColor = Color.cyan;        // 승리
     public Color normalColor = Color.white;        // 일반 상태
+
+
+    [Header("상점 UI")]
+    [SerializeField] private GameObject shopPanel; // 상점 패널
 
     private GameManager gameManager;
     private InventoryController inventoryController;
@@ -100,10 +104,16 @@ public class GameStateUIManager : MonoBehaviour
                 OnGameRestart();
                 break;
 
+            case GameState.Shop:  // 상점 상태 추가
+                ShowShopUI();
+                break;
+
             default:
                 break;
         }
     }
+
+
 
     /// <summary>
     /// 게임 오버 UI 표시
@@ -165,6 +175,45 @@ public class GameStateUIManager : MonoBehaviour
         // 모든 버튼 활성화
         EnableAllInteractions();
     }
+
+
+
+
+    /// <summary>
+    /// 상점 UI 표시
+    /// </summary>
+    private void ShowShopUI()
+    {
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(true);
+            Debug.Log("[GameStateUIManager] 상점 UI 표시");
+        }
+        else
+        {
+            Debug.LogWarning("[GameStateUIManager] shopPanel이 할당되지 않았습니다!");
+        }
+
+        // 게임 버튼 비활성화
+        DisableAllInteractions();
+    }
+
+    /// <summary>
+    /// 상점 UI 숨기기
+    /// </summary>
+    public void HideShopUI()
+    {
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(false);
+        }
+    }
+
+
+
+
+
+
 
     /// <summary>
     /// 일반 상태 메시지 표시

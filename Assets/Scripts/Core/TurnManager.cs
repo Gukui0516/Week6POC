@@ -33,8 +33,18 @@ public class TurnManager
         currentTurnNumber = 0;
         currentTurn = null;
 
-        // 카드 매니저 초기화
-        cardManager.ResetDeck();
+        // 첫 스테이지일 때만 덱 리셋
+        if (stage.stageId == 1)
+        {
+            cardManager.ResetDeck();
+            Debug.Log($"[TurnManager] 첫 스테이지 - 덱 초기화");
+        }
+        else
+        {
+            // 이후 스테이지는 덱 유지, 히스토리만 클리어
+            Debug.Log($"[TurnManager] 이전 스테이지 덱 유지 - 보유 카드: {string.Join(", ", cardManager.GetOwnedTypes())}");
+        }
+
         cardManager.SetStage(stage);
 
         Debug.Log($"[TurnManager] 스테이지 {stage.stageId}에 맞춰 턴 초기화 (턴 번호: 0)");

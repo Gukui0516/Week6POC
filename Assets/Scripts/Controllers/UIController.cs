@@ -1,34 +1,25 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using GameCore.Data;
 
 /// <summary>
 /// 블록 퍼즐 게임의 메인 UI 컨트롤러
-/// 
-/// 역할:
-/// 1. 모든 UI 관련 컨트롤러/매니저 초기화 및 조율
-/// 2. 보드 UI 표시 (점수, 턴 정보)
-/// 3. GameManager 이벤트 구독 및 UI 업데이트
-/// 4. 타일에 대한 인터페이스 제공 (GameFlowController로 위임)
-/// 
-/// 책임 분리:
-/// - TileGridManager: 타일 그리드 관리
-/// - InventoryController: 인벤토리 UI 관리
-/// - GameStateUIManager: 게임 상태 UI (오버/승리)
-/// - GameFlowController: 게임 로직 중개
 /// </summary>
 public class UIController : MonoBehaviour
 {
     [Header("점수 텍스트 색상 설정")]
-    public Color scoreHighColor = Color.green;     // 목표 달성
-    public Color scoreMidColor = Color.yellow;     // 70% 이상
-    public Color scoreLowColor = Color.white;      // 70% 미만
+    public Color scoreHighColor = Color.green;
+    public Color scoreMidColor = Color.yellow;
+    public Color scoreLowColor = Color.white;
 
     [Header("진행바 색상 설정")]
-    public Color progressCompleteColor = Color.green;   // 100% 이상
-    public Color progressHighColor = Color.yellow;      // 70% 이상
-    public Color progressLowColor = new Color(1f, 0.5f, 0f); // 70% 미만 (주황색)
+    public Color progressCompleteColor = Color.green;
+    public Color progressHighColor = Color.yellow;
+    public Color progressLowColor = new Color(1f, 0.5f, 0f);
+
+    [Header("⭐ 상점 Canvas")]
+    [SerializeField] private GameObject shopCanvas; // Inspector에서 할당
 
     #region Dependencies
     private GameManager gameManager;
@@ -58,16 +49,20 @@ public class UIController : MonoBehaviour
 
     private void Start()
     {
-        // 싱글톤을 통해 GameManager 참조
         gameManager = GameManager.Instance;
 
         if (gameManager == null)
         {
-            Debug.LogError("[BlockPuzzleUIController] GameManager 싱글톤을 찾을 수 없습니다!");
+            Debug.LogError("[UIController] GameManager 싱글톤을 찾을 수 없습니다!");
             return;
         }
 
-        // GameManager의 Start가 실행될 때까지 대기
+        // 상점 Canvas 초기 상태: 비활성화
+        if (shopCanvas != null)
+        {
+            shopCanvas.SetActive(false);
+        }
+
         StartCoroutine(InitializeAfterGameManager());
     }
 
@@ -75,19 +70,17 @@ public class UIController : MonoBehaviour
     {
         int waitCount = 0;
 
-        // GameManager의 보드가 초기화될 때까지 대기
         while (gameManager.GetBoard() == null)
         {
             waitCount++;
-            if (waitCount > 100) // 무한 루프 방지
+            if (waitCount > 100)
             {
-                Debug.LogError("[BlockPuzzleUIController] GameManager 초기화 대기 시간 초과!");
+                Debug.LogError("[UIController] GameManager 초기화 대기 시간 초과!");
                 yield break;
             }
             yield return null;
         }
 
-        // 모든 컨트롤러 초기화
         CacheUIReferences();
         InitializeTileGridManager();
         InitializeInventoryController();
@@ -101,19 +94,12 @@ public class UIController : MonoBehaviour
 
     #region Initialization
 
-    /// <summary>
-    /// UI 요소 참조 캐싱
-    /// </summary>
     private void CacheUIReferences()
     {
-        // UI 요소 찾기 (필요시)
         var gameButtons = FindObjectsByType<GameUIButton>(FindObjectsSortMode.None);
         var modeToggle = FindFirstObjectByType<BlockPuzzleModeToggle>();
     }
 
-    /// <summary>
-    /// TileGridManager 초기화
-    /// </summary>
     private void InitializeTileGridManager()
     {
         tileGridManager = FindFirstObjectByType<TileGridManager>();
@@ -126,7 +112,6 @@ public class UIController : MonoBehaviour
 
         tileGridManager.Initialize(gameManager);
 
-        // 각 타일에 UIController 참조 설정 (기존 호환성 유지)
         var tiles = tileGridManager.GetAllTiles();
         if (tiles != null)
         {
@@ -137,9 +122,6 @@ public class UIController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// InventoryController 초기화
-    /// </summary>
     private void InitializeInventoryController()
     {
         inventoryController = FindFirstObjectByType<InventoryController>();
@@ -153,9 +135,6 @@ public class UIController : MonoBehaviour
         inventoryController.Initialize(gameManager);
     }
 
-    /// <summary>
-    /// GameStateUIManager 초기화
-    /// </summary>
     private void InitializeGameStateUIManager()
     {
         gameStateUIManager = FindFirstObjectByType<GameStateUIManager>();
@@ -166,7 +145,6 @@ public class UIController : MonoBehaviour
             gameStateUIManager = stateUIObj.AddComponent<GameStateUIManager>();
         }
 
-        // scoreText를 GameStateUIManager에 전달
         if (scoreText != null)
         {
             gameStateUIManager.SetStateMessageText(scoreText);
@@ -175,9 +153,6 @@ public class UIController : MonoBehaviour
         gameStateUIManager.Initialize(gameManager, inventoryController, tileGridManager);
     }
 
-    /// <summary>
-    /// GameFlowController 초기화
-    /// </summary>
     private void InitializeGameFlowController()
     {
         gameFlowController = FindFirstObjectByType<GameFlowController>();
@@ -201,6 +176,43 @@ public class UIController : MonoBehaviour
             gameManager.OnTurnStart += (turn) => UpdateUI();
             gameManager.OnScoreUpdated += (score) => UpdateUI();
             gameManager.OnBoardUpdated += UpdateBoard;
+            gameManager.OnGameStateChanged += OnGameStateChanged; // ⭐ 게임 상태 변화 구독
+        }
+    }
+
+    #endregion
+
+    #region Game State Handling
+
+    /// <summary>
+    /// ⭐ 게임 상태 변경 시 상점 Canvas 표시/숨김
+    /// </summary>
+    private void OnGameStateChanged(GameState state)
+    {
+        if (shopCanvas == null)
+        {
+            Debug.LogWarning("[UIController] shopCanvas가 할당되지 않았습니다!");
+            return;
+        }
+
+        switch (state)
+        {
+            case GameState.Shop:
+                // 상점 열기
+                shopCanvas.SetActive(true);
+                Debug.Log("[UIController] 상점 Canvas 활성화");
+                break;
+
+            case GameState.Playing:
+                // 상점 닫기 (게임 진행 중)
+                shopCanvas.SetActive(false);
+                break;
+
+            case GameState.GameOver:
+            case GameState.Victory:
+                // 게임 종료 시에도 상점 닫기
+                shopCanvas.SetActive(false);
+                break;
         }
     }
 
@@ -208,9 +220,6 @@ public class UIController : MonoBehaviour
 
     #region UI Update
 
-    /// <summary>
-    /// UI 전체 업데이트 (점수, 인벤토리, 보드)
-    /// </summary>
     private void UpdateUI()
     {
         var turn = gameManager?.GetCurrentTurn();
@@ -221,16 +230,12 @@ public class UIController : MonoBehaviour
 
             currentScoreText.text = $"현재 점수 : {currentTurnScore}";
 
-            // 인벤토리 업데이트 (위임)
             inventoryController?.UpdateInventory();
         }
 
         UpdateBoard();
     }
 
-    /// <summary>
-    /// 보드 시각 업데이트 (TileGridManager에 위임)
-    /// </summary>
     private void UpdateBoard()
     {
         tileGridManager?.UpdateAllTiles();
@@ -238,31 +243,29 @@ public class UIController : MonoBehaviour
 
     #endregion
 
-    #region Public API (타일 인터페이스)
+    #region Public API
 
-    /// <summary>
-    /// 타일에서 호출: 선택된 블록을 지정 위치에 배치 시도
-    /// GameFlowController에 위임
-    /// </summary>
-    /// <param name="x">X 좌표</param>
-    /// <param name="y">Y 좌표</param>
-    /// <returns>배치 성공 여부</returns>
     public bool TryPlaceSelectedBlock(int x, int y)
     {
         if (gameFlowController == null)
         {
-            Debug.LogWarning("[BlockPuzzleUIController] GameFlowController가 초기화되지 않았습니다.");
+            Debug.LogWarning("[UIController] GameFlowController가 초기화되지 않았습니다.");
             return false;
         }
 
         return gameFlowController.TryPlaceSelectedBlock(x, y);
     }
 
-    /// <summary>
-    /// 현재 선택된 카드 타입 반환
-    /// GameFlowController에 위임
-    /// </summary>
     public CardType? GetSelectedCardType() => gameFlowController?.GetSelectedCardType();
 
     #endregion
+
+    private void OnDestroy()
+    {
+        // 이벤트 구독 해제
+        if (gameManager != null)
+        {
+            gameManager.OnGameStateChanged -= OnGameStateChanged;
+        }
+    }
 }

@@ -11,27 +11,11 @@ public class StageInfoUI : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI targetText;
     [SerializeField] private TMPro.TextMeshProUGUI cardsText;
 
-    private void Start()
-    {
-        UpdateStageInfo();
-    }
-
     private void LateUpdate()
     {
         UpdateInfo();
     }
 
-    /// <summary>
-    /// 스테이지 정보 업데이트 (고정값)
-    /// </summary>
-    private void UpdateStageInfo()
-    {
-        var stage = StageManager.Instance?.GetCurrentStage();
-        if (stage != null && stageText != null)
-        {
-            stageText.text = $"Stage {stage.stageId}";
-        }
-    }
 
     /// <summary>
     /// 턴별 정보 업데이트 (매 프레임)
@@ -48,6 +32,12 @@ public class StageInfoUI : MonoBehaviour
 
         if (turn != null && stage != null)
         {
+
+            if (stage != null && stageText != null)
+            {
+                stageText.text = $"Stage {stage.stageId}";
+            }
+
             // 턴 정보
             if (turnText != null)
             {

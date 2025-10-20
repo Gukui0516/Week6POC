@@ -60,7 +60,7 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         if (iconTransform != null)
         {
             buttonIcon = iconTransform.gameObject;
-            Debug.Log($"[InventoryButton] ButtonIcon 설정됨: {buttonIcon.name}");
+            //Debug.Log($"[InventoryButton] ButtonIcon 설정됨: {buttonIcon.name}");
         }
         else
         {
