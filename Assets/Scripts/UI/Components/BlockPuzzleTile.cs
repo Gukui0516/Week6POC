@@ -371,7 +371,7 @@ public class BlockPuzzleTile : MonoBehaviour, IPointerEnterHandler, IPointerExit
             bool isNumberMode = GameManager.Instance.GetTileMode() == TileMode.WithNumbers;
             if (isNumberMode && tile.tileNumber > 0)
             {
-                string turnText = tile.tileNumber == 1 ? "1턴 유지" : $"{tile.tileNumber}턴 유지";
+                string turnText = tile.tileNumber == 1 ? "1턴 고용" : $"{tile.tileNumber}턴 고용";
                 toolboxText = $"빈 타일\n[{turnText}]";
             }
             else
