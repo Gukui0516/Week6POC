@@ -27,6 +27,7 @@ public class StageManager : MonoBehaviour
     #endregion
 
     [SerializeField] private StageCollectionSO stageCollection;
+    [SerializeField] private NewCardUI newCardUI;
 
     private StageSO currentStage;
     private int currentStageId = 0;
@@ -93,6 +94,12 @@ public class StageManager : MonoBehaviour
 
         if (isCleared)
         {
+            // 진짜 하드코딩 겁나 하기 싫은데 어쩔 수 없이 했음
+            if (currentStageId < 4)
+            {
+                newCardUI.SetCardUI((CardType)currentStage.unlockCard[0]);
+                newCardUI.gameObject.SetActive(true);
+            }
             // 클리어 시 다음 스테이지로 이동할지 결정
             // 여기서는 자동으로 넘어가지 않고, 외부에서 MoveToNextStage() 호출
         }
