@@ -468,7 +468,10 @@ public class GameManager : MonoBehaviour
         var tile = GetTile(x, y);
         if (tile == null || !tile.IsEmpty) return null;
 
-        return scoreCalculator.CalculateFullBoardPreview(x, y, blockType);
+        // 현재 턴 번호 가져오기
+        int currentTurnNumber = turnManager?.GetCurrentTurn()?.turnNumber ?? 0;
+
+        return scoreCalculator.CalculateFullBoardPreview(x, y, blockType, currentTurnNumber);
     }
 
     // ⭐ 새로운: 블록 교체 시 점수 미리보기 (기존 블록이 있어도 가능)
@@ -479,10 +482,13 @@ public class GameManager : MonoBehaviour
         var tile = GetTile(x, y);
         if (tile == null) return null;
 
+        // 현재 턴 번호 가져오기
+        int currentTurnNumber = turnManager?.GetCurrentTurn()?.turnNumber ?? 0;
+
         // 타일이 비어있으면 일반 미리보기 사용
         if (tile.IsEmpty)
         {
-            return scoreCalculator.CalculateFullBoardPreview(x, y, newBlockType);
+            return scoreCalculator.CalculateFullBoardPreview(x, y, newBlockType, currentTurnNumber);
         }
 
         // 타일이 차있으면 임시로 제거 후 미리보기
@@ -498,7 +504,7 @@ public class GameManager : MonoBehaviour
         scoreCalculator.CalculateAllScores();
 
         // 미리보기 계산
-        var preview = scoreCalculator.CalculateFullBoardPreview(x, y, newBlockType);
+        var preview = scoreCalculator.CalculateFullBoardPreview(x, y, newBlockType, currentTurnNumber);
 
         // 원상복구
         tile.block = originalBlock;
