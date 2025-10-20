@@ -294,7 +294,7 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 var cardManager = GameManager.Instance.GetTurnManager()?.GetCardManager();
                 bool canSelect = cardManager?.CanSelectCard(CardType) ?? true;
 
-                string statusText = $"\n\n<color=cyan>보유 개수: {count}</color>";
+                string statusText = $"\n<color=#4bacc6>보유 개수: {count}</color>";
                 if (!canSelect)
                 {
                     statusText += "\n<color=red>[이전 턴에 사용하여 선택 불가]</color>";
