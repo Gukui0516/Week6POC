@@ -6,6 +6,7 @@ using GameCore.Data;
 public class ScoreBreakdown
 {
     public CardType cardType;
+    public string cardName;
     public int baseScore;
     public List<CardData> modifiers;
     public int finalScore;
@@ -13,6 +14,11 @@ public class ScoreBreakdown
     public ScoreBreakdown(CardType type)
     {
         cardType = type;
+
+        // SO에서 카드 이름 가져오기
+        var cardData = CardDataLoader.GetData(type);
+        cardName = cardData != null ? cardData.cardName : type.ToString();
+
         modifiers = new List<CardData>();
     }
 }

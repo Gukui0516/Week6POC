@@ -1,4 +1,4 @@
-﻿using DG.Tweening.Core.Easing;
+using DG.Tweening.Core.Easing;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +15,8 @@ public class PlayerHealthHUD : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Slider hpSlider;
     [SerializeField] private TextMeshProUGUI hpText;
+
+    private StageSO currentStage;
 
 
     private void Start()
@@ -43,11 +45,13 @@ public class PlayerHealthHUD : MonoBehaviour
         if (hpSlider != null)
         {
             float a = GameManager.Instance.GetCumulativeScore();
-            float b = GameManager.Instance.GetTotalScore();
-            hpSlider.value = a / b;
+            currentStage = StageManager.Instance.GetCurrentStage();
+
+            float b = currentStage.target;
+            hpSlider.value = (b-a) / b;
 
 
-            hpText.text = a + " / " + b;
+            hpText.text = (b - a) + " / " + b;
         } 
 
     }

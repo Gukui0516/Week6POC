@@ -84,8 +84,16 @@ public class ScoreCalculator
         };
     }
 
-    private int CalculateTileScore(Tile tile, GlobalScoreData globalData)
+    // 카드 타입에서 카드 이름 가져오기
+    private string GetCardName(CardType cardType)
     {
+        var cardData = CardDataLoader.GetData(cardType);
+        return cardData != null ? cardData.cardName : cardType.ToString();
+    }
+
+    private int CalculateTileScore(Tile tile, GlobalScoreData globalData, List<GameCore.Data.ScoreModifier> modifiers = null)
+    {
+        bool trackModifiers = (modifiers != null);
         var block = tile.block;
         int score = block.baseScore;
 
@@ -94,48 +102,358 @@ public class ScoreCalculator
 
         switch (block.type)
         {
+            #region Orc
             case CardType.Orc:
-                int adjacentACount = adjacentBlocks.Count(b => b.type == CardType.Orc);
-                if (adjacentACount >= 2) score -= 1;
+                // (-1): 인접한 블록 중, 오크가 있으면
+                int adjacentOrcCount = adjacentBlocks.Count(b => b.type == CardType.Orc);
+                if (adjacentOrcCount >= 1)
+                {
+                    score -= 1;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            $"인접한 {GetCardName(CardType.Orc)} {adjacentOrcCount}개",
+                            -1,
+                            $"인접 {GetCardName(CardType.Orc)} 있을 때 -1"
+                        ));
+                }
                 break;
+            #endregion
 
+            #region Werewolf
             case CardType.Werewolf:
-                int nonBAdjacentCount = adjacentBlocks.Count(b => b.type != CardType.Werewolf);
-                if (nonBAdjacentCount >= 2) score += 1;
+                // (+1): 인접한 블록 중, 늑대인간이 아닌 블록이 2장 이상이면
+                int nonWerewolfCount = adjacentBlocks.Count(b => b.type != CardType.Werewolf);
+                if (nonWerewolfCount >= 2)
+                {
+                    score += 1;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            $"{GetCardName(CardType.Werewolf)}가 아닌 인접 블록 {nonWerewolfCount}개",
+                            1,
+                            "2개 이상일 때 +1"
+                        ));
+                }
+                else if (trackModifiers && nonWerewolfCount > 0)
+                {
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"{GetCardName(CardType.Werewolf)}가 아닌 인접 블록 {nonWerewolfCount}개",
+                        0,
+                        "1개 이하일 때 보너스 없음"
+                    ));
+                }
                 break;
+            #endregion
 
+            #region Goblin
             case CardType.Goblin:
-                int adjacentCCount = adjacentBlocks.Count(b => b.type == CardType.Goblin);
-                score += adjacentCCount;
+                // (+2): 인접한 고블린 블록 하나당
+                int adjacentGoblinCount = adjacentBlocks.Count(b => b.type == CardType.Goblin);
+                int goblinBonus = adjacentGoblinCount * 2;
+                score += goblinBonus;
+                if (trackModifiers && goblinBonus > 0)
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"인접한 {GetCardName(CardType.Goblin)} {adjacentGoblinCount}개",
+                        goblinBonus,
+                        $"{GetCardName(CardType.Goblin)} 1개당 +2"
+                    ));
                 break;
+            #endregion
 
+            #region Elf
             case CardType.Elf:
-                int adjacentDCount = adjacentBlocks.Count(b => b.type == CardType.Elf);
-                if (adjacentDCount >= 1 && adjacentDCount <= 2) score += 1;
-                else if (adjacentDCount >= 3) score -= 1;
-                break;
+                // 유니크: 전장에 있는, 자신과 종족이 같은 블록 하나당 (-1)
+                ApplyUniquePenalty(CardType.Elf, globalData, ref score, modifiers, trackModifiers);
 
+                // (-1): 전장에 있는, 빈 타일 하나당
+                int emptyPenalty = -globalData.emptyTileCount;
+                score += emptyPenalty;
+                if (trackModifiers && emptyPenalty != 0)
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"빈 타일 {globalData.emptyTileCount}개",
+                        emptyPenalty,
+                        "빈 타일 1개당 -1"
+                    ));
+                break;
+            #endregion
+
+            #region Dwarf
             case CardType.Dwarf:
-                int totalECount = globalData.blockCounts.GetValueOrDefault(CardType.Dwarf, 0);
-                score = 4 - ((totalECount - 1) + globalData.emptyTileCount);
+                // (+1): 인접한 드워프 블록이 정확히 1개일 때
+                int adjacentDwarfCount = adjacentBlocks.Count(b => b.type == CardType.Dwarf);
+                if (adjacentDwarfCount == 1)
+                {
+                    score += 1;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            $"인접한 {GetCardName(CardType.Dwarf)} 1개",
+                            1,
+                            "정확히 1개일 때 +1"
+                        ));
+                }
+                // (-1): 인접한 드워프 블록이 2개 이상일 때
+                else if (adjacentDwarfCount >= 2)
+                {
+                    score -= 1;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            $"인접한 {GetCardName(CardType.Dwarf)} {adjacentDwarfCount}개",
+                            -1,
+                            "2개 이상일 때 -1"
+                        ));
+                }
+                else if (trackModifiers && adjacentDwarfCount == 0)
+                {
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"인접한 {GetCardName(CardType.Dwarf)} 없음",
+                        0,
+                        "보너스 없음"
+                    ));
+                }
                 break;
+            #endregion
 
+            #region Angel
             case CardType.Angel:
-                int totalFCount = globalData.blockCounts.GetValueOrDefault(CardType.Angel, 0);
-                score = globalData.uniqueTypesExcludingF - (totalFCount - 1);
-                break;
+                // (+1): 전장에 있는, 천사가 아닌 블록 종류 하나당
+                int angelBonus = globalData.uniqueTypesExcludingF;
+                score += angelBonus;
+                if (trackModifiers && angelBonus > 0)
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"{GetCardName(CardType.Angel)} 제외 블록 종류 {globalData.uniqueTypesExcludingF}개",
+                        angelBonus,
+                        "종류 1개당 +1"
+                    ));
 
+                // 유니크: 전장에 있는, 자신과 종족이 같은 블록 하나당 (-1)
+                ApplyUniquePenalty(CardType.Angel, globalData, ref score, modifiers, trackModifiers);
+                break;
+            #endregion
+
+            #region Dragon
             case CardType.Dragon:
-                int adjacentBlockCount = adjacentBlocks.Count;
-                score += adjacentBlockCount * (-1);
+                // (+1): 주위에 있는 타일 하나당
+                int surroundingTileCount = adjacentTiles.Count;
+                score += surroundingTileCount;
+                if (trackModifiers && surroundingTileCount > 0)
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"주위 타일 {surroundingTileCount}개",
+                        surroundingTileCount,
+                        "타일 1개당 +1"
+                    ));
 
-                int adjacentEmptyCount = adjacentTiles.Count - adjacentBlocks.Count;
-                score += adjacentEmptyCount * (-2);
+                // 유니크: 전장에 있는, 자신과 종족이 같은 블록 하나당 (-1)
+                ApplyUniquePenalty(CardType.Dragon, globalData, ref score, modifiers, trackModifiers);
+
+                // (-1): 인접한 블록 하나당
+                int adjacentBlockCount = adjacentBlocks.Count;
+                int dragonBlockPenalty = -adjacentBlockCount;
+                score += dragonBlockPenalty;
+                if (trackModifiers && dragonBlockPenalty != 0)
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"인접한 블록 {adjacentBlockCount}개",
+                        dragonBlockPenalty,
+                        "인접 블록 1개당 -1"
+                    ));
                 break;
+            #endregion
+
+            #region Devil
+            case CardType.Devil:
+                // (+1): 이 가로 줄에, 악마가 없으면 (자신 제외)
+                int devilsInRow = GetBlockCountInRow(tile.y, CardType.Devil) - 1; // 자신 제외
+                if (devilsInRow == 0)
+                {
+                    score += 1;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            $"이 가로줄에 다른 {GetCardName(CardType.Devil)} 없음",
+                            1,
+                            $"같은 줄에 {GetCardName(CardType.Devil)} 없을 때 +1"
+                        ));
+                }
+                else if (trackModifiers)
+                {
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"이 가로줄에 다른 {GetCardName(CardType.Devil)} {devilsInRow}개",
+                        0,
+                        $"같은 줄에 {GetCardName(CardType.Devil)} 있을 때 보너스 없음"
+                    ));
+                }
+                break;
+            #endregion
+
+            #region Vampire
+            case CardType.Vampire:
+                // (+1): 이 가로 줄에, 다른 종족이 있으면
+                bool hasOtherTypeInRow = HasOtherTypeInRow(tile.y, CardType.Vampire);
+                if (hasOtherTypeInRow)
+                {
+                    score += 1;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            "이 가로줄에 다른 종족 있음",
+                            1,
+                            "다른 종족 있을 때 +1"
+                        ));
+                }
+                else if (trackModifiers)
+                {
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        "이 가로줄에 다른 종족 없음",
+                        0,
+                        "다른 종족 없을 때 보너스 없음"
+                    ));
+                }
+                break;
+            #endregion
+
+            #region Naga
+            case CardType.Naga:
+                // (+2): 주위에 있는 다른 블록 종류 하나당
+                var uniqueAdjacentTypes = adjacentBlocks.Select(b => b.type).Distinct().Count();
+                int nagaBonus = uniqueAdjacentTypes * 2;
+                score += nagaBonus;
+                if (trackModifiers && nagaBonus > 0)
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"인접한 다른 블록 종류 {uniqueAdjacentTypes}개",
+                        nagaBonus,
+                        "종류 1개당 +2"
+                    ));
+                break;
+            #endregion
+
+            #region Robot
+            case CardType.Robot:
+                // (+7): 정중앙이 빈 타일이면
+                var centerTile = boardManager.GetTile(1, 1); // 3x3 보드의 중앙은 (1,1)
+                if (centerTile != null && centerTile.IsEmpty)
+                {
+                    score += 7;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            "정중앙이 빈 타일",
+                            7,
+                            "중앙이 비어있을 때 +7"
+                        ));
+                }
+                else if (trackModifiers)
+                {
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        "정중앙에 블록 있음",
+                        0,
+                        "중앙이 차있을 때 보너스 없음"
+                    ));
+                }
+                break;
+            #endregion
+
+            #region Slime
+            case CardType.Slime:
+                // (+5): 슬라임 하나당 (자신 포함)
+                int totalSlimeCount = globalData.blockCounts.GetValueOrDefault(CardType.Slime, 0);
+                int slimeBonus = totalSlimeCount * 5;
+                score += slimeBonus;
+                if (trackModifiers && slimeBonus > 0)
+                    modifiers.Add(new GameCore.Data.ScoreModifier(
+                        $"전장의 {GetCardName(CardType.Slime)} {totalSlimeCount}개",
+                        slimeBonus,
+                        $"{GetCardName(CardType.Slime)} 1개당 +5 (자신 포함)"
+                    ));
+
+                // (-10): 같은 턴에 슬라임을 두번 냈으면
+                int slimesThisTurn = GetSlimeCountPlacedThisTurn(tile.placedTurn);
+                if (slimesThisTurn >= 2)
+                {
+                    score -= 10;
+                    if (trackModifiers)
+                        modifiers.Add(new GameCore.Data.ScoreModifier(
+                            $"같은 턴에 {GetCardName(CardType.Slime)} {slimesThisTurn}개 배치",
+                            -10,
+                            "같은 턴에 2개 이상 배치 시 -10"
+                        ));
+                }
+                break;
+                #endregion
         }
 
         return score;
     }
+
+    // 유니크 페널티 계산: 자신을 제외한 전장에 있는 같은 종족 하나당 -1점
+    private void ApplyUniquePenalty(CardType cardType, GlobalScoreData globalData, ref int score, List<GameCore.Data.ScoreModifier> modifiers, bool trackModifiers)
+    {
+        int totalCount = globalData.blockCounts.GetValueOrDefault(cardType, 0);
+        int penalty = -(totalCount - 1); // 자신 제외
+        score += penalty;
+
+        if (trackModifiers && penalty != 0)
+        {
+            modifiers.Add(new GameCore.Data.ScoreModifier(
+                $"유니크({GetCardName(cardType)}) {totalCount - 1}개",
+                penalty,
+                "같은 종족 1개당 -1"
+            ));
+        }
+    }
+
+    // 가로 줄에서 특정 타입의 블록 개수를 세는 헬퍼 메서드
+    private int GetBlockCountInRow(int row, CardType cardType)
+    {
+        int count = 0;
+        var board = boardManager.GetBoard();
+
+        for (int x = 0; x < GameConfig.BOARD_SIZE; x++)
+        {
+            var tile = board[x, row];
+            if (tile.HasBlock && tile.block.type == cardType)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    // 가로 줄에 다른 종족이 있는지 확인하는 헬퍼 메서드
+    private bool HasOtherTypeInRow(int row, CardType excludeType)
+    {
+        var board = boardManager.GetBoard();
+
+        for (int x = 0; x < GameConfig.BOARD_SIZE; x++)
+        {
+            var tile = board[x, row];
+            if (tile.HasBlock && tile.block.type != excludeType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // 같은 턴에 배치된 슬라임 개수를 세는 헬퍼 메서드
+    private int GetSlimeCountPlacedThisTurn(int turnNumber)
+    {
+        int count = 0;
+        var board = boardManager.GetBoard();
+
+        for (int x = 0; x < GameConfig.BOARD_SIZE; x++)
+        {
+            for (int y = 0; y < GameConfig.BOARD_SIZE; y++)
+            {
+                var tile = board[x, y];
+                if (tile.HasBlock &&
+                    tile.block.type == CardType.Slime &&
+                    tile.placedTurn == turnNumber)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
 
     // 상세 계산 정보와 함께 점수 계산
     private int CalculateTileScoreWithBreakdown(Tile tile, GlobalScoreData globalData, ScoreBreakdown breakdown)
@@ -144,162 +462,20 @@ public class ScoreCalculator
         breakdown.baseScore = block.baseScore;
         breakdown.modifiers.Clear();
 
-        // 실제 점수는 기존 메서드로 계산
-        int score = CalculateTileScore(tile, globalData);
+        // 수정자 추적 리스트 생성
+        var modifiers = new List<GameCore.Data.ScoreModifier>();
 
-        var adjacentTiles = boardManager.GetAdjacentTiles(tile.x, tile.y);
-        var adjacentBlocks = adjacentTiles.Where(t => t.HasBlock).Select(t => t.block).ToList();
+        // 계산 + 추적을 동시에 수행
+        int score = CalculateTileScore(tile, globalData, modifiers);
 
-        switch (block.type)
+        // ScoreModifier를 CardData로 변환하여 breakdown에 추가
+        foreach (var mod in modifiers)
         {
-            case CardType.Orc:
-                int adjacentACount = adjacentBlocks.Count(b => b.type == CardType.Orc);
-                if (adjacentACount >= 2)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"인접한 Orc 블록 {adjacentACount}개",
-                        -1,
-                        "2개 이상일 때 -1"
-                    ));
-                }
-                else if (adjacentACount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"인접한 Orc 블록 {adjacentACount}개",
-                        0,
-                        "1개 이하일 때 보너스 없음"
-                    ));
-                }
-                break;
-
-            case CardType.Werewolf:
-                int nonBAdjacentCount = adjacentBlocks.Count(b => b.type != CardType.Werewolf);
-                if (nonBAdjacentCount >= 2)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"Werewolf가 아닌 인접 블록 {nonBAdjacentCount}개",
-                        1,
-                        "2개 이상일 때 +1"
-                    ));
-                }
-                else if (nonBAdjacentCount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"Werewolf가 아닌 인접 블록 {nonBAdjacentCount}개",
-                        0,
-                        "1개 이하일 때 보너스 없음"
-                    ));
-                }
-                break;
-
-            case CardType.Goblin:
-                int adjacentCCount = adjacentBlocks.Count(b => b.type == CardType.Goblin);
-                if (adjacentCCount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"인접한 Goblin 블록 {adjacentCCount}개",
-                        adjacentCCount,
-                        "Goblin 1개당 +1"
-                    ));
-                }
-                break;
-
-            case CardType.Elf:
-                int adjacentDCount = adjacentBlocks.Count(b => b.type == CardType.Elf);
-                if (adjacentDCount >= 1 && adjacentDCount <= 2)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"인접한 Elf 블록 {adjacentDCount}개",
-                        1,
-                        "1~2개일 때 +1"
-                    ));
-                }
-                else if (adjacentDCount >= 3)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"인접한 Elf 블록 {adjacentDCount}개",
-                        -1,
-                        "3개 이상일 때 -1"
-                    ));
-                }
-                else if (adjacentDCount == 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        "인접한 D 블록 없음",
-                        0,
-                        "0개일 때 보너스 없음"
-                    ));
-                }
-                break;
-
-            case CardType.Dwarf:
-                int totalECount = globalData.blockCounts.GetValueOrDefault(CardType.Dwarf, 0);
-                int otherECount = totalECount - 1;
-
-                if (otherECount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"다른 Dwarf 블록 {otherECount}개",
-                        -otherECount,
-                        "다른 Dwarf 1개당 -1"
-                    ));
-                }
-
-                if (globalData.emptyTileCount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"빈 타일 {globalData.emptyTileCount}개",
-                        -globalData.emptyTileCount,
-                        "빈 타일 1개당 -1"
-                    ));
-                }
-                break;
-
-            case CardType.Angel:
-                int totalFCount = globalData.blockCounts.GetValueOrDefault(CardType.Angel, 0);
-                int otherFCount = totalFCount - 1;
-
-                if (globalData.uniqueTypesExcludingF > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"Angel 제외 블록 종류 {globalData.uniqueTypesExcludingF}개",
-                        globalData.uniqueTypesExcludingF,
-                        "종류 1개당 +1"
-                    ));
-                }
-
-                if (otherFCount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"다른 Angel 블록 {otherFCount}개",
-                        -otherFCount,
-                        "다른 Angel 1개당 -1"
-                    ));
-                }
-                break;
-
-            case CardType.Dragon:
-                int adjacentBlockCount = adjacentBlocks.Count;
-                int adjacentEmptyCount = adjacentTiles.Count - adjacentBlocks.Count;
-
-                if (adjacentBlockCount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"인접한 블록 {adjacentBlockCount}개",
-                        -adjacentBlockCount,
-                        "인접 블록 1개당 -1"
-                    ));
-                }
-
-                if (adjacentEmptyCount > 0)
-                {
-                    breakdown.modifiers.Add(new CardData(
-                        $"인접한 빈칸 {adjacentEmptyCount}개",
-                        -adjacentEmptyCount * 2,
-                        "인접 빈칸 1개당 -2"
-                    ));
-                }
-                break;
+            breakdown.modifiers.Add(new CardData(
+                mod.description,
+                mod.value,
+                mod.reason
+            ));
         }
 
         breakdown.finalScore = score;
