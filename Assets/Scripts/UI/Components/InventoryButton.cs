@@ -9,7 +9,7 @@ using GameCore.Data;
 /// 인벤토리 블록 버튼 컴포넌트
 /// 활성화 여부와 선택 가능 여부를 구분하여 표시
 /// </summary>
-public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public CardType CardType;
 
@@ -26,6 +26,9 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     // 상태 표시용 오버레이
     private GameObject disabledOverlay;
+
+    // ToolBox 관련
+    private bool isHoveringForToolBox = false;
 
     private void Awake()
     {
@@ -60,7 +63,6 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         if (iconTransform != null)
         {
             buttonIcon = iconTransform.gameObject;
-            //Debug.Log($"[InventoryButton] ButtonIcon 설정됨: {buttonIcon.name}");
         }
         else
         {
@@ -135,7 +137,7 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         iconObj.transform.SetParent(disabledOverlay.transform, false);
 
         var iconText = iconObj.AddComponent<TextMeshProUGUI>();
-        iconText.text = "X";
+        iconText.text = "✖";
         iconText.fontSize = 40;
         iconText.color = new Color(1f, 0.3f, 0.3f);
         iconText.alignment = TextAlignmentOptions.Center;
@@ -182,6 +184,8 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         inventoryController.SelectBlock(CardType, this);
     }
 
+    #region Drag Handlers
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (GameManager.Instance == null || inventoryController == null) return;
@@ -203,6 +207,9 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         isDragging = true;
         inventoryController.OnBeginDrag(CardType, this);
         transform.localScale = Vector3.one * 1.2f;
+
+        // 드래그 시작하면 ToolBox 숨기기
+        HideToolBoxInfo();
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -220,6 +227,73 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         inventoryController.OnEndDrag();
     }
+
+    #endregion
+
+    #region Pointer Handlers (ToolBox)
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        // 드래그 중이 아닐 때만 ToolBox 표시
+        if (!isDragging)
+        {
+            isHoveringForToolBox = true;
+            ShowToolBoxInfo();
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (isHoveringForToolBox)
+        {
+            isHoveringForToolBox = false;
+            HideToolBoxInfo();
+        }
+    }
+
+    #endregion
+
+    #region ToolBox System
+
+    private void ShowToolBoxInfo()
+    {
+        if (ToolBoxController.Instance == null) return;
+
+        // 카드 정보 가져오기
+        string toolboxText = CardDataLoader.GetTooltipText(CardType);
+
+        // 활성 상태 추가 표시
+        if (GameManager.Instance != null)
+        {
+            var turn = GameManager.Instance.GetCurrentTurn();
+            if (turn != null)
+            {
+                int count = turn.availableBlocks.Count(b => b.type == CardType);
+                var cardManager = GameManager.Instance.GetTurnManager()?.GetCardManager();
+                bool canSelect = cardManager?.CanSelectCard(CardType) ?? true;
+
+                string statusText = $"\n\n<color=cyan>보유 개수: {count}</color>";
+                if (!canSelect)
+                {
+                    statusText += "\n<color=red>[이전 턴에 사용하여 선택 불가]</color>";
+                }
+
+                toolboxText += statusText;
+            }
+        }
+
+        ToolBoxController.Instance.ShowToolBox(toolboxText);
+    }
+
+    private void HideToolBoxInfo()
+    {
+        if (ToolBoxController.Instance != null)
+        {
+            ToolBoxController.Instance.HideToolBox();
+        }
+    }
+
+    #endregion
 
     public void SetSelected(bool selected)
     {
@@ -240,15 +314,8 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         if (text != null)
         {
-            // 사용 불가능하면 "사용불가"만 표시, 그 외에는 개수만 표시
-            if (!canSelect && count > 0)
-            {
-                text.text = "사용불가";
-            }
-            else
-            {
-                text.text = $"x{count}";
-            }
+            string selectableText = canSelect ? "" : " [사용불가]";
+            text.text = $"{selectableText}";
 
             if (button != null)
             {
@@ -287,9 +354,10 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     private void OnDestroy()
     {
-        if (TooltipController.Instance != null)
+        // ToolBox 숨기기
+        if (isHoveringForToolBox && ToolBoxController.Instance != null)
         {
-            TooltipController.Instance.HideTooltip();
+            ToolBoxController.Instance.HideToolBox();
         }
     }
 }

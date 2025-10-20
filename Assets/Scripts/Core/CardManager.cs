@@ -314,7 +314,7 @@ public class CardManager
         {
 
             // cardId를 CardType으로 변환 (1=Orc, 2=Werewolf, ..., 7=Dragon)
-            if (card >= 1 && card <= 10)
+            if (card >= 1 && card <= 20)
             {
                 CardType newCard = (CardType)(card - 1);
                 AddCardToDeck(newCard); // CardSO의 count만큼 자동 추가

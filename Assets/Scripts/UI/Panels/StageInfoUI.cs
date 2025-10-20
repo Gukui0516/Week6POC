@@ -7,8 +7,7 @@
 public class StageInfoUI : MonoBehaviour
 {
     [SerializeField] private TMPro.TextMeshProUGUI stageText;
-    [SerializeField] private TMPro.TextMeshProUGUI turnText;
-    [SerializeField] private TMPro.TextMeshProUGUI targetText;
+    //[SerializeField] private TMPro.TextMeshProUGUI targetText;
     [SerializeField] private TMPro.TextMeshProUGUI cardsText;
 
     private void LateUpdate()
@@ -35,21 +34,15 @@ public class StageInfoUI : MonoBehaviour
 
             if (stage != null && stageText != null)
             {
-                stageText.text = $"Stage {stage.stageId}";
+                stageText.text = $"스테이지 {stage.stageId} - {turn.turnNumber}/{stage.endTurn} 턴";
             }
-
-            // 턴 정보
-            if (turnText != null)
-            {
-                turnText.text = $"Turn: {turn.turnNumber}/{stage.endTurn}";
-            }
-
-            // 목표 점수
+       
+          /*  // 목표 점수
             if (targetText != null)
             {
                 int current = GameManager.Instance.GetCumulativeScore();
                 targetText.text = $"Score: {current}/{stage.target}";
-            }
+            }*/
 
             // 활성 카드 수
             if (cardsText != null)
