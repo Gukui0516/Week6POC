@@ -2328,6 +2328,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9219347696807353242, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3154471323271758843, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
     - {fileID: 4857363652308273731, guid: 2bbcc9016f7bf1d46b3dbfe9c387ebb7, type: 3}
