@@ -99,6 +99,7 @@ public class ShopManager : MonoBehaviour
 
     private void OnDestroy()
     {
+
         // 이벤트 구독 해제
         if (GameManager.Instance != null)
         {

@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
 
                 if (instance == null)
                 {
-                    Debug.LogError("[GameManager] 씬에 GameManager가 없습니다!");
+                    //Debug.LogError("[GameManager] 씬에 GameManager가 없습니다!");
                 }
             }
             return instance;
