@@ -294,8 +294,8 @@ public class TooltipController : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         Vector2 textSize = tooltipText.GetPreferredValues();
         tooltipRect.sizeDelta = new Vector2(
-            Mathf.Min(textSize.x + 20f, 600f),
-            Mathf.Min(textSize.y + 20f, 500f)
+            Mathf.Min(textSize.x + 20f, 300f),
+            Mathf.Min(textSize.y + 20f, 250f)
         );
     }
 
