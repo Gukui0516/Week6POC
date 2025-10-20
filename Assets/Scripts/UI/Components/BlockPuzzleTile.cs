@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// 보드 타일 컴포넌트
+// 보드 타일 컴포넌트 - 블록 교체 기능 추가
 public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     #region Fields
@@ -14,23 +14,25 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
     private UIController uiController;
     private Button button;
     private Image image;
-    private GameObject blockIcon; // 실제 블록 아이콘 (Image의 자식일 수 있음)
-    private TextMeshProUGUI powerText; // 점수 표시 전용 (기존 text에서 이름 변경)
-    private TextMeshProUGUI tileInfoText; // 땅 정보 표시 전용 (새로 추가)
-    private BlockTypeTooltip tooltip; // 툴팁 컴포넌트 참조
-    private Vector3 initialIconScale; // 아이콘의 초기 스케일 저장
+    private GameObject blockIcon;
+    private TextMeshProUGUI powerText;
+    private TextMeshProUGUI tileInfoText;
+    private Vector3 initialIconScale;
 
     // 미리보기 관련
     private Image overlayImage;
-    private TextMeshProUGUI previewText; // 미리보기 점수 변화 텍스트
-    private static BoardPreview currentBoardPreview; // 전체 타일이 공유하는 미리보기 데이터
-    private static BlockPuzzleTile previewOriginTile; // 미리보기를 시작한 타일
+    private TextMeshProUGUI previewText;
+    private static BoardPreview currentBoardPreview;
+    private static BlockPuzzleTile previewOriginTile;
 
     // 드래그 관련
     private bool isHoveringDuringDrag = false;
     private Color originalColor;
-    #endregion
+    private bool isReplaceMode = false; // ⭐ 교체 모드 플래그
 
+    // ToolBox 관련
+    private bool isHoveringForToolBox = false;
+    #endregion
 
     #region Unity Lifecycle
 
@@ -39,21 +41,18 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         button = GetComponent<Button>();
         image = GetComponent<Image>();
 
-        // 여러 가능성의 아이콘 찾기
-        // 1. "BlockIcon" 또는 "Icon" 이름의 자식
+        // 아이콘 찾기
         Transform iconTransform = transform.Find("BlockIcon");
         if (iconTransform == null)
             iconTransform = transform.Find("Icon");
         if (iconTransform == null)
             iconTransform = transform.Find("Sprite");
 
-        // 2. Image 컴포넌트를 가진 첫 번째 자식 (자기 자신 제외)
         if (iconTransform == null)
         {
             Image[] childImages = GetComponentsInChildren<Image>();
             foreach (var img in childImages)
             {
-                // 자기 자신이 아니고, 텍스트가 아닌 Image를 찾음
                 if (img != image && img.GetComponent<TextMeshProUGUI>() == null)
                 {
                     iconTransform = img.transform;
@@ -66,12 +65,11 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         if (iconTransform != null)
         {
             blockIcon = iconTransform.gameObject;
-            initialIconScale = blockIcon.transform.localScale; // 초기 스케일 저장
-            // Debug.Log($"[BlockPuzzleTile] BlockIcon 설정됨: {blockIcon.name}, 초기 스케일: {initialIconScale}");
+            initialIconScale = blockIcon.transform.localScale;
         }
         else
         {
-            initialIconScale = image.transform.localScale; // Image의 초기 스케일 저장
+            initialIconScale = image.transform.localScale;
             Debug.LogWarning($"[BlockPuzzleTile] BlockIcon을 찾지 못함. Image를 직접 스케일합니다. 초기 스케일: {initialIconScale}");
         }
 
@@ -79,20 +77,18 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         var textComponents = GetComponentsInChildren<TextMeshProUGUI>();
         if (textComponents.Length >= 1)
         {
-            powerText = textComponents[0]; // 첫 번째는 PowerText
+            powerText = textComponents[0];
         }
         if (textComponents.Length >= 2)
         {
-            tileInfoText = textComponents[1]; // 두 번째는 TileInfoText (있다면)
+            tileInfoText = textComponents[1];
         }
 
-        // 없으면 기존 방식대로 폴백
         if (powerText == null)
         {
             powerText = GetComponentInChildren<TextMeshProUGUI>();
         }
 
-        tooltip = GetComponent<BlockTypeTooltip>(); // 툴팁 컴포넌트 가져오기
         originalColor = image.color;
 
         button.onClick.AddListener(OnClick);
@@ -136,7 +132,6 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         textRect.sizeDelta = Vector2.zero;
         textRect.anchoredPosition = Vector2.zero;
 
-        // 텍스트가 오버레이 위에 렌더링되도록 설정
         previewTextObj.transform.SetAsLastSibling();
     }
 
@@ -146,25 +141,58 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        var selectedCardType = uiController?.GetSelectedCardType();
-        if (selectedCardType != null && CanPlaceBlock())
-        {
-            ShowBoardPreview(selectedCardType.Value);
-        }
-
-
-        // Drage
+        // ⭐ Drag 중일 때 처리
         if (eventData.pointerDrag != null &&
-     eventData.pointerDrag.GetComponent<InventoryButton>() != null)
+            eventData.pointerDrag.GetComponent<InventoryButton>() != null)
         {
             Debug.Log("OnPointerEnter - Dragging Block");
 
             var tile = GameManager.Instance?.GetTile(x, y);
-            if (tile != null && tile.IsEmpty)
+            if (tile != null)
             {
                 isHoveringDuringDrag = true;
-                ShowDropHint();
+
+                // 드래그 중인 카드 타입 가져오기
+                var draggedButton = eventData.pointerDrag.GetComponent<InventoryButton>();
+                if (draggedButton != null)
+                {
+                    CardType draggedCardType = draggedButton.CardType;
+
+                    // ⭐ 타일이 비어있으면 배치 모드, 차있으면 교체 모드
+                    if (tile.IsEmpty)
+                    {
+                        isReplaceMode = false;
+                        ShowDropHint();
+                        // 빈 타일: 점수 미리보기 표시
+                        ShowBoardPreview(draggedCardType);
+                    }
+                    else
+                    {
+                        isReplaceMode = true;
+                        ShowReplaceHint();
+
+                        // ⭐ 차있는 타일: 교체 가능하면 점수 미리보기 표시
+                        var currentTurn = GameManager.Instance?.GetCurrentTurn();
+                        if (currentTurn != null && tile.IsRemovable(currentTurn.turnNumber))
+                        {
+                            ShowBoardPreviewForReplace(draggedCardType);
+                        }
+                    }
+                }
             }
+        }
+        else
+        {
+            // ⭐ 일반 마우스 호버 (드래그 아님)
+            var selectedCardType = uiController?.GetSelectedCardType();
+            if (selectedCardType != null && CanPlaceBlock())
+            {
+                ShowBoardPreview(selectedCardType.Value);
+            }
+
+            // ToolBox 표시 (드래그 중이 아닐 때만)
+            isHoveringForToolBox = true;
+            ShowToolBoxInfo();
         }
     }
 
@@ -179,7 +207,15 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         if (isHoveringDuringDrag)
         {
             isHoveringDuringDrag = false;
+            isReplaceMode = false;
             UpdateVisual();
+        }
+
+        // ToolBox 숨기기
+        if (isHoveringForToolBox)
+        {
+            isHoveringForToolBox = false;
+            HideToolBoxInfo();
         }
     }
 
@@ -198,7 +234,6 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
 
         if (tile.HasBlock)
         {
-            // 현재 턴에 배치된 블록만 제거 가능
             bool removed = GameManager.Instance.RemoveBlock(x, y);
             if (!removed)
             {
@@ -207,15 +242,12 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         }
         else
         {
-            // 빈 칸이면 선택된 블록 배치 시도
             uiController.TryPlaceSelectedBlock(x, y);
         }
     }
 
-    // 드롭 처리
     public void OnDrop(PointerEventData eventData)
     {
-        // 미리보기 제거
         if (previewOriginTile != null)
         {
             previewOriginTile.HideBoardPreview();
@@ -223,21 +255,140 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
 
         if (uiController == null) return;
 
-        // 드래그된 오브젝트가 InventoryButton인지 확인
         var draggedButton = eventData.pointerDrag?.GetComponent<InventoryButton>();
         if (draggedButton == null) return;
 
-        // 블록 배치 시도
-        bool success = uiController.TryPlaceSelectedBlock(x, y);
+        // ⭐ 드래그된 블록 타입 가져오기
+        CardType draggedCardType = draggedButton.CardType;
 
-        if (success)
+        var tile = GameManager.Instance?.GetTile(x, y);
+        if (tile == null) return;
+
+        bool success = false;
+
+        // ⭐ 타일이 차있으면 교체 시도
+        if (tile.HasBlock)
         {
-            Debug.Log($"블록 배치 성공: ({x}, {y})");
+            // ⭐ 같은 타입이면 아무것도 하지 않기
+            if (tile.block.type == draggedCardType)
+            {
+                Debug.Log($"같은 타입의 블록입니다. 교체하지 않습니다: {draggedCardType}");
+                isHoveringDuringDrag = false;
+                isReplaceMode = false;
+                UpdateVisual();
+                return;
+            }
+
+            var currentTurn = GameManager.Instance.GetCurrentTurn();
+            if (currentTurn != null && tile.IsRemovable(currentTurn.turnNumber))
+            {
+                // 기존 블록 타입 저장
+                CardType oldBlockType = tile.block.type;
+
+                // 기존 블록 제거 (인벤토리에 반환됨)
+                bool removed = GameManager.Instance.RemoveBlock(x, y);
+                if (removed)
+                {
+                    // ⭐ 드래그된 블록을 직접 배치
+                    success = GameManager.Instance.PlaceBlock(x, y, draggedCardType);
+
+                    if (success)
+                    {
+                        Debug.Log($"블록 교체 성공: {oldBlockType} → {draggedCardType} at ({x}, {y})");
+
+                        // 인벤토리 컨트롤러에 드래그 완료 알림
+                        if (uiController != null)
+                        {
+                            // 선택 해제 (드래그 완료)
+                            var inventoryController = FindFirstObjectByType<InventoryController>();
+                            inventoryController?.DeselectBlock();
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"블록 교체 실패: 새 블록 배치 불가 ({x}, {y})");
+
+                        // ⭐ 실패 시 원래 블록 복구
+                        GameManager.Instance.PlaceBlock(x, y, oldBlockType);
+                    }
+                }
+                else
+                {
+                    Debug.Log("블록 제거 실패!");
+                }
+            }
+            else
+            {
+                Debug.Log("이전 턴에 배치된 블록은 교체할 수 없습니다!");
+            }
+        }
+        else
+        {
+            // 빈 타일이면 일반 배치
+            success = uiController.TryPlaceSelectedBlock(x, y);
+
+            if (success)
+            {
+                Debug.Log($"블록 배치 성공: ({x}, {y})");
+            }
         }
 
-        // 호버 피드백 제거
         isHoveringDuringDrag = false;
+        isReplaceMode = false;
         UpdateVisual();
+    }
+
+    #endregion
+
+    #region ToolBox System
+
+    private void ShowToolBoxInfo()
+    {
+        if (ToolBoxController.Instance == null) return;
+        if (GameManager.Instance?.GetBoard() == null) return;
+
+        var tile = GameManager.Instance.GetTile(x, y);
+        if (tile == null) return;
+
+        string toolboxText = "";
+
+        if (tile.HasBlock)
+        {
+            // 블록이 있을 때: 점수 계산 정보 표시
+            var breakdown = GameManager.Instance.GetScoreBreakdown(x, y);
+            if (breakdown != null)
+            {
+                toolboxText = ScoreTooltipFormatter.GetScoreBreakdownText(breakdown);
+            }
+            else
+            {
+                toolboxText = "점수 계산 정보를 가져올 수 없습니다.";
+            }
+        }
+        else
+        {
+            // 빈 타일일 때: 타일 정보 표시
+            bool isNumberMode = GameManager.Instance.GetTileMode() == TileMode.WithNumbers;
+            if (isNumberMode && tile.tileNumber > 0)
+            {
+                string turnText = tile.tileNumber == 1 ? "1턴 유지" : $"{tile.tileNumber}턴 유지";
+                toolboxText = $"빈 타일\n[{turnText}]";
+            }
+            else
+            {
+                toolboxText = "빈 타일";
+            }
+        }
+
+        ToolBoxController.Instance.ShowToolBox(toolboxText);
+    }
+
+    private void HideToolBoxInfo()
+    {
+        if (ToolBoxController.Instance != null)
+        {
+            ToolBoxController.Instance.HideToolBox();
+        }
     }
 
     #endregion
@@ -254,19 +405,40 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
     {
         if (GameManager.Instance == null) return;
 
-        // 이전 미리보기가 있다면 제거
         if (previewOriginTile != null)
         {
             previewOriginTile.HideBoardPreview();
         }
 
-        // 새로운 미리보기 계산
         currentBoardPreview = GameManager.Instance.GetBoardPreview(x, y, blockType);
         previewOriginTile = this;
 
         if (currentBoardPreview != null)
         {
-            // 모든 타일에게 미리보기 업데이트 지시
+            NotifyAllTilesPreviewUpdate();
+        }
+    }
+
+    // ⭐ 교체 시 점수 미리보기
+    private void ShowBoardPreviewForReplace(CardType newBlockType)
+    {
+        if (GameManager.Instance == null) return;
+
+        if (previewOriginTile != null)
+        {
+            previewOriginTile.HideBoardPreview();
+        }
+
+        var tile = GameManager.Instance.GetTile(x, y);
+        if (tile == null || !tile.HasBlock) return;
+
+        // ⭐ 교체 전용 미리보기 메서드 사용
+        currentBoardPreview = GameManager.Instance.GetBoardPreviewForReplace(x, y, newBlockType);
+
+        previewOriginTile = this;
+
+        if (currentBoardPreview != null)
+        {
             NotifyAllTilesPreviewUpdate();
         }
     }
@@ -278,7 +450,6 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         currentBoardPreview = null;
         previewOriginTile = null;
 
-        // 모든 타일의 미리보기 제거
         NotifyAllTilesPreviewClear();
     }
 
@@ -308,7 +479,6 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
 
         if (x == currentBoardPreview.previewX && y == currentBoardPreview.previewY)
         {
-            // 배치할 타일: 노란색 반투명 오버레이 + 배치 후 점수 표시
             overlayImage.color = new Color(1f, 1f, 0f, 1f);
 
             int newScore = currentBoardPreview.previewScores[x, y];
@@ -319,21 +489,18 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         }
         else if (scoreChange > 0)
         {
-            // 점수 증가 타일: 녹색 반투명 오버레이 + 증가량 표시
             overlayImage.color = new Color(0f, 1f, 0f, 1f);
             previewText.text = $"+{scoreChange}";
             previewText.color = new Color(0f, 0.8f, 0f);
         }
         else if (scoreChange < 0)
         {
-            // 점수 감소 타일: 빨간색 반투명 오버레이 + 감소량 표시
             overlayImage.color = new Color(1f, 0f, 0f, 1f);
             previewText.text = $"{scoreChange}";
             previewText.color = new Color(0f, 0f, 0f);
         }
         else
         {
-            // 변화 없음: 오버레이 제거
             overlayImage.color = Color.clear;
             previewText.text = "";
         }
@@ -371,7 +538,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         if (GameManager.Instance == null) return;
 
         var tile = GameManager.Instance.GetTile(x, y);
-        if (tile == null) return; // 타일이 아직 초기화되지 않았으면 리턴
+        if (tile == null) return;
 
         bool isNumberMode = GameManager.Instance.GetTileMode() == TileMode.WithNumbers;
 
@@ -391,15 +558,6 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
 
     private void UpdateBlockVisual(GameCore.Data.Tile tile, bool isNumberMode)
     {
-        // 블록이 있을 때 - 툴팁을 타일 모드로 설정
-        if (tooltip != null)
-        {
-            tooltip.SetTooltipMode(BlockTypeTooltip.TooltipMode.Tile);
-            tooltip.SetTilePosition(x, y);
-            tooltip.cardType = tile.block.type; // 백업용
-            tooltip.enabled = true;
-        }
-
         // PowerText: 점수만 표시
         if (powerText != null)
         {
@@ -429,36 +587,20 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
 
         if (targetTransform != null)
         {
-            Vector3 oldScale = targetTransform.localScale;
             targetTransform.localScale = Vector3.one * targetScale;
-/*
-            Debug.Log($"[BlockPuzzleTile] 타일({x},{y}) 블록:{tile.block.type} 점수:{tile.calculatedScore} " +
-                     $"스케일: {oldScale} → {targetScale:F2} " +
-                     $"대상: {targetTransform.gameObject.name}");*/
-        }
-        else
-        {
-            Debug.LogError($"[BlockPuzzleTile] 타일({x},{y}) 스케일 조절 실패: targetTransform이 null");
         }
 
         // 점수에 따른 색상 차등 표시
         if (tile.calculatedScore > 0)
-            image.color = new Color(0.6f, 1f, 0.6f); // 밝은 녹색
+            image.color = new Color(0.6f, 1f, 0.6f);
         else if (tile.calculatedScore == 0)
-            image.color = new Color(0.8f, 0.8f, 0.8f); // 회색
+            image.color = new Color(0.8f, 0.8f, 0.8f);
         else
-            image.color = new Color(1f, 0.6f, 0.6f); // 밝은 빨강
+            image.color = new Color(1f, 0.6f, 0.6f);
     }
 
     private void UpdateEmptyTileVisual(GameCore.Data.Tile tile, bool isNumberMode)
     {
-        // 빈 타일일 때 - 툴팁 비활성화
-        if (tooltip != null)
-        {
-            tooltip.enabled = false;
-            tooltip.Hide();
-        }
-
         // PowerText: 빈 칸으로 유지
         if (powerText != null)
         {
@@ -480,7 +622,6 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         }
         else if (powerText != null)
         {
-            // 하위 호환성: tileInfoText가 없으면 powerText에 턴 표시
             if (isNumberMode && tile.tileNumber > 0)
             {
                 string turnText = tile.tileNumber == 1 ? "1턴 유지" : $"{tile.tileNumber}턴 유지";
@@ -501,27 +642,19 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         image.color = Color.white;
     }
 
-    // 점수를 기반으로 스케일 계산 (1점=0.5, 5점=1.0)
     private float CalculateScaleFromScore(int score)
     {
-        // 마이너스 점수는 최소 크기
         if (score <= 0)
         {
             return 0.5f;
         }
 
-        // 점수를 1~5 범위로 클램프
         int clampedScore = Mathf.Clamp(score, 1, 5);
-
-        // 선형 보간: 1점=0.5, 5점=1.0
         float scale = 0.5f + (clampedScore - 1) * (0.5f / 4f);
 
         return scale;
     }
 
-    /// <summary>
-    /// 블록 아이콘 설정 (SO에서 로드)
-    /// </summary>
     private void SetBlockIcon(CardType cardType)
     {
         if (blockIcon == null) return;
@@ -533,19 +666,11 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
             if (iconImage != null)
             {
                 iconImage.sprite = cardData.iconSprite;
-                iconImage.enabled = true; // 아이콘 표시
-                //Debug.Log($"[BlockPuzzleTile] 타일({x},{y}) 아이콘 설정: {cardType}");
+                iconImage.enabled = true;
             }
-        }
-        else
-        {
-            Debug.LogWarning($"[BlockPuzzleTile] 타일({x},{y}) {cardType}의 아이콘을 찾을 수 없습니다.");
         }
     }
 
-    /// <summary>
-    /// 블록 아이콘 숨기기
-    /// </summary>
     private void HideBlockIcon()
     {
         if (blockIcon != null)
@@ -553,35 +678,34 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
             Image iconImage = blockIcon.GetComponent<Image>();
             if (iconImage != null)
             {
-                iconImage.enabled = false; // 아이콘 숨김
+                iconImage.enabled = false;
             }
         }
     }
 
+    // ⭐ 드롭 가능 힌트 (빈 타일)
     private void ShowDropHint()
     {
-        // 드롭 가능한 타일 강조
         image.color = new Color(0.7f, 1f, 0.7f); // 연한 녹색
     }
 
-    private void UpdateHoverVisual()
+    // ⭐ 교체 가능 힌트 (차있는 타일)
+    private void ShowReplaceHint()
     {
-        if (GameManager.Instance == null) return;
-        var tile = GameManager.Instance.GetTile(x, y);
-        if (tile == null) return;
+        var tile = GameManager.Instance?.GetTile(x, y);
+        var currentTurn = GameManager.Instance?.GetCurrentTurn();
 
-        if (isHoveringDuringDrag && tile.IsEmpty)
+        if (tile != null && currentTurn != null && tile.IsRemovable(currentTurn.turnNumber))
         {
-            // 드롭 가능한 타일 강조
-            image.color = new Color(0.8f, 1f, 0.8f, 0.5f);
+            // 교체 가능 - 주황색
+            image.color = new Color(1f, 0.8f, 0.3f);
         }
         else
         {
-            // 일반 상태로 복귀
-            UpdateVisual();
+            // 교체 불가능 - 빨간색
+            image.color = new Color(1f, 0.4f, 0.4f);
         }
     }
 
     #endregion
-
 }

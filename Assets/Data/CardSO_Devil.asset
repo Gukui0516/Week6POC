@@ -15,7 +15,8 @@ MonoBehaviour:
   id: 8
   cardType: 7
   cardName: "\uC545\uB9C8"
-  description: 
+  description: "\uC774 \uAC00\uB85C \uC904\uC5D0, \uC545\uB9C8\uAC00 \uC5C6\uC73C\uBA74
+    \uACF5\uACA9\uB825 +1"
   tooltipDescription: "\uAC19\uC740 \uC904\uC5D0 \uC545\uB9C8\uAC00 1\uAC1C\uB9CC
     \uC788\uAC8C"
   synergyDescription: "(+1) : \uC774 \uAC00\uB85C \uC904\uC5D0 \uC545\uB9C8\uAC00

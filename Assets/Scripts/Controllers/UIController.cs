@@ -18,7 +18,7 @@ public class UIController : MonoBehaviour
     public Color progressHighColor = Color.yellow;
     public Color progressLowColor = new Color(1f, 0.5f, 0f);
 
-    [Header("⭐ 상점 Canvas")]
+    [Header("상점 Canvas")]
     [SerializeField] private GameObject shopCanvas; // Inspector에서 할당
 
     #region Dependencies
@@ -228,7 +228,7 @@ public class UIController : MonoBehaviour
             int currentTurnScore = gameManager.GetTotalScore();
             int cumulativeScore = gameManager.GetCumulativeScore();
 
-            currentScoreText.text = $"현재 점수 : {currentTurnScore}";
+            currentScoreText.text = $"{currentTurnScore} 점";
 
             inventoryController?.UpdateInventory();
         }

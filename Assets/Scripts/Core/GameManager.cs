@@ -5,6 +5,7 @@ using GameCore.Data;
 
 /// <summary>
 /// 게임 전체 흐름 조율 - StageManager와 TurnManager를 연결
+/// ⭐ 블록 교체 시 점수 미리보기 지원 추가
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -235,7 +236,7 @@ public class GameManager : MonoBehaviour
         // 점수 계산
         scoreCalculator.CalculateAllScores();
         int turnScore = scoreCalculator.GetTotalScore();
-        if(turnScore < 0)
+        if (turnScore < 0)
         {
             turnScore = 0;
         }
@@ -431,7 +432,7 @@ public class GameManager : MonoBehaviour
         return scoreCalculator?.GetScoreBreakdown(x, y);
     }
 
-    // 미리보기용
+    // ⭐ 기존: 빈 타일 전용 미리보기
     public BoardPreview GetBoardPreview(int x, int y, CardType blockType)
     {
         if (scoreCalculator == null || !IsValidPosition(x, y)) return null;
@@ -440,6 +441,46 @@ public class GameManager : MonoBehaviour
         if (tile == null || !tile.IsEmpty) return null;
 
         return scoreCalculator.CalculateFullBoardPreview(x, y, blockType);
+    }
+
+    // ⭐ 새로운: 블록 교체 시 점수 미리보기 (기존 블록이 있어도 가능)
+    public BoardPreview GetBoardPreviewForReplace(int x, int y, CardType newBlockType)
+    {
+        if (scoreCalculator == null || !IsValidPosition(x, y)) return null;
+
+        var tile = GetTile(x, y);
+        if (tile == null) return null;
+
+        // 타일이 비어있으면 일반 미리보기 사용
+        if (tile.IsEmpty)
+        {
+            return scoreCalculator.CalculateFullBoardPreview(x, y, newBlockType);
+        }
+
+        // 타일이 차있으면 임시로 제거 후 미리보기
+        var originalBlock = tile.block;
+        var originalScore = tile.calculatedScore;
+        var originalPlacedTurn = tile.placedTurn;
+
+        // 임시 제거
+        tile.block = null;
+        tile.calculatedScore = 0;
+
+        // 점수 재계산 (다른 타일들의 점수도 영향받음)
+        scoreCalculator.CalculateAllScores();
+
+        // 미리보기 계산
+        var preview = scoreCalculator.CalculateFullBoardPreview(x, y, newBlockType);
+
+        // 원상복구
+        tile.block = originalBlock;
+        tile.calculatedScore = originalScore;
+        tile.placedTurn = originalPlacedTurn;
+
+        // 점수 재계산 (원래 상태로 복원)
+        scoreCalculator.CalculateAllScores();
+
+        return preview;
     }
 
     // 카드 타입의 기본 점수 가져오기 (인벤토리 아이콘 스케일용)
