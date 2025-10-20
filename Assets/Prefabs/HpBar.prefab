@@ -65,8 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -816239680193137309, guid: a01d0a2df632c1f478945534c80c3a31,
-    type: 3}
+  m_Sprite: {fileID: -816239680193137309, guid: a01d0a2df632c1f478945534c80c3a31, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -141,8 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -816239680193137309, guid: a01d0a2df632c1f478945534c80c3a31,
-    type: 3}
+  m_Sprite: {fileID: -816239680193137309, guid: a01d0a2df632c1f478945534c80c3a31, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -198,7 +196,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3135759629278901553}
   - component: {fileID: 5586927189848421978}
-  - component: {fileID: 1419874873048643374}
+  - component: {fileID: 987419580670192952}
   m_Layer: 5
   m_Name: HpBar
   m_TagString: Untagged
@@ -278,7 +276,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1419874873048643374
+--- !u!114 &987419580670192952
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -287,71 +285,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 7167814441560061889}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d219e533f294a54987c512dcba95bae, type: 3}
+  m_Script: {fileID: 11500000, guid: e5dcd7dd779d6db469001a5bb4b86f3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 3
-  shieldFillImage: {fileID: 0}
-  shieldColor: {r: 0.4, g: 0.6, b: 1, a: 0.7}
-  shakeDuration: 0.3
-  baseShakeIntensity: 10
-  shakeCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  minKillsForShake: 5
-  maxKillsForShake: 100
-  minShakeMultiplier: 1
-  maxShakeMultiplier: 10
-  killToShakeCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  multiKillTimeWindow: 0.1
-  multiKillThreshold: 5
-  multiKillEffect: {fileID: 0}
-  multiKillSound: {fileID: 0}
-  multiKillShakeBonus: 5
-  killIconHUD: {fileID: 0}
-  warningColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  warningTime: 10
+  hpSlider: {fileID: 0}
+  hpText: {fileID: 0}
