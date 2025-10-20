@@ -135,7 +135,7 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         iconObj.transform.SetParent(disabledOverlay.transform, false);
 
         var iconText = iconObj.AddComponent<TextMeshProUGUI>();
-        iconText.text = "✖";
+        iconText.text = "X";
         iconText.fontSize = 40;
         iconText.color = new Color(1f, 0.3f, 0.3f);
         iconText.alignment = TextAlignmentOptions.Center;
@@ -153,14 +153,6 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public void SetInventoryController(InventoryController controller)
     {
         inventoryController = controller;
-    }
-
-    // 점수를 기반으로 스케일 계산 (1점=0.5, 15점=1.0)
-    private float CalculateScaleFromScore(int score)
-    {
-        int clampedScore = Mathf.Clamp(score, 1, 15);
-        float scale = 0.5f + (clampedScore - 1) * (0.5f / 14f);
-        return scale;
     }
 
     private void OnClick()
@@ -248,8 +240,15 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         if (text != null)
         {
-            string selectableText = canSelect ? "" : " [사용불가]";
-            text.text = $"{selectableText}";
+            // 사용 불가능하면 "사용불가"만 표시, 그 외에는 개수만 표시
+            if (!canSelect && count > 0)
+            {
+                text.text = "사용불가";
+            }
+            else
+            {
+                text.text = $"x{count}";
+            }
 
             if (button != null)
             {

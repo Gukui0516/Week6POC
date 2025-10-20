@@ -27,6 +27,35 @@ public class CardDataLoader : MonoBehaviour
     public static string GetTooltipText(CardType cardType)
     {
         var info = GetData(cardType);
-        return $"<b>{info.name}</b>\n\n{info.description}\n\n<color=yellow>{info.synergyDescription}</color>\n\n<color=red>{info.penaltyDescription}</color>";
+        if (info == null) return "카드 정보를 찾을 수 없습니다.";
+
+        // 기본 정보: 카드 이름, 툴팁 설명, 기본 점수
+        string tooltip = $"<b>{info.cardName}</b>\n\n";
+
+        // tooltipDescription이 있으면 추가
+        if (!string.IsNullOrEmpty(info.tooltipDescription))
+        {
+            tooltip += $"{info.tooltipDescription}\n\n";
+        }
+
+        tooltip += $"<color=#FFD700>기본 점수: {info.baseScore}</color>\n";
+
+        tooltip += "\n";
+
+        // 시너지가 있으면 추가
+        if (!string.IsNullOrEmpty(info.synergyDescription))
+        {
+            tooltip += $"<color=yellow>{info.synergyDescription}</color>";
+        }
+
+        tooltip += "\n";
+
+        // 패널티가 있으면 추가
+        if (!string.IsNullOrEmpty(info.penaltyDescription))
+        {
+            tooltip += $"<color=red>{info.penaltyDescription}</color>";
+        }
+
+        return tooltip;
     }
 }
