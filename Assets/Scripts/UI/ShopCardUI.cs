@@ -12,13 +12,25 @@ public class ShopCardUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI baseScore;
     [SerializeField] private CardType cardType;
 
+    // 색상 설정 추가
+    [Header("Toggle Colors")]
+    [SerializeField] private Color normalColor = Color.white;
+    [SerializeField] private Color selectedColor = Color.green;
+
+    private Image toggleBackground; // Toggle의 배경 이미지
+
     // 외부에서 Set 해줄 인덱스 (ShopManager가 할당)
     public int Index { get; set; }
 
     private void Start()
     {
+        // Toggle의 배경 이미지 가져오기
         if (toggle != null)
+        {
+            toggleBackground = toggle.targetGraphic as Image;
             toggle.onValueChanged.AddListener(OnToggleValueChanged);
+            UpdateToggleColor(toggle.isOn); // 초기 색상 설정
+        }
     }
 
     private void OnDestroy()
@@ -29,7 +41,17 @@ public class ShopCardUI : MonoBehaviour
 
     private void OnToggleValueChanged(bool isOn)
     {
+        UpdateToggleColor(isOn);
         if (isOn) SelectType();
+    }
+
+    // 색상 업데이트 메서드 추가
+    private void UpdateToggleColor(bool isOn)
+    {
+        if (toggleBackground != null)
+        {
+            toggleBackground.color = isOn ? selectedColor : normalColor;
+        }
     }
 
     public void SetCardUI(CardType type)
@@ -41,7 +63,11 @@ public class ShopCardUI : MonoBehaviour
         description.text = cardData.description;
         baseScore.text = cardData.baseScore.ToString();
 
-        if (toggle != null) toggle.SetIsOnWithoutNotify(false);
+        if (toggle != null)
+        {
+            toggle.SetIsOnWithoutNotify(false);
+            UpdateToggleColor(false); // 색상도 초기화
+        }
     }
 
     public void SelectType()
@@ -51,6 +77,10 @@ public class ShopCardUI : MonoBehaviour
 
     public void Deselect()
     {
-        if (toggle != null) toggle.SetIsOnWithoutNotify(false);
+        if (toggle != null)
+        {
+            toggle.SetIsOnWithoutNotify(false);
+            UpdateToggleColor(false); // 색상도 초기화
+        }
     }
 }
