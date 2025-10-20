@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // 보드 타일 컴포넌트 - 블록 교체 기능 추가
-public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+public class BlockPuzzleTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     #region Fields
     public int x, y;
@@ -246,7 +246,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         }
     }
 
-    public void OnDrop(PointerEventData eventData)
+    /*public void OnDrop(PointerEventData eventData)
     {
         if (previewOriginTile != null)
         {
@@ -336,7 +336,7 @@ public class BlockPuzzleTile : MonoBehaviour, IDropHandler, IPointerEnterHandler
         isHoveringDuringDrag = false;
         isReplaceMode = false;
         UpdateVisual();
-    }
+    }*/
 
     #endregion
 

@@ -126,6 +126,8 @@ public class BoardManager
         OnBoardUpdated?.Invoke();
     }
 
+    // BoardManager.cs
+
     public void DecrementAllTileNumbers()
     {
         for (int x = 0; x < GameConfig.BOARD_SIZE; x++)
@@ -140,11 +142,10 @@ public class BoardManager
                         // 블록만 제거하고 인벤토리에 추가하지 않음 (턴 종료 시 소멸)
                         board[x, y].block = null;
                         board[x, y].calculatedScore = 0;
-                        board[x, y].placedTurn = 0; // 턴 정보 초기화
-                        // 빈 타일이 되면 새로운 숫자 할당
-                        board[x, y].tileNumber = GenerateRandomTileNumber();
+                        board[x, y].placedTurn = 0;
+                        // ⭐ tileNumber는 0 유지 (새로 할당하지 않음)
                     }
-                    else
+                    else if (board[x, y].tileNumber > 0)
                     {
                         // 블록이 있고 숫자가 1 이상이면 감소
                         board[x, y].tileNumber--;
@@ -152,16 +153,18 @@ public class BoardManager
                 }
                 else
                 {
-                    // 빈 타일: 숫자가 0 이하면 새로 할당
-                    if (board[x, y].tileNumber <= 0)
+                    // 빈 타일: 숫자가 0보다 크면 감소
+                    if (board[x, y].tileNumber > 0)
                     {
-                        board[x, y].tileNumber = GenerateRandomTileNumber();
+                        board[x, y].tileNumber--;
                     }
+                    // ⭐ 0이면 그대로 유지 (새로 할당하지 않음)
                 }
             }
         }
         OnBoardUpdated?.Invoke();
     }
+
 
     private int GenerateRandomTileNumber()
     {

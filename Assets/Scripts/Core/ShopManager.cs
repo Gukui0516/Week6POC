@@ -185,7 +185,7 @@ public class ShopManager : MonoBehaviour
             currentOffers[shopIdx] = outType;
         }
 
-        Debug.Log($"[ShopManager] 교체 완료: 덱[{deckIdx}] ({deckType}) ⇄ 상점[{shopIdx}] ({shopType})");
+        Debug.Log($"[ShopManager] 교체 완료: 덱[{deckIdx}] ({outType}) ⇄ 상점[{shopIdx}] ({shopType})");
 
         // 선택 초기화
         currentSelectedDeckIndex = null;

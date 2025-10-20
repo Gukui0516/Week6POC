@@ -5,13 +5,15 @@ using GameCore.Data;
 
 /// <summary>
 /// 플레이어의 카드 덱을 관리하는 매니저
+/// ⭐ 턴 간 카드 누적: 이전 턴에서 사용하지 않은 카드는 다음 턴에도 유지
+/// ⭐ 스테이지 변경 시 초기화
 /// </summary>
 public class CardManager
 {
     // 플레이어가 소유한 모든 카드 (영구적)
     private List<(CardType type, int count)> ownedCards = new();
 
-    // 현재 턴에 활성화된 카드 (매 턴 변경)
+    // ⭐ 현재 활성화된 카드 (턴마다 누적, 스테이지 변경 시 초기화)
     private List<CardType> activeCards = new();
 
     // 이전 턴에 사용한 카드들 (제한용)
@@ -38,20 +40,22 @@ public class CardManager
     private void InitializeStartingDeck()
     {
         ownedCards.Clear();
+        activeCards.Clear(); // ⭐ 활성 카드도 초기화
         Debug.Log($"[CardManager] 시작 덱 초기화: 빈 덱 (스테이지에서 카드 제공)");
         OnDeckChanged?.Invoke();
     }
 
     /// <summary>
-    /// 스테이지 설정
+    /// 스테이지 설정 (스테이지 변경 시)
     /// </summary>
     public void SetStage(StageSO stage)
     {
         currentStage = stage;
         usedCardsHistory.Clear();
         canSelectThisTurn.Clear();
+        activeCards.Clear(); // ⭐ 스테이지 변경 시 활성 카드 초기화
 
-        Debug.Log($"[CardManager] 스테이지 {stage.stageId} 설정");
+        Debug.Log($"[CardManager] 스테이지 {stage.stageId} 설정 (activeCards 초기화)");
     }
 
     /// <summary>
@@ -91,12 +95,14 @@ public class CardManager
     }
 
     /// <summary>
-    /// 턴 시작 - 활성 카드 선택
-    /// firstDraw=4 → 4개의 CardType 선택 → 각 CardType의 count개씩 활성화
+    /// ⭐ 턴 시작 - 기존 카드 유지 + 새 카드 추가
     /// </summary>
     public List<Card> ActivateCardsForTurn(int turnNumber)
     {
-        activeCards.Clear();
+        // ⭐ Clear 제거 - 이전 턴 카드 유지
+        // activeCards.Clear(); // 제거!
+
+        Debug.Log($"[CardManager] 턴 {turnNumber} 시작 - 기존 카드: {activeCards.Count}장");
 
         // 1. 드로우 개수 결정 (CardType 개수)
         int drawCount = GetDrawCount(turnNumber);
@@ -107,7 +113,7 @@ public class CardManager
         // 3. 랜덤하게 CardType 선택 (중복 제거)
         var selectedTypes = SelectRandomCardTypes(availablePool, drawCount);
 
-        // 4. 각 CardType의 count개씩 activeCards에 추가
+        // 4. ⭐ 각 CardType의 count개씩 activeCards에 추가 (누적)
         foreach (var cardType in selectedTypes)
         {
             var cardData = CardDataLoader.GetData(cardType);
@@ -126,7 +132,13 @@ public class CardManager
         // 6. Block 리스트로 변환
         var blocks = activeCards.Select(type => new Card(type)).ToList();
 
-        Debug.Log($"[CardManager] 턴 {turnNumber}: {selectedTypes.Count}개 CardType 활성화 → 총 {blocks.Count}장 (선택가능: {canSelectThisTurn.Count(x => x.Value)}장)");
+        // 타입별 개수와 선택 가능 개수 출력
+        var typeCounts = activeCards.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+        int selectableCount = activeCards.Count(card => canSelectThisTurn.GetValueOrDefault(card, false));
+
+        Debug.Log($"[CardManager] 턴 {turnNumber}: {selectedTypes.Count}개 타입 드로우 → 총 {blocks.Count}장 (선택가능: {selectableCount}장)");
+        Debug.Log($"[CardManager] 타입별 개수: {string.Join(", ", typeCounts.Select(x => $"{x.Key}×{x.Value}"))}");
+
         OnActiveCardsChanged?.Invoke();
 
         return blocks;
@@ -214,6 +226,7 @@ public class CardManager
 
     /// <summary>
     /// 각 카드의 선택 가능 여부 업데이트
+    /// ⭐ 이전 턴에 사용한 타입은 false로 설정
     /// </summary>
     private void UpdateCanSelectStatus()
     {
@@ -225,6 +238,8 @@ public class CardManager
             // 이전 턴에 사용하지 않았으면 선택 가능
             canSelectThisTurn[card] = !excludedTypes.Contains(card);
         }
+
+        Debug.Log($"[CardManager] 선택 불가 타입: {string.Join(", ", excludedTypes)}");
     }
 
     /// <summary>
@@ -248,9 +263,6 @@ public class CardManager
         return excluded;
     }
 
-    /// <summary>
-    /// 카드 사용 (활성 카드에서 제거)
-    /// </summary>
     public bool TryUseCard(CardType cardType)
     {
         // 1. 활성 카드에 있는지 확인
@@ -267,8 +279,8 @@ public class CardManager
             return false;
         }
 
-        // 3. 활성 카드에서 제거
-        activeCards.Remove(cardType);
+        // 3. ⭐ 활성 카드에서 1개만 제거 (타입 전체가 아님)
+        activeCards.Remove(cardType); // 첫 번째 것만 제거
         OnActiveCardsChanged?.Invoke();
 
         return true;
@@ -312,15 +324,11 @@ public class CardManager
     {
         if (currentStage == null || currentStage.unlockCard == null) return;
 
-        // 턴 번호에 해당하는 인덱스 계산 (1턴 = 인덱스 0)
-        int index = turnNumber - 1;
-
         List<int> ar = currentStage.unlockCard;
 
         foreach (int card in ar)
         {
-
-            // cardId를 CardType으로 변환 (1=Orc, 2=Werewolf, ..., 7=Dragon)
+            // cardId를 CardType으로 변환 (1=Orc, 2=Werewolf, ..., 12=Slime)
             if (card >= 1 && card <= 20)
             {
                 CardType newCard = (CardType)(card - 1);
@@ -330,13 +338,8 @@ public class CardManager
             }
             else
             {
-                Debug.LogError("Card Value Error  :  " + card);
+                Debug.LogError("Card Value Error: " + card);
             }
-        }
-
-        if (index >= 0 && index < currentStage.unlockCard.Count)
-        {
-
         }
     }
 
@@ -362,9 +365,6 @@ public class CardManager
     {
         return activeCards.Count(c => c == cardType);
     }
-    #endregion
-
-    private const int DeckUniqueLimit = 7;
 
     /// <summary>현재 덱이 보유 중인 CardType의 집합</summary>
     public HashSet<CardType> GetOwnedTypes()
@@ -377,6 +377,10 @@ public class CardManager
     /// <summary>현재 덱의 유니크 타입 수</summary>
     public int GetUniqueTypeCount()
         => GetOwnedTypes().Count;
+    #endregion
+
+    #region Shop System
+    private const int DeckUniqueLimit = 7;
 
     /// <summary>덱에서 해당 타입(그 타입의 count 전체)을 제거</summary>
     public bool TryRemoveTypeFromDeck(CardType type)
@@ -388,15 +392,11 @@ public class CardManager
         Debug.Log($"[CardManager] 덱에서 {type} 타입 제거");
         OnDeckChanged?.Invoke();
 
-        // 활성 카드 풀/선택 가능 여부가 턴 중이라면 갱신이 필요할 수 있음
-        // 여기서는 덱 변경 이벤트만 쏘고, UI/턴 매니저에서 적절히 대응하도록 둡니다.
         return true;
     }
 
     /// <summary>
     /// 덱 타입 교체: outType(덱에서 제거) ↔ inType(상점에서 입수).
-    /// - inType이 이미 덱에 있으면 실패 (유니크 7종 유지 규칙 위배 가능성)
-    /// - outType이 덱에 없으면 실패
     /// </summary>
     public bool TryReplaceType(CardType outType, CardType inType)
     {
@@ -413,18 +413,14 @@ public class CardManager
             return false;
         }
 
-        // outType 제거
         if (!TryRemoveTypeFromDeck(outType))
             return false;
 
-        // inType 추가 (CardSO.count 만큼 자동 추가)
         AddCardToDeck(inType);
 
-        // 유니크 7종 규칙 보장 (교체이므로 항상 유지되지만 안전망)
         if (GetUniqueTypeCount() > DeckUniqueLimit)
         {
-            Debug.LogError("[CardManager] 유니크 타입 수 7 초과! 롤백 필요");
-            // 간단 롤백
+            Debug.LogError("[CardManager] 유니크 타입 수 7 초과! 롤백");
             TryRemoveTypeFromDeck(inType);
             AddCardToDeck(outType);
             return false;
@@ -435,33 +431,27 @@ public class CardManager
     }
 
     /// <summary>
-    /// 덱의 특정 인덱스 위치에 있는 타입을 새로운 타입으로 교체합니다 (칸 유지).
-    /// - outType은 해당 인덱스에서 제거된 기존 타입을 out param으로 반환합니다.
-    /// - inType이 이미 덱의 다른 위치에 있으면 실패합니다.
+    /// 덱의 특정 인덱스 위치에 있는 타입을 새로운 타입으로 교체 (칸 유지)
     /// </summary>
     public bool TryReplaceTypeAtIndex(int deckIndex, CardType inType, out CardType outType)
     {
         outType = default;
 
-        // 인덱스 범위 체크
         if (deckIndex < 0 || deckIndex >= ownedCards.Count)
         {
             Debug.LogWarning($"[CardManager] 잘못된 deckIndex: {deckIndex}");
             return false;
         }
 
-        // 기존 값 보존
         var old = ownedCards[deckIndex];
         outType = old.type;
 
-        // 동일 타입 치환은 의미 없음
         if (outType == inType)
         {
             Debug.LogWarning("[CardManager] 동일 타입으로 교체 시도(무시)");
             return false;
         }
 
-        // inType이 이미 다른 인덱스에 존재하면 유니크 규칙 위반 → 실패
         for (int i = 0; i < ownedCards.Count; i++)
         {
             if (i == deckIndex) continue;
@@ -472,24 +462,19 @@ public class CardManager
             }
         }
 
-        // 방어적 정리: outType이 덱 내 다른 위치에 중복되어 있으면 제거
-        // (혹시 과거 데이터/버그로 중복이 있었다면 여기서 정리)
         for (int i = ownedCards.Count - 1; i >= 0; --i)
         {
             if (i == deckIndex) continue;
             if (ownedCards[i].type == outType)
             {
                 ownedCards.RemoveAt(i);
-                // 앞쪽 원소가 빠지면 deckIndex가 한 칸 당겨지므로 보정
                 if (i < deckIndex) deckIndex--;
                 Debug.Log($"[CardManager] 방어적 정리: 중복 {outType} 제거 at {i}");
             }
         }
 
-        // 실제 치환(같은 칸 유지)
         ownedCards[deckIndex] = (inType, old.count);
 
-        // 유니크 제한 안전망 (이상 시 롤백)
         if (GetUniqueTypeCount() > DeckUniqueLimit)
         {
             Debug.LogError("[CardManager] 유니크 타입 수 7 초과! 롤백");
@@ -501,11 +486,5 @@ public class CardManager
         Debug.Log($"[CardManager] 인덱스 {deckIndex}에서 {outType} → {inType} 교체 완료");
         return true;
     }
-
-    private void DeselectAll()
-    {
-        // 활성 카드 전체 선택 해제
-        canSelectThisTurn.Clear();
-        OnActiveCardsChanged?.Invoke();
-    }
+    #endregion
 }

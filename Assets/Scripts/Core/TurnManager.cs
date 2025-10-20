@@ -148,8 +148,11 @@ public class TurnManager
     /// </summary>
     public void ReturnCard(Card block)
     {
+        Debug.Log("ReturnCard");
         if (currentTurn != null && block != null)
         {
+            Debug.Log("ReturnCard 11");
+
             currentTurn.availableBlocks.Add(block);
             cardManager.ReturnCard(block.type);
         }

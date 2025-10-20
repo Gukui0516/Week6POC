@@ -21,6 +21,7 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private Color originalColor;
 
     // Drag
+    private bool enableDragDrop = false; // 드레그 기능 끄기
     private bool isDragging = false;
     private Vector3 originalScale;
 
@@ -200,6 +201,8 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (!enableDragDrop) return; // 드래그 비활성화되어 있으면 리턴
+
         if (GameManager.Instance == null || inventoryController == null) return;
 
         var turn = GameManager.Instance.GetCurrentTurn();
@@ -226,12 +229,19 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnDrag(PointerEventData eventData)
     {
+
+        if (!enableDragDrop) return; // 드래그 비활성화되어 있으면 리턴
+
+
         if (!isDragging) return;
         inventoryController.OnDragging(eventData.position);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!enableDragDrop) return; // 드래그 비활성화되어 있으면 리턴
+
+
         if (!isDragging) return;
 
         isDragging = false;
@@ -361,14 +371,6 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             disabledOverlay.SetActive(count > 0 && !canSelect);
         }
-    }
-
-    /// <summary>
-    /// 레거시 메서드 (하위 호환성)
-    /// </summary>
-    public void UpdateCount(int count)
-    {
-        UpdateDisplay(count, true);
     }
 
     private void OnDestroy()
