@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerHealthHUD : MonoBehaviour
+public class BossHealthHUD : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Slider hpSlider;
@@ -52,7 +52,7 @@ public class PlayerHealthHUD : MonoBehaviour
             return;
 
         float targetScore = currentStage.target;
-        float remainingScore = targetScore - currentScore;
+        float remainingScore = Mathf.Max(targetScore - currentScore, 0);
 
         // 목표값 계산 (1에서 0으로 감소)
         currentValue = Mathf.Clamp01(remainingScore / targetScore);
@@ -60,7 +60,7 @@ public class PlayerHealthHUD : MonoBehaviour
         // 텍스트 업데이트
         if (hpText != null)
         {
-            hpText.text = $"{remainingScore} / {targetScore}";
+            hpText.text = $"{remainingScore } / {targetScore}";
         }
     }
 

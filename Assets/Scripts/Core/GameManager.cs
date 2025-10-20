@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using GameCore.Data;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using GameCore.Data;
 
 /// <summary>
 /// 게임 전체 흐름 조율 - StageManager와 TurnManager를 연결
@@ -264,14 +265,17 @@ public class GameManager : MonoBehaviour
         var stage = turnManager.GetCurrentStage();
         if (stage == null) return;
 
-        // 마지막 턴이면 스테이지 종료
-        if (turnManager.IsLastTurn())
+        bool isTargetAchieved = cumulativeScore >= stage.target;
+
+        // 목표 달성했거나 마지막 턴이면 스테이지 종료
+        if (isTargetAchieved || turnManager.IsLastTurn())
         {
             bool isCleared = cumulativeScore >= stage.target;
 
             Debug.Log($"[GameManager] 스테이지 완료 체크: {cumulativeScore}/{stage.target} → {(isCleared ? "성공" : "실패")}");
 
-            stageManager.EndStage(isCleared);
+            // ⭐ 1초 대기 후 스테이지 종료
+            StartCoroutine(EndStageAfterDelay(isCleared, 1f));
         }
         else
         {
@@ -280,6 +284,21 @@ public class GameManager : MonoBehaviour
             turnManager.StartNextTurn();
         }
     }
+
+
+    /// <summary>
+    /// 지연 시간 후 스테이지 종료
+    /// </summary>
+    private IEnumerator EndStageAfterDelay(bool isCleared, float delay)
+    {
+        // delay 시간만큼 대기
+        yield return new WaitForSeconds(delay);
+
+        // 스테이지 종료 처리
+        stageManager.EndStage(isCleared);
+    }
+
+
 
     /// <summary>
     /// 턴 종료 후 보드 처리
