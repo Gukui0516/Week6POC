@@ -10,6 +10,8 @@ public class ShopOwnCardUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI cardName;
     [SerializeField] private BlockTypeTooltip blockTypeTooltip; // 추가
 
+    [SerializeField] private Image image;
+
     private CardType cardType;
 
     // 외부에서 할당될 슬롯 인덱스
@@ -42,6 +44,7 @@ public class ShopOwnCardUI : MonoBehaviour
         var cardData = CardDataLoader.GetData(type);
         cardType = type;
         icon.sprite = cardData.iconSprite;
+        image.color = cardData.backGroundColor;
         cardName.text = cardData.cardName;
 
         // BlockTypeTooltip의 카드 타입도 업데이트

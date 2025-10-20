@@ -57,6 +57,8 @@ MonoBehaviour:
   toggle: {fileID: 965525321246829685}
   icon: {fileID: 264809806529480585}
   cardName: {fileID: 1915755483271712859}
+  blockTypeTooltip: {fileID: 0}
+  image: {fileID: 4121889824435449950}
 --- !u!114 &965525321246829685
 MonoBehaviour:
   m_ObjectHideFlags: 0
