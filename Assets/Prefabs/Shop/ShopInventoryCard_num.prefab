@@ -10,10 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 694768227363692735}
   - component: {fileID: 2727661963784469843}
-  - component: {fileID: 4551249738777282660}
+  - component: {fileID: 965525321246829685}
   - component: {fileID: 3523951690479038879}
   - component: {fileID: 4121889824435449950}
-  - component: {fileID: 7536007710146919569}
   m_Layer: 0
   m_Name: ShopInventoryCard_num
   m_TagString: Untagged
@@ -54,9 +53,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03dddae952f1cfd4c8a5d4ecfa439002, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shopManager: {fileID: 0}
+  toggle: {fileID: 965525321246829685}
   icon: {fileID: 264809806529480585}
   cardName: {fileID: 1915755483271712859}
---- !u!114 &4551249738777282660
+--- !u!114 &965525321246829685
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -65,7 +66,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1149607436822926324}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -97,9 +98,13 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 4121889824435449950}
-  m_OnClick:
+  toggleTransition: 1
+  graphic: {fileID: 0}
+  m_Group: {fileID: 0}
+  onValueChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_IsOn: 0
 --- !u!222 &3523951690479038879
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -138,21 +143,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7536007710146919569
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1149607436822926324}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 3, y: -3}
-  m_UseGraphicAlpha: 1
 --- !u!1 &1709468034218786742
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,9 +4,30 @@ using UnityEngine.UI;
 
 public class ShopOwnCardUI : MonoBehaviour
 {
+    [SerializeField] private ShopManager shopManager;
+    [SerializeField] private Toggle toggle;
     [SerializeField] private Image icon;
     [SerializeField] private TextMeshProUGUI cardName;
     private CardType cardType;
+
+    // 외부에서 할당될 슬롯 인덱스
+    public int Index { get; set; }
+
+    private void Start()
+    {
+        toggle.onValueChanged.AddListener(OnToggleValueChanged);
+    }
+
+    private void OnDestroy()
+    {
+        toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+    }
+
+    private void OnToggleValueChanged(bool isOn)
+    {
+        if (!isOn) return;
+        SelectType();
+    }
 
     public void SetCardUI(CardType type)
     {
@@ -16,8 +37,13 @@ public class ShopOwnCardUI : MonoBehaviour
         cardName.text = cardData.cardName;
     }
 
-    private void Start()
+    public void SelectType()
     {
-        SetCardUI(CardType.Vampire);
+        shopManager.SelectDeck(Index, cardType);
+    }
+
+    public void Deselect()
+    {
+        if (toggle != null) toggle.SetIsOnWithoutNotify(false);
     }
 }
