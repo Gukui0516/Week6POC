@@ -314,8 +314,15 @@ public class InventoryButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         if (text != null)
         {
-            string selectableText = canSelect ? "" : " [사용불가]";
-            text.text = $"{selectableText}";
+            // 사용 불가능하면 "사용불가"만 표시, 그 외에는 개수만 표시
+            if (!canSelect && count > 0)
+            {
+                text.text = "사용불가";
+            }
+            else
+            {
+                text.text = $"x{count}";
+            }
 
             if (button != null)
             {
