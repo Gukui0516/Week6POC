@@ -125,7 +125,7 @@ public class TooltipController : MonoBehaviour
         tooltipPanel.transform.SetParent(canvas.transform, false);
 
         tooltipRect = tooltipPanel.AddComponent<RectTransform>();
-        tooltipRect.sizeDelta = new Vector2(300f, 150f);
+        tooltipRect.sizeDelta = new Vector2(500, 300f);
 
         var image = tooltipPanel.AddComponent<Image>();
         image.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
@@ -294,8 +294,8 @@ public class TooltipController : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         Vector2 textSize = tooltipText.GetPreferredValues();
         tooltipRect.sizeDelta = new Vector2(
-            Mathf.Min(textSize.x + 20f, 600f),
-            Mathf.Min(textSize.y + 20f, 500f)
+            Mathf.Min(textSize.x + 20f, 300f),
+            Mathf.Min(textSize.y + 20f, 250f)
         );
     }
 
