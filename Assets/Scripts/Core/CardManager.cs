@@ -9,10 +9,10 @@ using GameCore.Data;
 public class CardManager
 {
     // 플레이어가 소유한 모든 카드 (영구적)
-    private List<CardType> ownedCards = new List<CardType>();
+    private List<(CardType type, int count)> ownedCards = new();
 
     // 현재 턴에 활성화된 카드 (매 턴 변경)
-    private List<CardType> activeCards = new List<CardType>();
+    private List<CardType> activeCards = new();
 
     // 이전 턴에 사용한 카드들 (제한용)
     private Queue<HashSet<CardType>> usedCardsHistory = new Queue<HashSet<CardType>>();
@@ -77,14 +77,9 @@ public class CardManager
             return;
         }
 
-        int count = cardData.count;
+        ownedCards.Add((cardType, cardData.count));
 
-        for (int i = 0; i < count; i++)
-        {
-            ownedCards.Add(cardType);
-        }
-
-        Debug.Log($"[CardManager] {cardType} 카드 {count}장 추가됨 (CardSO count 기준)");
+        Debug.Log($"[CardManager] {cardType} 카드 {cardData.count}장 추가됨 (CardSO count 기준)");
         OnDeckChanged?.Invoke();
     }
 
@@ -153,7 +148,7 @@ public class CardManager
     private List<CardType> GetAvailableCardsPool()
     {
         // 소유한 모든 카드를 풀에 추가
-        var pool = new List<CardType>(ownedCards);
+        var pool = CardPool();
 
         // 이전 턴에 사용한 카드 타입 제외
         if (currentStage != null && currentStage.excludePreviousTurnTypes)
@@ -165,11 +160,20 @@ public class CardManager
             if (pool.Count == 0)
             {
                 Debug.LogWarning("[CardManager] 모든 카드 타입이 제외됨 - 전체 덱 사용");
-                pool = new List<CardType>(ownedCards);
+                pool = CardPool();
             }
         }
 
         Debug.Log($"[CardManager] 선택 가능한 카드 풀: {string.Join(", ", pool.Distinct())}");
+        return pool;
+    }
+
+    private List<CardType> CardPool()
+    {
+        var pool = new List<CardType>();
+        foreach (var (type, count) in ownedCards)
+            for (int i = 0; i < count; i++) pool.Add(type);
+
         return pool;
     }
 
@@ -325,12 +329,12 @@ public class CardManager
 
         if (index >= 0 && index < currentStage.unlockCard.Count)
         {
-           
+
         }
     }
 
     #region Getters
-    public List<CardType> GetOwnedCards() => new List<CardType>(ownedCards);
+    public List<(CardType, int)> GetOwnedCards() => ownedCards.Select(kvp => (kvp.type, kvp.count)).ToList();
     public List<CardType> GetActiveCards() => new List<CardType>(activeCards);
     public bool CanSelectCard(CardType cardType) => canSelectThisTurn.GetValueOrDefault(cardType, true);
 
@@ -352,4 +356,74 @@ public class CardManager
         return activeCards.Count(c => c == cardType);
     }
     #endregion
+
+    private const int DeckUniqueLimit = 7;
+
+    /// <summary>현재 덱이 보유 중인 CardType의 집합</summary>
+    public HashSet<CardType> GetOwnedTypes()
+        => ownedCards.Select(x => x.type).ToHashSet();
+
+    /// <summary>덱이 해당 타입을 보유 중인가?</summary>
+    public bool HasType(CardType type)
+        => ownedCards.Any(x => x.type == type);
+
+    /// <summary>현재 덱의 유니크 타입 수</summary>
+    public int GetUniqueTypeCount()
+        => GetOwnedTypes().Count;
+
+    /// <summary>덱에서 해당 타입(그 타입의 count 전체)을 제거</summary>
+    public bool TryRemoveTypeFromDeck(CardType type)
+    {
+        int idx = ownedCards.FindIndex(x => x.type == type);
+        if (idx < 0) return false;
+
+        ownedCards.RemoveAt(idx);
+        Debug.Log($"[CardManager] 덱에서 {type} 타입 제거");
+        OnDeckChanged?.Invoke();
+
+        // 활성 카드 풀/선택 가능 여부가 턴 중이라면 갱신이 필요할 수 있음
+        // 여기서는 덱 변경 이벤트만 쏘고, UI/턴 매니저에서 적절히 대응하도록 둡니다.
+        return true;
+    }
+
+    /// <summary>
+    /// 덱 타입 교체: outType(덱에서 제거) ↔ inType(상점에서 입수).
+    /// - inType이 이미 덱에 있으면 실패 (유니크 7종 유지 규칙 위배 가능성)
+    /// - outType이 덱에 없으면 실패
+    /// </summary>
+    public bool TryReplaceType(CardType outType, CardType inType)
+    {
+        var owned = GetOwnedTypes();
+
+        if (!owned.Contains(outType))
+        {
+            Debug.LogWarning($"[CardManager] 교체 실패: 덱에 {outType} 없음");
+            return false;
+        }
+        if (owned.Contains(inType))
+        {
+            Debug.LogWarning($"[CardManager] 교체 실패: {inType}는 이미 덱에 존재");
+            return false;
+        }
+
+        // outType 제거
+        if (!TryRemoveTypeFromDeck(outType))
+            return false;
+
+        // inType 추가 (CardSO.count 만큼 자동 추가)
+        AddCardToDeck(inType);
+
+        // 유니크 7종 규칙 보장 (교체이므로 항상 유지되지만 안전망)
+        if (GetUniqueTypeCount() > DeckUniqueLimit)
+        {
+            Debug.LogError("[CardManager] 유니크 타입 수 7 초과! 롤백 필요");
+            // 간단 롤백
+            TryRemoveTypeFromDeck(inType);
+            AddCardToDeck(outType);
+            return false;
+        }
+
+        Debug.Log($"[CardManager] {outType} ↔ {inType} 타입 교체 완료");
+        return true;
+    }
 }

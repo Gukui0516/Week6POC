@@ -1654,7 +1654,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6981132, g: 0.5331819, b: 0.53017086, a: 1}
+  m_Color: {r: 0.8584906, g: 0.6172167, b: 0.6114721, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1852,6 +1852,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &1841021070
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 939868521182822481, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6323015864606243168, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
+      propertyPath: m_Name
+      value: CardDataLoader
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 214da108a82970847a5fbf98f6ca13e4, type: 3}
 --- !u!1001 &1916652296
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2144,3 +2201,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1124939405}
   - {fileID: 556998927}
+  - {fileID: 1841021070}
