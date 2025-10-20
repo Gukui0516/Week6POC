@@ -15,8 +15,7 @@ MonoBehaviour:
   id: 11
   cardType: 10
   cardName: "\uB85C\uBD07"
-  description: "\uC815\uC911\uC559\uC774 \uBE48 \uD0C0\uC77C\uC774\uBA74 \uACF5\uACA9\uB825
-    +7"
+  description: "(+7) : \uC815\uC911\uC559\uC774 \uBE48 \uD0C0\uC77C\uC774\uBA74"
   tooltipDescription: "\uC911\uC559 \uBE48\uCE78\uC73C\uB85C \uD558\uAE30"
   synergyDescription: "(+7) : \uC815\uC911\uC559\uC774 \uBE48 \uD0C0\uC77C\uC774\uBA74"
   penaltyDescription: 
