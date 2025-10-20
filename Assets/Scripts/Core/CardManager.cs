@@ -160,6 +160,7 @@ public class CardManager
 
         int maxCount = cardData.count;
         int onBoardCount = GetBlockCountOnBoard(cardType);
+        Debug.Log("onBoardCount" + onBoardCount);
         int available = Mathf.Max(0, maxCount - onBoardCount);
 
         return available;

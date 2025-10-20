@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
         // 매니저 초기화
         boardManager = new BoardManager(gameConfig);
         scoreCalculator = new ScoreCalculator(boardManager);
-        turnManager = new TurnManager(gameConfig);
+        turnManager = new TurnManager(gameConfig, boardManager);
         stageManager = StageManager.Instance;
 
         Debug.Log("[GameManager] 모든 매니저 초기화 완료");

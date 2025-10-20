@@ -18,10 +18,11 @@ public class TurnManager
     private StageSO currentStage;
     private GameConfig gameConfig;
 
-    public TurnManager(GameConfig config)
+    public TurnManager(GameConfig config, BoardManager b)
     {
         gameConfig = config;
         cardManager = new CardManager(config);
+        cardManager.SetBoardManager(b);
     }
 
     /// <summary>
